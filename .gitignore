@@ -2,6 +2,7 @@
 *.slo
 *.lo
 *.o
+khanna
 
 # Compiled Dynamic libraries
 *.so
