@@ -1,11 +1,11 @@
-#define NUMVMS 4 //Number of VMs
-#define NUMPMS 4 //Number of PMs
-#define NUMPHASES 4 //Number of workload phases
+// Utilization threshold of PM(both on CPU front and memory front)
+#define UTIL_THRESHOLD 0.8 
 
-#define UTIL_THRESHOLD 0.8 //Utilization threshold of PM(both on CPU front and memory front)
-#define LOWERUTIL_THRESHOLD 0.25 //Lower utilization threshold used to trigger remapping
+// Lower utilization threshold used to trigger remapping
+#define LOWERUTIL_THRESHOLD 0.25
 
-#define TOTALMIGRATIONTIME 0.05  //State transition time as a fraction of total phase duration. PHASEDURATION * TOTALMIGRATIONTIME = State Transition Time.
+// State transition time as a fraction of total phase duration. PHASEDURATION * TOTALMIGRATIONTIME = State Transition Time.
+#define TOTALMIGRATIONTIME 0.05
 
 //When all VMs are of same priority(because they are earning same amount and have same SLA) NOTE : don't use this once VMs earn different amounts
 #define IMMREWARD 10000 //Reward of a satisfied VM per workload phase(VM Revenue per Workload phase - VMR)

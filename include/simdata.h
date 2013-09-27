@@ -1,14 +1,29 @@
+#ifndef SIMDATA_H
+#define SIMDATA_H
+
+#include <iostream>
+#include <cstdlib>
+using namespace std;
+
 class SimData
 {
+    int num_vms;
+    int num_pms;
+    int num_phases;
+    double *workload;
+    float *vm_revenue;
+    float *vm_penalty;
 
 public:
-double workload[NUMPHASES + 1][NUMVMS + 1][NUMRESOURCETYPES]; //Cyclic Workload Matrix
-short VMtype[NUMVMS + 1];//Array storing VMTYPE info : MEMINTENSIVE or CPUINTENSIVE
-float VMR[NUMVMS + 1]; //VMRevenue matrix storing revenue made by an SLA compliant VM per workload phase
-float VMP[NUMVMS + 1];
-
-    SimData();
+    SimData(int num_pms, int num_vms, int num_phases);
     ~SimData();
-    void readInputFile();
-
+    void readInput();
+    int getNumPM();
+    int getNumVM();
+    int getNumPhases();
+    double getWorkload(int phase, int vm);
+    float getVmRevenue(int vm);
+    float getVmPenalty(int vm);
 };
+
+#endif

@@ -1,24 +1,26 @@
-class pm_info
-{
-public:
-	list<vm_info> vm_l;
-	float total_util;
-	pm_info(const pm_info &obj)
-	{
-		total_util = obj.total_util;
-		vm_l(obj.vm_l);
-	}
-};
+#ifndef STATE_H
+#define STATE_H
 
-
+#include <iostream>
+#include <list>
+#include "simdata.h"
+#include "config.h"
+using namespace std;
 
 class State
 {
+    int phase_num;
+    int num_pms;
+    list<int> **pm_to_vm_map;
+    double *total_util;
+
 public:
-	int phase_num;
-	pm_info vm_on_pm_tup[NUM_PM]; 
-    State();
+    State(int phase_num, SimData *sdata);
     ~State();
-    getNextState();
-    ifVmAllowedOnPm(float vm_util, int pm_index);
+    void accommodateVm(int vm, double util, int set_index);
+    bool ifVmAllowedOnPm(int set_index, double vm_util);
+    void print();
+    void getNextState(State *state);
 };
+
+#endif

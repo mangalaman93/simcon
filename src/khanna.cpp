@@ -1,62 +1,88 @@
 #include <iostream>
-#include <algorithm>
+#include <queue>
+#include "simdata.h"
+#include "state.h"
 using namespace std;
 
-
-State* getInitialState(float* sorted_vm_array) 
+struct VmInfo
 {
-	State* ini_state = new State();
+    int index;
+    double util;
+	VmInfo(int i, double u) : index(i), util(u) {}
+};
 
-	return ini_state;
-}
+class CompareVM {
+public:
+	bool operator()(VmInfo& vm1, VmInfo& vm2) { vm1.util<vm2.util;}
+};
 
-bool isSlaViolated(State* curr_s, list<int> s_violated_vm)
-{
-
-}
-
+typedef priority_queue<VmInfo, vector<VmInfo>, CompareVM> pq_vm;
 
 int main()
 {
-	// reading the data from standard input
-	SimData *s_data = new SimData();
-	s_data->readInputFile();
+	int num_vms, num_pms, num_phases;
+	cin>>num_pms;
+	cin>>num_vms;
+	cin>>num_phases;
 
-	// sorting the VMs in their order of decreasing utilization
-	float sorted_utilization_vm_array[NUM_VM];
-	sort(sorted_utilization_vm_array, s_data->workload[0]);
+	SimData *s_data = new SimData(num_pms, num_vms, num_phases);
+	s_data->readInput();
+	
+	State *policy[num_phases];
+	for(int i=0; i<num_phases; i++) { policy[i] = new State(i, s_data);}
 
-	// final policy, contains num_phases number of states
-	State *policy = new State[s_data->NUM_PHASES];
-
-	//getting the initial placement using FFD algorithm
-	policy[0] = getInitialState(sorted_utilization_vm_array);
-
-	// getting the VM-PM placement for rest of the phases
-	for(int i=0; i<s_data->NUM_PHASES; i++)
+	/* PHASE 0 BEGINS */
+	pq_vm *sorted_vms = new pq_vm();
+	for(int i=0; i<num_vms; i++)
 	{
-		// getting the next state assuming no migration
-		State *curr_state = policy[i]->getNextState();
+		VmInfo vi(i, s_data->getWorkload(0, i));
+		sorted_vms->push(vi);
+	}
 
-		//  migration based on SLA violation
-		list<int> sorted_violated_vm_list = new list<int>();
-		if(isSlaViolated(curr_state, sorted_violated_vm_list))
+	for(int i=0; i<num_vms; i++)
+	{
+		// Assuming all the states can be accommodated on the given PMs
+		int vm_index = sorted_vms->top().index;
+		for(int j=0; j<num_pms; j++)
 		{
-			while(isSlaViolated(curr_state)) 
+			double vm_util = s_data->getWorkload(0, vm_index);
+			if(policy[0]->ifVmAllowedOnPm(j, vm_util))
 			{
-				migrate(curr_state, sorted_violated_vm_list)
+				policy[0]->accommodateVm(vm_index, vm_util, j);
+				break;
 			}
 		}
-
-		// migration based on underutlized PMs
-		if(isLowerThreholdViolated(curr_state, sorted_underutilized_vm_list)) 
-		{
-			while(isLowerThreholdViolated(curr_state))
-			{
-				migrate(curr_state, sorted_underutilized_vm_list)
-			}
-		}			
-		policy[i+1] = curr_state;
+		sorted_vms->pop();
 	}
+
+	/* PHASE 0 ENDS # REST PHASES BEGINS */
+	for(int i=0; i<s_data->getNumPhases()-1; i++)
+	{
+		// getting the next state assuming no migration
+		policy[i]->getNextState(policy[i+1]);
+
+		// // migration based on SLA violation
+		// pq_vm sorted_violated_vm = new pq_vm();
+		// if(isSlaViolated(curr_state, sorted_violated_vm_list))
+		// {
+		// 	while(isSlaViolated(curr_state)) 
+		// 	{
+		// 		migrate(curr_state, sorted_violated_vm_list)
+		// 	}
+		// }
+
+		// // migration based on underutilized PMs
+		// if(isLowerThreholdViolated(curr_state, sorted_underutilized_vm_list)) 
+		// {
+		// 	while(isLowerThreholdViolated(curr_state))
+		// 	{
+		// 		migrate(curr_state, sorted_underutilized_vm_list)
+		// 	}
+		// }			
+		// policy[i+1] = curr_state;
+	}
+
+	for(int i=0; i<num_phases; i++) { delete policy[i];}
+	delete s_data;
 	return 0;
 }
