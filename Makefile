@@ -18,7 +18,7 @@ OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 $(ODIR)/%.o: $(SDIR)/%.cpp $(DEPS)
 	$(CC) $(CFLAGS) -o $@ $<
 
-all: dir $(ODIR)/khanna
+all: dir $(ODIR)/khanna $(ODIR)/pmap
 
 dir:
 	mkdir -p $(ODIR)
@@ -26,7 +26,10 @@ dir:
 $(ODIR)/khanna: $(OBJ)
 	$(CC) $(LIBS) -I$(IDIR) -o $@ $^ $(SDIR)/khanna.cpp
 
+$(ODIR)/pmap: $(OBJ)
+	$(CC) $(LIBS) -I$(IDIR) -o $@ $^ $(SDIR)/pmap.cpp
+
 clean:
-	rm -f $(ODIR)/*.o *~ $(INCDIR)/*~ 
+	rm -f $(ODIR)/*.o *~ $(INCDIR)/*~ khanna pmap
 
 .PHONY: clean
