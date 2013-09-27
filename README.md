@@ -9,7 +9,7 @@ Assumptions and Notations
 
 Input File
 ----------
-number of physical machines
-number of virtual machines
-number of phases
-for each phase, utilization of each vm
+* number of physical machines
+* number of virtual machines
+* number of phases
+* for each phase, utilization of each vm

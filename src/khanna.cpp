@@ -4,20 +4,6 @@
 #include "state.h"
 using namespace std;
 
-struct VmInfo
-{
-    int index;
-    double util;
-	VmInfo(int i, double u) : index(i), util(u) {}
-};
-
-class CompareVM {
-public:
-	bool operator()(VmInfo& vm1, VmInfo& vm2) { vm1.util<vm2.util;}
-};
-
-typedef priority_queue<VmInfo, vector<VmInfo>, CompareVM> pq_vm;
-
 int main()
 {
 	int num_vms, num_pms, num_phases;
@@ -32,20 +18,15 @@ int main()
 	for(int i=0; i<num_phases; i++) { policy[i] = new State(i, s_data);}
 
 	/* PHASE 0 BEGINS */
-	pq_vm *sorted_vms = new pq_vm();
-	for(int i=0; i<num_vms; i++)
-	{
-		VmInfo vi(i, s_data->getWorkload(0, i));
-		sorted_vms->push(vi);
-	}
-
+	Heap *sorted_vms = new Heap();
+	for(int i=0; i<num_vms; i++) { sorted_vms->push(Info(i, s_data->getWorkload(0, i)));}
 	for(int i=0; i<num_vms; i++)
 	{
 		// Assuming all the states can be accommodated on the given PMs
 		int vm_index = sorted_vms->top().index;
+		double vm_util =  sorted_vms->top().val;
 		for(int j=0; j<num_pms; j++)
 		{
-			double vm_util = s_data->getWorkload(0, vm_index);
 			if(policy[0]->ifVmAllowedOnPm(j, vm_util))
 			{
 				policy[0]->accommodateVm(vm_index, vm_util, j);
@@ -59,27 +40,27 @@ int main()
 	for(int i=0; i<s_data->getNumPhases()-1; i++)
 	{
 		// getting the next state assuming no migration
-		policy[i]->getNextState(policy[i+1]);
+		State *curr_state = policy[i+1];
+		policy[i]->getNextState(curr_state, s_data);
 
-		// // migration based on SLA violation
-		// pq_vm sorted_violated_vm = new pq_vm();
-		// if(isSlaViolated(curr_state, sorted_violated_vm_list))
-		// {
-		// 	while(isSlaViolated(curr_state)) 
-		// 	{
-		// 		migrate(curr_state, sorted_violated_vm_list)
-		// 	}
-		// }
+		// migration based on SLA violation
+		Heap *sorted_violated_vm = new Heap(CompareVM(true));
+		curr_state->getSortedViolatedVM(sorted_violated_vm);
+		Heap *sorted_pm = new Heap(CompareVM(true));
+		curr_state->getSortedPM(sorted_pm);
+		while(!sorted_violated_vm->empty())
+		{
+			cout << sorted_violated_vm->top().index << endl;
+			sorted_violated_vm->pop();
+		}
 
-		// // migration based on underutilized PMs
-		// if(isLowerThreholdViolated(curr_state, sorted_underutilized_vm_list)) 
-		// {
-		// 	while(isLowerThreholdViolated(curr_state))
-		// 	{
-		// 		migrate(curr_state, sorted_underutilized_vm_list)
-		// 	}
-		// }			
-		// policy[i+1] = curr_state;
+		// migration based on underutilized PMs
+		curr_state->getSortedLTViolatedVM(sorted_violated_vm);
+		while(!sorted_violated_vm->empty())
+		{
+			cout << sorted_violated_vm->top().index << endl;
+			sorted_violated_vm->pop();
+		}
 	}
 
 	for(int i=0; i<num_phases; i++) { delete policy[i];}

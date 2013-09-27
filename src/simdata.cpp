@@ -14,10 +14,7 @@ void SimData::readInput()
 {
 	for(int i=0; i<num_phases; i++)
 	{
-		for(int j=0; j<num_vms; j++)
-		{
-			cin>>workload[i*num_vms + j];
-		}
+		for(int j=0; j<num_vms; j++) { cin>>workload[i*num_vms + j];}
 	}
 
 	for (int i=0; i<num_vms; i++) { cin>>vm_revenue[i];}
