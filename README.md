@@ -13,3 +13,12 @@ Input File
 * number of virtual machines
 * number of phases
 * for each phase, utilization of each vm
+
+How to Run
+----------
+Current Working Dir: simcon/
+```
+make clean
+make
+./bin/khanna < input
+```

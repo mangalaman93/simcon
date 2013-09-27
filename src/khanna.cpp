@@ -32,6 +32,12 @@ int main()
 				policy[0]->accommodateVm(vm_index, vm_util, j);
 				break;
 			}
+
+			if(j == num_pms-1)
+			{
+				cout<<"Error occurred: available PMs are not enough!"<<endl;
+				exit(1);
+			}
 		}
 		sorted_vms->pop();
 	}
@@ -40,27 +46,81 @@ int main()
 	for(int i=0; i<s_data->getNumPhases()-1; i++)
 	{
 		// getting the next state assuming no migration
-		State *curr_state = policy[i+1];
-		policy[i]->getNextState(curr_state, s_data);
+		State *next_state = policy[i+1];
+		policy[i]->getNextState(next_state, s_data);
 
 		// migration based on SLA violation
-		Heap *sorted_violated_vm = new Heap(CompareVM(true));
-		curr_state->getSortedViolatedVM(sorted_violated_vm);
-		Heap *sorted_pm = new Heap(CompareVM(true));
-		curr_state->getSortedPM(sorted_pm);
-		while(!sorted_violated_vm->empty())
+		while(true)
 		{
-			cout << sorted_violated_vm->top().index << endl;
-			sorted_violated_vm->pop();
+			Heap *sorted_violated_vm = new Heap(CompareVM(true));
+			next_state->getSortedViolatedVM(sorted_violated_vm);
+			if(sorted_violated_vm->empty())
+			{
+				delete sorted_violated_vm;
+				break;
+			}
+
+			Heap *sorted_pm = new Heap(CompareVM(true));
+			next_state->getSortedPM(sorted_pm);
+
+			Info vm_to_migrate = sorted_violated_vm->top();
+			while(true)
+			{
+				if(sorted_pm->top().val >= vm_to_migrate.val)
+				{
+					next_state->migrate(sorted_pm->top().index, vm_to_migrate);
+					break;
+				}
+				sorted_pm->pop();
+
+				if(sorted_pm->empty())
+				{
+					cout<<"Error occurred: no migration possible even on SLA violation!"<<endl;
+					delete sorted_violated_vm;
+					delete sorted_pm;
+					exit(1);
+				}
+			}
+
+			delete sorted_violated_vm;
+			delete sorted_pm;
 		}
 
 		// migration based on underutilized PMs
-		curr_state->getSortedLTViolatedVM(sorted_violated_vm);
+		Heap *sorted_violated_vm = new Heap(CompareVM(true));
+		next_state->getSortedLTViolatedVM(sorted_violated_vm);
 		while(!sorted_violated_vm->empty())
 		{
-			cout << sorted_violated_vm->top().index << endl;
-			sorted_violated_vm->pop();
+			Heap *sorted_pm = new Heap(CompareVM(true));
+			next_state->getSortedPM(sorted_pm);
+
+			Info vm_to_migrate = sorted_violated_vm->top();
+			bool flag = true;
+
+			while(!sorted_pm->empty())
+			{
+				if(sorted_pm->top().val >= vm_to_migrate.val
+					&& next_state->isIncrVar(sorted_pm->top().index, vm_to_migrate))
+				{
+					next_state->migrate(sorted_pm->top().index, vm_to_migrate);
+					flag = false;
+					break;
+				}
+				sorted_pm->pop();
+			}
+
+			delete sorted_pm;
+			if(flag && vm_to_migrate.val != sorted_violated_vm->top().val) break;
+			else sorted_violated_vm->pop();
 		}
+		delete sorted_violated_vm;
+	}
+
+	for(int i=0; i<num_phases; i++)
+	{
+		cout<<"pm to vm map in phase "<<i<<": ";
+		policy[i]->print();
+		cout<<endl;
 	}
 
 	for(int i=0; i<num_phases; i++) { delete policy[i];}

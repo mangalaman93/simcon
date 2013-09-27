@@ -4,6 +4,7 @@
 #include <iostream>
 #include <list>
 #include <queue>
+#include <cmath>
 #include "simdata.h"
 #include "config.h"
 using namespace std;
@@ -13,6 +14,7 @@ struct Info
     int index;
     double val;
     Info(int i, double u) : index(i), val(u) {}
+    bool operator==(const Info& info) { return info.index == index;}
 };
 
 class CompareVM
@@ -33,6 +35,7 @@ class State
     int phase_num;
     int num_pms;
     list<Info> **pm_to_vm_map;
+    int *vm_to_pm_map;
     double *total_util;
 
 public:
@@ -44,6 +47,8 @@ public:
     void getSortedViolatedVM(Heap *vm_list);
     void getSortedLTViolatedVM(Heap *vm_list);
     void getSortedPM(Heap *pm_list);
+    void migrate(int set_index, Info vm_info);
+    bool isIncrVar(int set_index, Info vm_info);
     void print();
 };
 
