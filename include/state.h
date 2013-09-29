@@ -37,6 +37,8 @@ class State
     list<Info> **pm_to_vm_map;
     int *vm_to_pm_map;
     double *total_util;
+    double power_cost;;
+    double revenue;
 
 public:
     State(int phase_num, SimData *sdata);
@@ -47,9 +49,13 @@ public:
     void getSortedViolatedVM(Heap *vm_list);
     void getSortedLTViolatedVM(Heap *vm_list);
     void getSortedPM(Heap *pm_list);
+    void setPowerCostAndRevenue(SimData *sdata);
     void migrate(int set_index, Info vm_info);
+    bool ifProfit(int set_index, Info vm_info, SimData *sdata);
     bool isIncrVar(int set_index, Info vm_info);
     void print();
+    double getPowerBenefit(Info vm_info, int set_index, SimData *sdata);
+    double getRevenue();
 };
 
 #endif

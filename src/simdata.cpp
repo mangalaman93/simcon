@@ -8,6 +8,7 @@ SimData::SimData(int num_pms, int num_vms, int num_phases)
 	this->workload = new double[num_phases*num_vms];
 	this->vm_revenue = new float[num_vms];
 	this->vm_penalty = new float[num_vms];
+	this->phase_duration = new float[num_phases];
 }
 
 void SimData::readInput()
@@ -19,6 +20,7 @@ void SimData::readInput()
 
 	for (int i=0; i<num_vms; i++) { cin>>vm_revenue[i];}
 	for (int i=0; i<num_vms; i++) { cin>>vm_penalty[i];}
+	for (int i=0; i<num_vms; i++) { cin>>phase_duration[i];}
 }
 
 int SimData::getNumPM() { return num_pms;}
@@ -27,6 +29,7 @@ int SimData::getNumPhases() { return num_phases;}
 double SimData::getWorkload(int phase, int vm) {return workload[phase*num_vms + vm];}
 float SimData::getVmRevenue(int vm) { return vm_revenue[vm];}
 float SimData::getVmPenalty(int vm) { return vm_penalty[vm];}
+float SimData::getPhaseDuration(int phase_num) { return phase_duration[phase_num];}
 
 SimData::~SimData()
 {

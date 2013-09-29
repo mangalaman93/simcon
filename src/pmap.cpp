@@ -4,6 +4,8 @@
 #include "state.h"
 using namespace std;
 
+#define PMAP 1
+
 int main()
 {
     int num_vms, num_pms, num_phases;
@@ -53,7 +55,7 @@ int main()
         while(true)
         {
             Heap *sorted_violated_vm = new Heap(CompareVM(true));
-            next_state->getSortedViolatedBasedOnBenefitPerCost(sorted_violated_vm);
+            next_state->getSortedViolatedVM(sorted_violated_vm);
             if(sorted_violated_vm->empty())
             {
                 delete sorted_violated_vm;
@@ -61,39 +63,35 @@ int main()
             }
 
             Heap *receivers = new Heap(CompareVM(true));
-            next_state->getSortedReceivers(receivers);
+            next_state->getSortedPM(receivers);
 
             Info vm_to_migrate = sorted_violated_vm->top();
             
-                while(true)
-                {
-                    if(next_state->powerBeneFit(vm_to_migrate) > next_state->migrationCost(vm_to_migrate)) 
+            while(true)
+            {
+                    if(receivers->top().val >= vm_to_migrate.val)
                     {
-                        if(sorted_pm->top().val >= vm_to_migrate.val)
-                        {
-                            next_state->migrate(sorted_pm->top().index, vm_to_migrate);
+                        if(next_state->ifProfit(receivers->top().index, vm_to_migrate, s_data) == 1)
                             break;
-                        }
-                        sorted_pm->pop();
-
-                        if(sorted_pm->empty())
+                        else
                         {
-                            cout<<"Error occurred: no migration possible even on SLA violation!"<<endl;
-                            delete sorted_violated_vm;
-                            delete sorted_pm;
-                            exit(1);
+                            sorted_violated_vm->pop();
+                            vm_to_migrate = sorted_violated_vm->top();
                         }
                     }
-                    else 
+                    //is this correct check here later
+                    receivers->pop();
+                    if(receivers->empty())
                     {
-                        sorted_violated_vm->pop();
-                        vm_to_migrate = sorted_violated_vm->top();
+                        cout<<"Error occurred: no migration possible even on SLA violation!"<<endl;
+                        delete sorted_violated_vm;
+                        delete receivers;
+                        exit(1);
                     }
-                }
-
+            }
 
             delete sorted_violated_vm;
-            delete sorted_pm;
+            delete receivers;
         }
     }
 

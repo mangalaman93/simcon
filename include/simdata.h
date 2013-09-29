@@ -13,6 +13,7 @@ class SimData
     double *workload;
     float *vm_revenue;
     float *vm_penalty;
+    float *phase_duration;
 
 public:
     SimData(int num_pms, int num_vms, int num_phases);
@@ -24,6 +25,7 @@ public:
     double getWorkload(int phase, int vm);
     float getVmRevenue(int vm);
     float getVmPenalty(int vm);
+    float getPhaseDuration(int phase_num);
 };
 
 #endif
