@@ -2,7 +2,6 @@
 *.slo
 *.lo
 *.o
-khanna
 
 # Compiled Dynamic libraries
 *.so
@@ -12,3 +11,4 @@ khanna
 *.lai
 *.la
 *.a
+bin/*

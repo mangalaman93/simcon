@@ -118,9 +118,12 @@ int main()
 
 	for(int i=0; i<num_phases; i++)
 	{
-		cout<<"pm to vm map in phase "<<i<<": ";
 		policy[i]->print();
-		cout<<endl;
+        cout<<"\t===>\t";
+        int next_state = i+1;
+        if(i == num_phases - 1) { next_state = 0;}
+        policy[i]->printMigrations(policy[next_state]);
+        cout<<endl;
 	}
 
 	for(int i=0; i<num_phases; i++) { delete policy[i];}

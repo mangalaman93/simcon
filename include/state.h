@@ -50,6 +50,7 @@ public:
     void migrate(int set_index, Info vm_info);
     bool isIncrVar(int set_index, Info vm_info);
     void print();
+    void printMigrations(State *next_state);
 };
 
 #endif

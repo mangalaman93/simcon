@@ -59,6 +59,39 @@ void State::print()
     cout<<"]";
 }
 
+void State::printMigrations(State *next_state)
+{
+    bool first = true;
+    for(int i=0; i<num_pms; i++)
+    {
+        if(pm_to_vm_map[i]->size() != 0)
+        {
+            for(list<Info>::iterator it=pm_to_vm_map[i]->begin(); it!=pm_to_vm_map[i]->end(); ++it)
+            {
+                bool found = false;
+                for(list<Info>::iterator it2=next_state->pm_to_vm_map[i]->begin(); it2!=next_state->pm_to_vm_map[i]->end(); ++it2)
+                {
+                    if(it->index == it2->index)
+                    {
+                        found = true;
+                    }
+                }
+                if(!found)
+                {
+                    if(first)
+                    {
+                        first = false;
+                        cout<<"migrate vm "<<it->index;
+                    }
+                    else
+                        cout<<","<<it->index;
+                }
+            }
+        }
+    }
+    if(first) { cout<<"no migration";}
+}
+
 void State::getSortedViolatedVM(Heap *vm_list)
 {
     for(int i=0; i<num_pms; i++)
