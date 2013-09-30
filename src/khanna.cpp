@@ -122,7 +122,10 @@ int main()
         cout<<"\t===>\t";
         int next_state = i+1;
         if(i == num_phases - 1) { next_state = 0;}
-        policy[i]->printMigrations(policy[next_state]);
+        list<int> *migrated_vms = policy[i]->compareState(policy[next_state]);
+		if(migrated_vms->empty()) { cout<<"no migrations";}
+		else { cout<<"migrate vm "<<*(migrated_vms->begin()); for(list<int>::iterator it=++(migrated_vms->begin()); it!=migrated_vms->end(); ++it) cout<<", "<<*it;}
+		delete migrated_vms;
         cout<<endl;
 	}
 
