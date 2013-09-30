@@ -59,39 +59,6 @@ void State::print()
     cout<<"]";
 }
 
-void State::printMigrations(State *next_state)
-{
-    bool first = true;
-    for(int i=0; i<num_pms; i++)
-    {
-        if(pm_to_vm_map[i]->size() != 0)
-        {
-            for(list<Info>::iterator it=pm_to_vm_map[i]->begin(); it!=pm_to_vm_map[i]->end(); ++it)
-            {
-                bool found = false;
-                for(list<Info>::iterator it2=next_state->pm_to_vm_map[i]->begin(); it2!=next_state->pm_to_vm_map[i]->end(); ++it2)
-                {
-                    if(it->index == it2->index)
-                    {
-                        found = true;
-                    }
-                }
-                if(!found)
-                {
-                    if(first)
-                    {
-                        first = false;
-                        cout<<"migrate vm "<<it->index;
-                    }
-                    else
-                        cout<<","<<it->index;
-                }
-            }
-        }
-    }
-    if(first) { cout<<"no migration";}
-}
-
 void State::getSortedViolatedVM(Heap *vm_list)
 {
     for(int i=0; i<num_pms; i++)
@@ -134,11 +101,7 @@ void State::migrate(int set_index, Info vm_info)
 double calMean(double *data, int size, int k)
 {
     double sum = 0;
-    for(int i=0; i<size; i++)
-    {
-        sum += pow(data[i], k);
-    }
-
+    for(int i=0; i<size; i++) { sum += pow(data[i], k);}
     return sum/size;
 }
 
@@ -158,6 +121,59 @@ bool State::isIncrVar(int set_index, Info vm_info)
     total_util[vm_to_pm_map[vm_info.index]] += vm_info.val;
 
     return (new_var > old_var);
+}
+
+int compare(const void* i, const void* j) { return (((list<Info>*)i)->front().index < ((list<Info>*)j)->front().index);}
+bool compareM(Info i, Info j) { return (i.index > j.index);}
+
+list<Info>** State::sortPMs(list<Info>** map)
+{
+	list<Info> **new_map = new list<Info>*[num_pms];
+	for(int i=0; i<num_pms; i++)
+	{
+		new_map[i] = new list<Info>(*map[i]);
+		new_map[i]->sort(compareM);
+	}
+	qsort(new_map, num_pms, sizeof(list<Info>*), compare);
+	
+	return new_map;
+}
+
+list<int>* State::compareState(State *next_state)
+{
+	list<int> *migrated_vms = new list<int>();
+	list<Info> **this_pm_to_vm_map = sortPMs(this->pm_to_vm_map);
+	 for(int i=0; i<num_pms; i++)
+        {cout<<endl;
+            for(list<Info>::iterator it=pm_to_vm_map[i]->begin(); it!=pm_to_vm_map[i]->end(); ++it)
+            {
+				cout<<it->index<<", ";
+			}
+		}
+	list<Info> **next_pm_to_vm_map = sortPMs(next_state->pm_to_vm_map);
+
+    for(int i=0; i<num_pms; i++)
+    {
+        if(this_pm_to_vm_map[i]->size() != 0)
+        {
+			list<Info>::iterator it=this_pm_to_vm_map[i]->begin();
+			list<Info>::iterator it2=next_pm_to_vm_map[i]->begin();
+            while(it!=this_pm_to_vm_map[i]->end())
+            {
+				if(it2 == next_pm_to_vm_map[i]->end() || it->index < it2->index) { migrated_vms->push_back(it->index); ++it;}
+				else if(it->index == it2->index) { ++it; ++it2;}
+				else { ++it2;}
+			}
+        }
+    }
+
+	for(int i=0; i<num_pms; i++) { delete this_pm_to_vm_map[i];}
+	delete this_pm_to_vm_map;
+	for(int i=0; i<num_pms; i++) { delete next_pm_to_vm_map[i];}
+	delete next_pm_to_vm_map;
+	
+	migrated_vms->sort();
+	return migrated_vms;
 }
 
 State::~State()

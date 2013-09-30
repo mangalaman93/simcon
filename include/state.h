@@ -5,6 +5,7 @@
 #include <list>
 #include <queue>
 #include <cmath>
+#include <algorithm>
 #include "simdata.h"
 #include "config.h"
 using namespace std;
@@ -37,6 +38,8 @@ class State
     list<Info> **pm_to_vm_map;
     int *vm_to_pm_map;
     double *total_util;
+	
+	list<Info>** sortPMs(list<Info>** map);
 
 public:
     State(int phase_num, SimData *sdata);
@@ -50,7 +53,7 @@ public:
     void migrate(int set_index, Info vm_info);
     bool isIncrVar(int set_index, Info vm_info);
     void print();
-    void printMigrations(State *next_state);
+    list<int>* compareState(State *next_state);
 };
 
 #endif
