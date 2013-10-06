@@ -27,6 +27,6 @@ $(ODIR)/khanna: $(OBJ)
 	$(CC) $(LIBS) -I$(IDIR) -o $@ $^ $(SDIR)/khanna.cpp
 
 clean:
-	rm -f $(ODIR)/*.o *~ $(INCDIR)/*~ 
+	rm -rf $(ODIR) *~ $(INCDIR)/*~
 
 .PHONY: clean

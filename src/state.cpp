@@ -123,55 +123,53 @@ bool State::isIncrVar(int set_index, Info vm_info)
     return (new_var > old_var);
 }
 
-int compare(const void* i, const void* j) { return (((list<Info>*)i)->front().index < ((list<Info>*)j)->front().index);}
-bool compareM(Info i, Info j) { return (i.index > j.index);}
-
-list<Info>** State::sortPMs(list<Info>** map)
+int compareSet(const void *i, const void *j)
 {
-	list<Info> **new_map = new list<Info>*[num_pms];
-	for(int i=0; i<num_pms; i++)
-	{
-		new_map[i] = new list<Info>(*map[i]);
-		new_map[i]->sort(compareM);
-	}
-	qsort(new_map, num_pms, sizeof(list<Info>*), compare);
-	
-	return new_map;
+    if((*(list<Info>**)i)->size() == 0) { return +1;}
+    if((*(list<Info>**)j)->size() == 0) { return -1;}
+    return ((*(list<Info>**)i)->front().index - (*(list<Info>**)j)->front().index);
+}
+
+bool compareVMs(Info i, Info j)
+{
+    return i.index < j.index;
+}
+
+void State::sortPMs()
+{
+	for(int i=0; i<num_pms; i++) { pm_to_vm_map[i]->sort(compareVMs);}
+    qsort(pm_to_vm_map, num_pms, sizeof(pm_to_vm_map[0]), compareSet);
+    
+    for(int i=-0; i<num_pms; i++)
+    {
+        double util =0;
+        for(list<Info>::iterator it=pm_to_vm_map[i]->begin(); it!=pm_to_vm_map[i]->end(); ++it)
+        {
+            vm_to_pm_map[it->index] = i;
+            util += it->val;
+        }
+        total_util[i] = util;
+    }
 }
 
 list<int>* State::compareState(State *next_state)
 {
 	list<int> *migrated_vms = new list<int>();
-	list<Info> **this_pm_to_vm_map = sortPMs(this->pm_to_vm_map);
-	 for(int i=0; i<num_pms; i++)
-        {cout<<endl;
-            for(list<Info>::iterator it=pm_to_vm_map[i]->begin(); it!=pm_to_vm_map[i]->end(); ++it)
-            {
-				cout<<it->index<<", ";
-			}
-		}
-	list<Info> **next_pm_to_vm_map = sortPMs(next_state->pm_to_vm_map);
+	this->sortPMs();
+	next_state->sortPMs();
 
     for(int i=0; i<num_pms; i++)
     {
-        if(this_pm_to_vm_map[i]->size() != 0)
+		list<Info>::iterator it=pm_to_vm_map[i]->begin();
+		list<Info>::iterator it2=next_state->pm_to_vm_map[i]->begin();
+        while(it!=pm_to_vm_map[i]->end())
         {
-			list<Info>::iterator it=this_pm_to_vm_map[i]->begin();
-			list<Info>::iterator it2=next_pm_to_vm_map[i]->begin();
-            while(it!=this_pm_to_vm_map[i]->end())
-            {
-				if(it2 == next_pm_to_vm_map[i]->end() || it->index < it2->index) { migrated_vms->push_back(it->index); ++it;}
-				else if(it->index == it2->index) { ++it; ++it2;}
-				else { ++it2;}
-			}
-        }
+			if(it2 == next_state->pm_to_vm_map[i]->end() || it->index < it2->index) { migrated_vms->push_back(it->index); ++it;}
+			else if(it->index == it2->index) { ++it; ++it2;}
+			else { ++it2;}
+		}
     }
 
-	for(int i=0; i<num_pms; i++) { delete this_pm_to_vm_map[i];}
-	delete this_pm_to_vm_map;
-	for(int i=0; i<num_pms; i++) { delete next_pm_to_vm_map[i];}
-	delete next_pm_to_vm_map;
-	
 	migrated_vms->sort();
 	return migrated_vms;
 }
