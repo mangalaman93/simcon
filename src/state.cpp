@@ -2,13 +2,13 @@
 
 State::State(int phase_num, SimData *sdata)
 {
-    this->num_pms = sdata->getNumPM();
+    this->num_vms = sdata->getNumVM();
     this->phase_num = phase_num;
-    pm_to_vm_map = new list<Info>*[num_pms];
-    for(int i=0; i<num_pms; i++) { pm_to_vm_map[i] = new list<Info>;}
+    pm_to_vm_map = new list<Info>*[num_vms];
+    for(int i=0; i<num_vms; i++) { pm_to_vm_map[i] = new list<Info>;}
     vm_to_pm_map = new int[sdata->getNumVM()];
-    total_util = new double[num_pms];
-    for(int i=0; i<num_pms; i++) { total_util[i]=0;}
+    total_util = new double[num_vms];
+    for(int i=0; i<num_vms; i++) { total_util[i]=0;}
 }
 
 void State::accommodateVm(int vm, double util, int set_index)
@@ -26,8 +26,8 @@ bool State::ifVmAllowedOnPm(int set_index, double vm_util)
 void State::getNextState(State *state, SimData *sdata)
 {
     state->phase_num = phase_num + 1;
-    state->num_pms = num_pms;
-    for(int i=0; i<num_pms; i++)
+    state->num_vms = num_vms;
+    for(int i=0; i<num_vms; i++)
     {
         for(list<Info>::iterator it=pm_to_vm_map[i]->begin(); it!=pm_to_vm_map[i]->end(); ++it)
         {
@@ -43,7 +43,7 @@ void State::getNextState(State *state, SimData *sdata)
 void State::print()
 {
     cout<<"[";
-    for(int i=0; i<num_pms; i++)
+    for(int i=0; i<num_vms; i++)
     {
         if(pm_to_vm_map[i]->size() != 0)
         {
@@ -61,7 +61,7 @@ void State::print()
 
 void State::getSortedViolatedVM(Heap *vm_list)
 {
-    for(int i=0; i<num_pms; i++)
+    for(int i=0; i<num_vms; i++)
     {
         if(total_util[i] > UTIL_THRESHOLD)
         {
@@ -73,7 +73,7 @@ void State::getSortedViolatedVM(Heap *vm_list)
 
 void State::getSortedLTViolatedVM(Heap *vm_list)
 {
-    for(int i=0; i<num_pms; i++)
+    for(int i=0; i<num_vms; i++)
     {
         if(total_util[i] < LOWERUTIL_THRESHOLD)
         {
@@ -85,7 +85,7 @@ void State::getSortedLTViolatedVM(Heap *vm_list)
 
 void State::getSortedPM(Heap *pm_list)
 {
-    for(int i=0; i<num_pms; i++)
+    for(int i=0; i<num_vms; i++)
     {
         pm_list->push(Info(i, UTIL_THRESHOLD-total_util[i]));
     }
@@ -108,13 +108,13 @@ double calMean(double *data, int size, int k)
 bool State::isIncrVar(int set_index, Info vm_info)
 {
     if(set_index == vm_to_pm_map[vm_info.index]) { return false;}
-    double old_var = calMean(total_util, num_pms, 2) - pow(calMean(total_util, num_pms, 1), 2);
+    double old_var = calMean(total_util, num_vms, 2) - pow(calMean(total_util, num_vms, 1), 2);
 
     // new utilizations
     total_util[set_index] += vm_info.val;
     total_util[vm_to_pm_map[vm_info.index]] -= vm_info.val;
 
-    double new_var = calMean(total_util, num_pms, 2) - pow(calMean(total_util, num_pms, 1), 2);
+    double new_var = calMean(total_util, num_vms, 2) - pow(calMean(total_util, num_vms, 1), 2);
 
     //reverting back to original utilizations
     total_util[set_index] -= vm_info.val;
@@ -137,10 +137,10 @@ bool compareVMs(Info i, Info j)
 
 void State::sortPMs()
 {
-	for(int i=0; i<num_pms; i++) { pm_to_vm_map[i]->sort(compareVMs);}
-    qsort(pm_to_vm_map, num_pms, sizeof(pm_to_vm_map[0]), compareSet);
+	for(int i=0; i<num_vms; i++) { pm_to_vm_map[i]->sort(compareVMs);}
+    qsort(pm_to_vm_map, num_vms, sizeof(pm_to_vm_map[0]), compareSet);
     
-    for(int i=-0; i<num_pms; i++)
+    for(int i=-0; i<num_vms; i++)
     {
         double util =0;
         for(list<Info>::iterator it=pm_to_vm_map[i]->begin(); it!=pm_to_vm_map[i]->end(); ++it)
@@ -158,7 +158,7 @@ list<int>* State::compareState(State *next_state)
 	this->sortPMs();
 	next_state->sortPMs();
 
-    for(int i=0; i<num_pms; i++)
+    for(int i=0; i<num_vms; i++)
     {
 		list<Info>::iterator it=pm_to_vm_map[i]->begin();
 		list<Info>::iterator it2=next_state->pm_to_vm_map[i]->begin();
@@ -176,7 +176,8 @@ list<int>* State::compareState(State *next_state)
 
 State::~State()
 {
-    for(int i=0; i<num_pms; i++) { delete pm_to_vm_map[i];}
+    for(int i=0; i<num_vms; i++) { delete pm_to_vm_map[i];}
     delete pm_to_vm_map;
+    delete vm_to_pm_map;
     delete total_util;
 }

@@ -10,6 +10,7 @@
 #include "config.h"
 using namespace std;
 
+// structure to store key value pairs
 struct Info
 {
     int index;
@@ -18,10 +19,11 @@ struct Info
     bool operator==(const Info& info) { return info.index == index;}
 };
 
+// class defining function to compare 2 VMs
 class CompareVM
 {
     bool reverse;
-public:
+  public:
     CompareVM(const bool& rev=false) { reverse=rev;}
     bool operator()(Info& vm1, Info& vm2)
     {
@@ -29,12 +31,13 @@ public:
     }
 };
 
+// default max heap
 typedef priority_queue<Info, vector<Info>, CompareVM> Heap;
 
 class State
 {
     int phase_num;
-    int num_pms;
+    int num_vms;
     list<Info> **pm_to_vm_map;
     int *vm_to_pm_map;
     double *total_util;

@@ -7,24 +7,24 @@ CFLAGS = -Wall -c $(DEBUG) -I$(IDIR)
 
 SDIR = src
 ODIR = bin
-LIBS=-lm
+LIBS = -lm
 
-_DEPS = state.h simdata.h
+_DEPS = state.h simdata.h utils.h algo.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
-_OBJ = state.o simdata.o
+_OBJ = state.o simdata.o utils.o algo.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 $(ODIR)/%.o: $(SDIR)/%.cpp $(DEPS)
 	$(CC) $(CFLAGS) -o $@ $<
 
-all: dir $(ODIR)/khanna
+all: dir $(ODIR)/mdp
 
 dir:
 	mkdir -p $(ODIR)
 
-$(ODIR)/khanna: $(OBJ)
-	$(CC) $(LIBS) -I$(IDIR) -o $@ $^ $(SDIR)/khanna.cpp
+$(ODIR)/mdp: $(OBJ)
+	$(CC) $(LIBS) -I$(IDIR) -o $@ $^ $(SDIR)/mdp.cpp
 
 clean:
 	rm -rf $(ODIR) *~ $(INCDIR)/*~
