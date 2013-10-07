@@ -3,6 +3,7 @@
 #include "algo.h"
 #include "simdata.h"
 #include "state.h"
+#include "stateIterator.h"
 using namespace std;
 
 #define DEBUG true
@@ -21,8 +22,16 @@ int main()
 
     // constructing transition matrix
     Matrix<float> trans_table(num_phases, num_states, num_states);
-    // still to do
-
+    StateIterator sitr(num_vms);
+    for(sitr.begin(); sitr.end(); ++sitr)
+    {
+        for(int i=0; i<num_vms; i++)
+        {
+            cout<<(*sitr)[i];
+        }
+        cout<<endl;
+    }
+exit(0);
     // iterating over all possible cycles
     int *cycle = new int[num_phases];
     for(int i=0; i<num_phases; i++) { cycle[i]=0;}
