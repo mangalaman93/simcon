@@ -14,7 +14,7 @@ T& Matrix<T>::operator() (int row, int col, int h)
 {
     if(row>=rows || col>=cols || h>=height)
     {
-        cout<<"error occurred: matrix subscripts out of bound!";
+        cout<<"error occurred: matrix subscripts out of bound!"<<endl;
         exit(1);
     }
     return data[(cols*row + col)*height + h];
@@ -25,7 +25,7 @@ T Matrix<T>::operator() (int row, int col, int h) const
 {
     if(row>=rows || col>=cols || h>=height)
    {
-       cout<<"error occurred: matrix subscripts out of bound!";
+       cout<<"error occurred: matrix subscripts out of bound!"<<endl;
        exit(1);
    }
    return data[(cols*row + col)*height + h];

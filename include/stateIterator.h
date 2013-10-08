@@ -10,14 +10,16 @@ class StateIterator
     bool loop_end;
     int *vm_to_pm_map;
     int *auxillary;
+    int state_number;
 
 public:
     StateIterator(int n);
     ~StateIterator();
-    void begin() const;
+    void begin();
     bool end() const;
     void operator++();
     int* & operator*();
+    operator int() const;
 };
 
 #endif

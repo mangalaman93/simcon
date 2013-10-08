@@ -3,18 +3,19 @@
 StateIterator::StateIterator(int n)
 {
     size = n;
-    loop_end = true;
     vm_to_pm_map = new int[size];
     auxillary = new int[size];
 }
 
-void StateIterator::begin() const
+void StateIterator::begin()
 {
+    state_number = 0;
     for(int i=0; i<size; i++)
     {
         vm_to_pm_map[i] = 0;
         auxillary[i] = 1;
     }
+    loop_end = true;
 }
 
 bool StateIterator::end() const
@@ -30,6 +31,7 @@ void StateIterator::operator++()
         exit(1);
     }
 
+    state_number++;
     if(vm_to_pm_map[size-1] == auxillary[size-1])
     {
         int j = (size-1) - 1;
@@ -54,6 +56,11 @@ void StateIterator::operator++()
 int* & StateIterator::operator*()
 {
     return vm_to_pm_map;
+}
+
+StateIterator::operator int() const
+{
+    return state_number;
 }
 
 StateIterator::~StateIterator()

@@ -23,15 +23,19 @@ int main()
     // constructing transition matrix
     Matrix<float> trans_table(num_phases, num_states, num_states);
     StateIterator sitr(num_vms);
-    for(sitr.begin(); sitr.end(); ++sitr)
+    StateIterator sitr2(num_vms);
+    for(int p=0; p<num_phases; p++)
     {
-        for(int i=0; i<num_vms; i++)
+        for(sitr.begin(); sitr.end(); ++sitr)
         {
-            cout<<(*sitr)[i];
+            for(sitr2.begin(); sitr2.end(); ++sitr2)
+            {
+                trans_table(p, (int)sitr, (int)sitr2) = rand()%100;
+            }
         }
-        cout<<endl;
     }
-exit(0);
+    cout<<"transition matrix prepared..."<<endl;
+
     // iterating over all possible cycles
     int *cycle = new int[num_phases];
     for(int i=0; i<num_phases; i++) { cycle[i]=0;}
@@ -48,8 +52,21 @@ exit(0);
     for(int i=0; i<num_phases; i++) { policy[i]=cycle[i];}
     float min_profit = profit;
 
-    for(int count=1; count<pow(num_states, num_phases); count++)
+    cout<<"Total loops: "<<pow(num_states, num_phases)<<endl;
+    long int loop_count = 0;
+    
+    for(double count=1; count<pow(num_states, num_phases); count++)
     {
+        if(DEBUG)
+        {
+            int temp = (long int)(count/pow(10, 8));
+            if(loop_count != temp)
+            {
+                cout<<"beginning loop number: "<<count<<endl;
+                loop_count = temp;
+            }
+        }
+
         cycle[num_phases-1]++;
         int i;
         for(i=num_phases-1; i>=0; i--)
@@ -69,7 +86,7 @@ exit(0);
             else { i_plus_one = i+1;}
 
             profit -= trans_profit[i];
-            trans_profit[i] = trans_table(cycle[i], cycle[i_plus_one], i);
+            trans_profit[i] = trans_table(i, cycle[i], cycle[i_plus_one]);
             profit += trans_profit[i];
 
             if(br) break;
@@ -80,7 +97,7 @@ exit(0);
         else { i_minus_one = i-1;}
 
         profit -= trans_profit[i_minus_one];
-        trans_profit[i_minus_one] = trans_table(cycle[i_minus_one], cycle[i], i_minus_one);
+        trans_profit[i_minus_one] = trans_table(i_minus_one, cycle[i_minus_one], cycle[i]);
         profit += trans_profit[i_minus_one];
 
         // choose the minimum
@@ -90,6 +107,12 @@ exit(0);
             for(int i=0; i<num_phases; i++) { policy[i] = cycle[i];}
         }
     }
+
+    for(int i=0; i<num_phases; i++)
+    {
+        cout<<policy[i]<<endl;
+    }
+    cout<<"overall profit: "<<min_profit<<endl;
 
     delete s_data;
     delete policy;
