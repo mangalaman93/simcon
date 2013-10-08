@@ -30,6 +30,7 @@ int main()
         {
             for(sitr2.begin(); sitr2.end(); ++sitr2)
             {
+                // @todo
                 trans_table(p, (int)sitr, (int)sitr2) = rand()%100;
             }
         }
@@ -54,7 +55,7 @@ int main()
 
     cout<<"Total loops: "<<pow(num_states, num_phases)<<endl;
     long int loop_count = 0;
-    
+
     for(double count=1; count<pow(num_states, num_phases); count++)
     {
         if(DEBUG)
