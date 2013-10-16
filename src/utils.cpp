@@ -38,4 +38,5 @@ Matrix<T>::~Matrix()
 }
 
 template class Matrix<int>;
+template class Matrix<int*>;
 template class Matrix<float>;

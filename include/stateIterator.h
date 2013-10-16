@@ -20,6 +20,7 @@ public:
     void operator++();
     int* & operator*();
     operator int() const;
+    void print();
 };
 
 #endif

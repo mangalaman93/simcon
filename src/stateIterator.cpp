@@ -63,6 +63,13 @@ StateIterator::operator int() const
     return state_number;
 }
 
+void StateIterator::print()
+{
+    for(int i=0; i<size; i++)
+        cout<<vm_to_pm_map[i];
+    cout<<endl;
+}
+
 StateIterator::~StateIterator()
 {
     delete vm_to_pm_map;
