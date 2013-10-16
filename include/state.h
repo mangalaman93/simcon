@@ -41,8 +41,6 @@ class State
     list<Info> **pm_to_vm_map;
     int *vm_to_pm_map;
     double *total_util;
-	
-	void sortPMs();
 
 public:
     State(int phase_num, SimData *sdata);
@@ -56,7 +54,6 @@ public:
     void migrate(int set_index, Info vm_info);
     bool isIncrVar(int set_index, Info vm_info);
     void print();
-    list<int>* compareState(State *next_state);
 };
 
 #endif

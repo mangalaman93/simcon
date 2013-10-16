@@ -8,6 +8,21 @@ using namespace std;
 
 #define DEBUG true
 
+float compareState(int phase, int* vm_to_pm_map1, int* vm_to_pm_map2, int num_vms)
+{
+    float max_profit = 0;
+    int index = 0;
+    for(int shift=0; shift<num_vms; shift++)
+    {
+        // calculate state utility value and intermediate state utility value
+        float SUV = 0, ISUV = 0;
+        float power_cost;
+        ISUV += shift;
+    }
+
+    return max_profit;
+}
+
 int main()
 {
     int num_vms, num_phases;
@@ -30,8 +45,7 @@ int main()
         {
             for(sitr2.begin(); sitr2.end(); ++sitr2)
             {
-                // @todo
-                trans_table(p, (int)sitr, (int)sitr2) = rand()%100;
+                trans_table(p, (int)sitr, (int)sitr2) = compareState(p, *sitr, *sitr2, num_vms);
             }
         }
     }
