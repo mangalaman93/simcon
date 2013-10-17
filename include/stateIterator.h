@@ -1,7 +1,9 @@
 #ifndef STATEITERATOR_H
 #define STATEITERATOR_H
 
-#include "state.h"
+#include <iostream>
+#include <cstdlib>
+#include <list>
 using namespace std;
 
 class StateIterator

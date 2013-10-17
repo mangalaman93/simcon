@@ -66,11 +66,8 @@ StateIterator::operator int() const
 void StateIterator::print()
 {
     list<int>** pm_to_vm_map = new list<int>*[size];
-    for(int i=0; i<size; i++) { pm_to_vm_map[i] = new list<int>;}
-    for(int i=0; i<size; i++)
-    {
-        pm_to_vm_map[vm_to_pm_map[i]]->push_back(i);
-    }
+    for(int i=0; i<size; i++) { pm_to_vm_map[i]=new list<int>;}
+    for(int i=0; i<size; i++) { pm_to_vm_map[vm_to_pm_map[i]]->push_back(i);}
 
     cout<<"[";
     for(int i=0; i<size; i++)

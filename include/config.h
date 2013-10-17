@@ -12,7 +12,7 @@
 #define MAXPOWER 250
 #define COSTPERKWH 5
 
-//Migration overhead of CPU Intensive workload VM
+// Migration overhead of CPU Intensive workload VM
 #define MOHCPUINTENSIVE 0.55
 
 // Absolute total migration time in hours
