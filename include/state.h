@@ -38,8 +38,8 @@ class State
     list<Info> **pm_to_vm_map;
     int *vm_to_pm_map;
     double *total_util;
-	
-	void sortPMs();
+    
+    void sortPMs();
 
 public:
     State(int phase_num, SimData *sdata);

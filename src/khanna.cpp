@@ -6,12 +6,11 @@ using namespace std;
 
 int main()
 {
-	int num_vms, num_pms, num_phases;
-	cin>>num_pms;
+	int num_vms, num_phases;
 	cin>>num_vms;
 	cin>>num_phases;
 
-	SimData *s_data = new SimData(num_pms, num_vms, num_phases);
+	SimData *s_data = new SimData(num_vms, num_phases);
 	s_data->readInput();
 	
 	State *policy[num_phases];
@@ -25,18 +24,12 @@ int main()
 		// Assuming all the states can be accommodated on the given PMs
 		int vm_index = sorted_vms->top().index;
 		double vm_util =  sorted_vms->top().val;
-		for(int j=0; j<num_pms; j++)
+		for(int j=0; j<num_vms; j++)
 		{
 			if(policy[0]->ifVmAllowedOnPm(j, vm_util))
 			{
 				policy[0]->accommodateVm(vm_index, vm_util, j);
 				break;
-			}
-
-			if(j == num_pms-1)
-			{
-				cout<<"Error occurred: available PMs are not enough!"<<endl;
-				exit(1);
 			}
 		}
 		sorted_vms->pop();

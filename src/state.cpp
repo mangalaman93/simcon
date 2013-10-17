@@ -2,7 +2,7 @@
 
 State::State(int phase_num, SimData *sdata)
 {
-    this->num_pms = sdata->getNumPM();
+    this->num_pms = sdata->getNumVM();
     this->phase_num = phase_num;
     pm_to_vm_map = new list<Info>*[num_pms];
     for(int i=0; i<num_pms; i++) { pm_to_vm_map[i] = new list<Info>;}
