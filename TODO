@@ -1,3 +1,10 @@
+### TODO ###
+- change the khanna algorithm to store migration rather than finding them later
+- pMapper algorithm
+- vmanage algorithm
+- comparision of all algorithms
+- initial optimization of MDP algorithm (remove redundant loops)
+
 ### TEST CASES ###
 3
 3
