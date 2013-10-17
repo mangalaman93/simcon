@@ -47,10 +47,10 @@ void getNext(int *value, int N)
 // SUV = state utility value
 float getSUV(int phase, int* vm_to_pm_map1, int num_vms, SimData* sdata)
 {
-    float suv;
-    int* util = new int[num_vms];
-    int* reward = new int[num_vms];
-    int* penalty = new int[num_vms];
+    float suv = 0;
+    float * util = new float [num_vms];
+    float * reward = new float [num_vms];
+    float * penalty = new float [num_vms];
     
     for(int i=0; i<num_vms; i++)
     {
@@ -90,10 +90,10 @@ float getSUV(int phase, int* vm_to_pm_map1, int num_vms, SimData* sdata)
 float getISUV(int phase, int* vm_to_pm_map1, int* vm_to_pm_map2,
               int* perm_map, int num_vms, SimData* sdata)
 {
-    float isuv;
-    int* util = new int[num_vms];
-    int* reward = new int[num_vms];
-    int* penalty = new int[num_vms];
+    float isuv = 0;
+    float* util = new float[num_vms];
+    float* reward = new float[num_vms];
+    float* penalty = new float[num_vms];
     
     for(int i=0; i<num_vms; i++)
     {
@@ -106,7 +106,7 @@ float getISUV(int phase, int* vm_to_pm_map1, int* vm_to_pm_map2,
     {
         if(vm_to_pm_map1[j] == perm_map[vm_to_pm_map2[j]])
         {
-            util[vm_to_pm_map1[j]]+=sdata->getWorkload(phase, j);
+            util[vm_to_pm_map1[j]] += sdata->getWorkload(phase, j);
             reward[vm_to_pm_map1[j]] += sdata->getVmRevenue(j);
             penalty[vm_to_pm_map1[j]] += sdata->getVmPenalty(j);
         }
@@ -138,22 +138,32 @@ float getISUV(int phase, int* vm_to_pm_map1, int* vm_to_pm_map2,
 }
 
 // function for the step of local optimization
-float compareState(int phase, int* vm_to_pm_map1, int* vm_to_pm_map2, int num_vms, SimData* sdata, int *perm_map)
+float compareState(int phase, int* vm_to_pm_map1, int* vm_to_pm_map2, int num_vms, SimData* sdata, int *best_perm_map)
 {
     // calculate State Utility Value
     float SUV = getSUV(phase, vm_to_pm_map1, num_vms, sdata);
 
+    int* perm_map = new int[num_vms];
     for(int i=0; i<num_vms; i++) { perm_map[i] = i;}
+
     float ISUV = getISUV(phase, vm_to_pm_map1, vm_to_pm_map2, perm_map, num_vms, sdata);
+    for(int j=0; j<num_vms; j++)
+        best_perm_map[j] = perm_map[j];
+
     for(int i=2; i<fact(num_vms); i++)
     {
         // calculate intermediate state utility value
         getNext(perm_map, num_vms);
         float temp = getISUV(phase, vm_to_pm_map1, vm_to_pm_map2, perm_map, num_vms, sdata);
         if(temp > ISUV)
+        {
             ISUV = temp;
+            for(int j=0; j<num_vms; j++)
+                best_perm_map[j] = perm_map[j];
+        }
     }
 
+    delete perm_map;
     return (SUV*(1-MIGRATIONDURATION)+ISUV*MIGRATIONDURATION);
 }
 
@@ -168,7 +178,8 @@ int main()
 
     // calculating the possible number of states (bell number)
     long int num_states = Bell::get(num_vms);
-    cout<<"num of states : "<<num_states<<endl;
+    if(DEBUG)
+        cout<<"num of states : "<<num_states<<endl;
 
     // constructing transition matrix
     Matrix<float> trans_table(num_phases, num_states, num_states);
@@ -187,7 +198,8 @@ int main()
             }
         }
     }
-    cout<<"transition matrix prepared..."<<endl;
+    if(DEBUG)
+        cout<<"transition matrix prepared..."<<endl;
 
     // iterating over all possible cycles
     int *cycle = new int[num_phases];
@@ -196,16 +208,17 @@ int main()
     float profit = 0;
     for(int i=0; i<num_phases; i++)
     {
-        trans_profit[i] = trans_table(0, 0, 0);
+        trans_profit[i] = trans_table(i, 0, 0);
         profit += trans_profit[i];
     }
 
     // final output
     int *policy = new int[num_phases];
     for(int i=0; i<num_phases; i++) { policy[i]=cycle[i];}
-    float min_profit = profit;
+    float max_profit = profit;
 
-    cout<<"Total loops: "<<pow(num_states, num_phases)<<endl;
+    if(DEBUG)
+        cout<<"Total loops: "<<pow(num_states, num_phases)<<endl;
     long int loop_count = 0;
 
     for(double count=1; count<pow(num_states, num_phases); count++)
@@ -253,22 +266,44 @@ int main()
         trans_profit[i_minus_one] = trans_table(i_minus_one, cycle[i_minus_one], cycle[i]);
         profit += trans_profit[i_minus_one];
 
-        // choose the minimum
-        if(min_profit > profit)
+        // choose the maximum
+        if(max_profit < profit)
         {
-            min_profit = profit;
+            max_profit = profit;
             for(int i=0; i<num_phases; i++) { policy[i] = cycle[i];}
         }
     }
 
-    for(int i=0; i<num_phases; i++)
+    StateIterator *old_sitr;
+    for(int i=0; i<=num_phases; i++)
     {
+        int new_i = i;
+        if(i == num_phases)
+            new_i = 0;
+
         StateIterator sitr(num_vms);
         for(sitr.begin(); sitr.end(); ++sitr)
-            if((int)sitr == policy[i])
-                sitr.print();
+            if((int)sitr == policy[new_i])
+            {
+                break;
+            }
+
+        if(i != 0)
+        {
+            cout<<policy[new_i]<<": ";
+            old_sitr->print();
+            cout<<"\t->\tmigrate vms: ";
+
+            for(int j=0; j<num_vms; j++)
+            {
+                if((**old_sitr)[j] != (mig_table(new_i, policy[i-1], policy[new_i]))[(*sitr)[j]])
+                    cout<<j<<", ";
+            }
+            cout<<endl;
+        }
+        old_sitr = &sitr;
     }
-    cout<<"overall profit: "<<min_profit<<endl;
+    cout<<"overall profit: "<<max_profit<<endl;
 
     for(int p=0; p<num_phases; p++)
     {
