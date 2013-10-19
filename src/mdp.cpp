@@ -192,6 +192,49 @@ int main()
     }
     cout<<"transition matrix prepared..."<<endl;
 
+    // finding the most optimum cycle
+    StateIterator sitr3(num_vms);
+    Matrix<float> temp_trans(1, num_states, num_states);
+    for(int p=0; p<num_phases-2; p++)
+    {
+        for(sitr.begin(); sitr.end(); ++sitr)
+        {
+            for(sitr3.begin(); sitr3.end(); ++sitr3)
+            {
+                float max = trans_table(p, (int)sitr, 0) + trans_table(p+1, 0, (int)sitr3);
+                for(sitr2.begin(); sitr2.end(); ++sitr2)
+                {
+                    float temp = trans_table(p, (int)sitr, (int)sitr2) + trans_table(p+1, (int)sitr2, (int)sitr3);
+                    if(max < temp)
+                        max = temp;
+                }
+                temp_trans(0, (int)sitr, (int)sitr3) = max;
+            }
+        }
+
+        // copying the data
+        for(int i=0; i<num_states; i++)
+        {
+            for(int j=0; j<num_states; j++)
+            {
+                trans_table(p+1, i, j) = temp_trans(0, i, j);
+            }
+        }
+    }
+
+    float max_profit = trans_table(num_phases-2, 0, 0) + trans_table(num_phases-1, 0, 0);
+    for(sitr.begin(); sitr.end(); ++sitr)
+    {
+        for(sitr2.begin(); sitr2.end(); ++sitr2)
+        {
+            float temp = trans_table(num_phases-2, (int)sitr, (int)sitr2) + trans_table(num_phases-1, (int)sitr2, (int)sitr);
+            if(temp > max_profit)
+                max_profit = temp;
+        }
+    }
+    cout<<"profit: "<<max_profit<<endl;
+
+/*
     // iterating over all possible cycles
     int *cycle = new int[num_phases];
     for(int i=0; i<num_phases; i++) { cycle[i]=0;}
@@ -293,13 +336,16 @@ int main()
         cout<<endl;
     }
     cout<<"overall profit: "<<max_profit<<endl;
+*/
 
     for(int p=0; p<num_phases; p++)
         for(int i=0; i<num_states; i++)
             for(int j=0; j<num_states; j++)
                 delete mig_table(p, i, j);
     delete s_data;
+/*
     delete policy;
     delete cycle;
     delete trans_profit;
+*/
 }
