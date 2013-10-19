@@ -27,7 +27,7 @@ float SimData::getVmPenalty(int vm) { return vm_penalty[vm];}
 
 SimData::~SimData()
 {
-	delete workload;
-	delete vm_revenue;
-	delete vm_penalty;
+	delete [] workload;
+	delete [] vm_revenue;
+	delete [] vm_penalty;
 }

@@ -77,9 +77,9 @@ float getSUV(int phase, int* vm_to_pm_map, int num_vms, SimData* sdata)
             suv -= penalty[i];
     }
     
-    delete util;
-    delete reward;
-    delete penalty;
+    delete [] util;
+    delete [] reward;
+    delete [] penalty;
     return suv;
 }
 
@@ -124,9 +124,9 @@ float getISUV(int phase, int* vm_to_pm_map1, int* vm_to_pm_map2, int* perm_map, 
             isuv -= penalty[i];
     }
     
-    delete util;
-    delete reward;
-    delete penalty;
+    delete [] util;
+    delete [] reward;
+    delete [] penalty;
     return isuv;
 }
 
@@ -156,7 +156,7 @@ float compareState(int phase, int* vm_to_pm_map1, int* vm_to_pm_map2, int num_vm
         }
     }
 
-    delete perm_map;
+    delete [] perm_map;
     return (SUV * (1 - MIGRATIONDURATION) + ISUV * MIGRATIONDURATION);
 }
 
@@ -286,6 +286,6 @@ int main()
     for(int p=0; p<num_phases; p++)
         for(int i=0; i<num_states; i++)
             for(int j=0; j<num_states; j++)
-                delete mig_table(p, i, j);
+                delete [] mig_table(p, i, j);
     delete s_data;
 }

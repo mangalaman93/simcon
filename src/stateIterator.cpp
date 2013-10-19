@@ -86,11 +86,11 @@ void StateIterator::print()
     cout<<"]";
 
     for(int i=0; i<size; i++) { delete pm_to_vm_map[i];}
-    delete pm_to_vm_map;
+    delete [] pm_to_vm_map;
 }
 
 StateIterator::~StateIterator()
 {
-    delete vm_to_pm_map;
-    delete auxillary;
+    delete [] vm_to_pm_map;
+    delete [] auxillary;
 }
