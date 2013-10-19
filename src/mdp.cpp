@@ -195,6 +195,8 @@ int main()
     // finding the most optimum cycle
     StateIterator sitr3(num_vms);
     Matrix<float> temp_trans(1, num_states, num_states);
+    Matrix<list<int> > policy(1, num_states, num_states);
+    Matrix<list<int> > new_policy(1, num_states, num_states);
     for(int p=0; p<num_phases-2; p++)
     {
         for(sitr.begin(); sitr.end(); ++sitr)
@@ -202,13 +204,19 @@ int main()
             for(sitr3.begin(); sitr3.end(); ++sitr3)
             {
                 float max = trans_table(p, (int)sitr, 0) + trans_table(p+1, 0, (int)sitr3);
+                float index = 0;
                 for(sitr2.begin(); sitr2.end(); ++sitr2)
                 {
                     float temp = trans_table(p, (int)sitr, (int)sitr2) + trans_table(p+1, (int)sitr2, (int)sitr3);
                     if(max < temp)
+                    {
                         max = temp;
+                        index = (int)sitr2;
+                    }
                 }
                 temp_trans(0, (int)sitr, (int)sitr3) = max;
+                policy(0, (int)sitr, (int)sitr3).push_back(index);
+                new_policy(0, (int)sitr, (int)sitr3) = policy(0, (int)sitr, (int)sitr3);
             }
         }
 
@@ -218,134 +226,66 @@ int main()
             for(int j=0; j<num_states; j++)
             {
                 trans_table(p+1, i, j) = temp_trans(0, i, j);
+                policy(0, i, j) = new_policy(0, i, j);
             }
         }
     }
 
     float max_profit = trans_table(num_phases-2, 0, 0) + trans_table(num_phases-1, 0, 0);
+    list<int> final_policy;
     for(sitr.begin(); sitr.end(); ++sitr)
     {
         for(sitr2.begin(); sitr2.end(); ++sitr2)
         {
             float temp = trans_table(num_phases-2, (int)sitr, (int)sitr2) + trans_table(num_phases-1, (int)sitr2, (int)sitr);
+            final_policy = policy(0, 0, 0);
+            final_policy.push_back(0);
+            final_policy.push_front(0);
             if(temp > max_profit)
+            {
                 max_profit = temp;
+                final_policy = policy(0, (int)sitr, (int)sitr2);
+                final_policy.push_back((int)sitr);
+                final_policy.push_back((int)sitr2);
+                final_policy.push_front((int)sitr2);
+            }
         }
     }
     cout<<"profit: "<<max_profit<<endl;
 
-/*
-    // iterating over all possible cycles
-    int *cycle = new int[num_phases];
-    for(int i=0; i<num_phases; i++) { cycle[i]=0;}
-    float *trans_profit = new float[num_phases];
-    float profit = 0;
-    for(int i=0; i<num_phases; i++)
-    {
-        trans_profit[i] = trans_table(i, 0, 0);
-        profit += trans_profit[i];
-    }
-
-    // final output
-    int *policy = new int[num_phases];
-    for(int i=0; i<num_phases; i++) { policy[i]=cycle[i];}
-    float max_profit = profit;
-
-    if(DEBUG)
-        cout<<"Total loops: "<<pow(num_states, num_phases)<<endl;
-    long int loop_count = 0;
-
-    for(double count=1; count<pow(num_states, num_phases); count++)
-    {
-        if(DEBUG)
-        {
-            int temp = (long int)(count/pow(10, 8));
-            if(loop_count != temp)
-            {
-                cout<<"beginning loop number: "<<count<<endl;
-                loop_count = temp;
-            }
-        }
-
-        cycle[num_phases-1]++;
-        int i;
-        for(i=num_phases-1; i>=0; i--)
-        {
-            bool br = false;
-            if(cycle[i] == num_states)
-            {
-                cycle[i] = 0;
-                cycle[i-1]++;
-            } else
-            {
-                br = true;
-            }
-
-            int i_plus_one;
-            if(i+1 == num_phases) { i_plus_one = 0;}
-            else { i_plus_one = i+1;}
-
-            profit -= trans_profit[i];
-            trans_profit[i] = trans_table(i, cycle[i], cycle[i_plus_one]);
-            profit += trans_profit[i];
-
-            if(br) break;
-        }
-        
-        int i_minus_one;
-        if(i-1 == -1) { i_minus_one = num_phases-1;}
-        else { i_minus_one = i-1;}
-
-        profit -= trans_profit[i_minus_one];
-        trans_profit[i_minus_one] = trans_table(i_minus_one, cycle[i_minus_one], cycle[i]);
-        profit += trans_profit[i_minus_one];
-
-        // choose the maximum
-        if(max_profit < profit)
-        {
-            max_profit = profit;
-            for(int i=0; i<num_phases; i++) { policy[i] = cycle[i];}
-        }
-    }
-    if(DEBUG)
-        cout<<"---------------------------------------------"<<endl;
-
     // printing the policy
-    for(int i=0; i<num_phases; i++)
+    int i = 0;
+    list<int>::iterator it=final_policy.begin();
+    int last_policy = *it;
+    ++it;
+    for(; it!=final_policy.end(); ++it)
     {
         StateIterator sitr1(num_vms);
         for(sitr1.begin(); sitr1.end(); ++sitr1)
-            if((int)sitr1 == policy[i]) { break;}
+            if((int)sitr1 == *it) { break;}
 
         sitr1.print();
         cout<<"\t\t->\tmigrate vms: ";
 
-        int new_i = i+1;
-        if(new_i == num_phases)
-            new_i = 0;
-
         StateIterator sitr2(num_vms);
         for(sitr2.begin(); sitr2.end(); ++sitr2)
-            if((int)sitr2 == policy[new_i]) { break;}
+            if((int)sitr2 == last_policy) { break;}
      
         for(int j=0; j<num_vms; j++)
         {
-            if((*sitr1)[j] != (mig_table(i, policy[i], policy[new_i]))[(*sitr2)[j]])
+            if((*sitr1)[j] != (mig_table(i, *it, last_policy))[(*sitr2)[j]])
                 cout<<j<<", ";
         }
         cout<<endl;
+
+        i++;
+        last_policy = *it;
     }
     cout<<"overall profit: "<<max_profit<<endl;
-*/
 
     for(int p=0; p<num_phases; p++)
         for(int i=0; i<num_states; i++)
             for(int j=0; j<num_states; j++)
                 delete mig_table(p, i, j);
     delete s_data;
-/*
-    delete policy;
-    delete cycle;
-    delete trans_profit;
-*/
 }

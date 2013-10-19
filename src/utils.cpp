@@ -1,4 +1,5 @@
 #include "utils.h"
+#include <list>
 
 template <class T>
 Matrix<T>::Matrix(int num_rows, int num_cols, int h)
@@ -34,9 +35,10 @@ T Matrix<T>::operator() (int row, int col, int h) const
 template <class T>
 Matrix<T>::~Matrix()
 {
-    delete data;
+    delete [] data;
 }
 
 template class Matrix<int>;
 template class Matrix<int*>;
 template class Matrix<float>;
+template class Matrix<list<int> >;
