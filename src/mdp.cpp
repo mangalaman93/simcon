@@ -6,7 +6,7 @@
 #include "stateIterator.h"
 using namespace std;
 
-#define DEBUG true
+#define DEBUG false
 
 // factorial calculation
 long fact(int n)
@@ -100,12 +100,10 @@ float getISUV(int phase, int* vm_to_pm_map1, int* vm_to_pm_map2, int* perm_map, 
 
     for(int j=0; j<num_vms; j++)
     {
+        reward[vm_to_pm_map1[j]] += sdata->getVmRevenue(j);
+        penalty[vm_to_pm_map1[j]] += sdata->getVmPenalty(j);
         if(vm_to_pm_map1[j] == perm_map[vm_to_pm_map2[j]])
-        {
             util[vm_to_pm_map1[j]] += sdata->getWorkload(phase, j);
-            reward[vm_to_pm_map1[j]] += sdata->getVmRevenue(j);
-            penalty[vm_to_pm_map1[j]] += sdata->getVmPenalty(j);
-        }
         else
         {
             util[vm_to_pm_map1[j]] += (1 + MOHCPUINTENSIVE)*sdata->getWorkload(phase, j);
@@ -171,14 +169,16 @@ int main()
 
     // calculating the possible number of states (bell number)
     long int num_states = Bell::get(num_vms);
-    if(DEBUG)
-        cout<<"total number of states : "<<num_states<<endl;
+    cout<<"total number of states : "<<num_states<<endl;
 
     // constructing transition matrix
+    cout<<"constructing transition matrix ..."<<endl;
     Matrix<float> trans_table(num_phases, num_states, num_states);
     Matrix<int*> mig_table(num_phases, num_states, num_states);
     StateIterator sitr(num_vms);
     StateIterator sitr2(num_vms);
+
+    cout<<"total phases: "<<num_phases<<endl<<"phases complete: "; cout.flush();
     for(int p=0; p<num_phases; p++)
     {
         for(sitr.begin(); sitr.end(); ++sitr)
@@ -189,8 +189,34 @@ int main()
                 trans_table(p, (int)sitr, (int)sitr2) = compareState(p, *sitr, *sitr2, num_vms, s_data, mig_table(p,(int)sitr,(int)sitr2));
             }
         }
+        cout<<p<<","; cout.flush();
     }
-    cout<<"transition matrix prepared..."<<endl;
+    cout<<endl<<"transition matrix prepared ..."<<endl;
+
+    // printing the transition matrix
+    if(DEBUG)
+    {
+        for(int p=0; p<num_phases; p++)
+        {
+            for(sitr.begin(); sitr.end(); ++sitr)
+            {
+                for(sitr2.begin(); sitr2.end(); ++sitr2)
+                {
+                    cout<<p<<"\t"<<(int)sitr<<"\t"<<(int)sitr2<<"\t"<<trans_table(p, (int)sitr, (int)sitr2)<<"\t";
+                    sitr.print();
+                    cout<<"\t";
+                    sitr2.print();
+                    cout<<"\t";
+                    for(int j=0; j<num_vms; j++)
+                    {
+                        if((*sitr)[j] != (mig_table(p, (int)sitr, (int)sitr2))[(*sitr2)[j]])
+                            cout<<j<<", ";
+                    }
+                    cout<<endl;
+                }
+            }
+        }
+    }
 
     // finding the most optimum cycle
     StateIterator sitr3(num_vms);
@@ -251,7 +277,6 @@ int main()
             }
         }
     }
-    cout<<"profit: "<<max_profit<<endl;
 
     // printing the policy
     int i = 0;
@@ -262,18 +287,18 @@ int main()
     {
         StateIterator sitr1(num_vms);
         for(sitr1.begin(); sitr1.end(); ++sitr1)
-            if((int)sitr1 == *it) { break;}
+            if((int)sitr1 == last_policy) { break;}
 
         sitr1.print();
         cout<<"\t\t->\tmigrate vms: ";
 
         StateIterator sitr2(num_vms);
         for(sitr2.begin(); sitr2.end(); ++sitr2)
-            if((int)sitr2 == last_policy) { break;}
+            if((int)sitr2 == *it) { break;}
      
         for(int j=0; j<num_vms; j++)
         {
-            if((*sitr1)[j] != (mig_table(i, *it, last_policy))[(*sitr2)[j]])
+            if((*sitr1)[j] != (mig_table(i, last_policy, *it))[(*sitr2)[j]])
                 cout<<j<<", ";
         }
         cout<<endl;

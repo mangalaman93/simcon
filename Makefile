@@ -3,7 +3,7 @@
 IDIR = include
 CC = g++
 DEBUG = -g
-PROFILE = -pg
+PROFILE =
 CFLAGS = -Wall -c $(DEBUG) -I$(IDIR) $(PROFILE)
 
 SDIR = src
