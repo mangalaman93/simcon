@@ -15,6 +15,7 @@ void StateIterator::begin()
         vm_to_pm_map[i] = 0;
         auxillary[i] = 1;
     }
+
     loop_end = true;
 }
 
@@ -66,7 +67,7 @@ StateIterator::operator int() const
 void StateIterator::print()
 {
     list<int>** pm_to_vm_map = new list<int>*[size];
-    for(int i=0; i<size; i++) { pm_to_vm_map[i]=new list<int>;}
+    for(int i=0; i<size; i++) { pm_to_vm_map[i] = new list<int>;}
     for(int i=0; i<size; i++) { pm_to_vm_map[vm_to_pm_map[i]]->push_back(i);}
 
     cout<<"[";
@@ -86,11 +87,11 @@ void StateIterator::print()
     cout<<"]";
 
     for(int i=0; i<size; i++) { delete pm_to_vm_map[i];}
-    delete pm_to_vm_map;
+    delete [] pm_to_vm_map;
 }
 
 StateIterator::~StateIterator()
 {
-    delete vm_to_pm_map;
-    delete auxillary;
+    delete [] vm_to_pm_map;
+    delete [] auxillary;
 }

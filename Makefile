@@ -3,7 +3,8 @@
 IDIR = include
 CC = g++
 DEBUG = -g
-CFLAGS = -Wall -c $(DEBUG) -I$(IDIR)
+PROFILE =
+CFLAGS = -Wall -c $(DEBUG) -I$(IDIR) $(PROFILE)
 
 SDIR = src
 ODIR = bin
@@ -24,7 +25,7 @@ dir:
 	mkdir -p $(ODIR)
 
 $(ODIR)/mdp: $(OBJ)
-	$(CC) $(LIBS) -I$(IDIR) -o $@ $^ $(SDIR)/mdp.cpp
+	$(CC) $(LIBS) -I$(IDIR) -o $@ $^ $(SDIR)/mdp.cpp $(PROFILE)
 
 clean:
 	rm -rf $(ODIR) *~ $(INCDIR)/*~

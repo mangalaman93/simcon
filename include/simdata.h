@@ -3,13 +3,14 @@
 
 #include <iostream>
 #include <cstdlib>
+#include "utils.h"
 using namespace std;
 
 class SimData
 {
     int num_vms;
     int num_phases;
-    double *workload;
+    Matrix<float> *workload;
     float *vm_revenue;
     float *vm_penalty;
 
@@ -19,7 +20,7 @@ public:
     void readInput();
     int getNumVM();
     int getNumPhases();
-    double getWorkload(int phase, int vm);
+    float getWorkload(int phase, int vm);
     float getVmRevenue(int vm);
     float getVmPenalty(int vm);
 };

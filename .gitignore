@@ -13,3 +13,7 @@
 *.la
 *.a
 bin/*
+
+# input/output files
+input
+output
