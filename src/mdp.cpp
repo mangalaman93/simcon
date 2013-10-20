@@ -194,9 +194,9 @@ int main()
 
     // finding the most optimum cycle
     StateIterator sitr3(num_vms);
-    Matrix<float> temp_trans(1, num_states, num_states);
-    Matrix<list<int> > policy(1, num_states, num_states);
-    Matrix<list<int> > new_policy(1, num_states, num_states);
+    Matrix<float> temp_trans(num_states, num_states);
+    Matrix<list<int> > policy(num_states, num_states);
+    Matrix<list<int> > new_policy(num_states, num_states);
     for(int p=0; p<num_phases-2; p++)
     {
         for(sitr.begin(); sitr.end(); ++sitr)
@@ -204,19 +204,19 @@ int main()
             for(sitr3.begin(); sitr3.end(); ++sitr3)
             {
                 float max = trans_table(p, (int)sitr, 0) + trans_table(p+1, 0, (int)sitr3);
-                float index = 0;
+                new_policy((int)sitr, (int)sitr3) = policy((int)sitr, 0);
+                new_policy((int)sitr, (int)sitr3).push_back(0);
                 for(sitr2.begin(); sitr2.end(); ++sitr2)
                 {
                     float temp = trans_table(p, (int)sitr, (int)sitr2) + trans_table(p+1, (int)sitr2, (int)sitr3);
                     if(max < temp)
                     {
                         max = temp;
-                        index = (int)sitr2;
+                        new_policy((int)sitr, (int)sitr3) = policy((int)sitr, (int)sitr2);
+                        new_policy((int)sitr, (int)sitr3).push_back((int)sitr2);
                     }
                 }
-                temp_trans(0, (int)sitr, (int)sitr3) = max;
-                policy(0, (int)sitr, (int)sitr3).push_back(index);
-                new_policy(0, (int)sitr, (int)sitr3) = policy(0, (int)sitr, (int)sitr3);
+                temp_trans((int)sitr, (int)sitr3) = max;
             }
         }
 
@@ -225,29 +225,29 @@ int main()
         {
             for(int j=0; j<num_states; j++)
             {
-                trans_table(p+1, i, j) = temp_trans(0, i, j);
-                policy(0, i, j) = new_policy(0, i, j);
+                trans_table(p+1, i, j) = temp_trans(i, j);
+                policy(i, j) = new_policy(i, j);
             }
         }
     }
 
     float max_profit = trans_table(num_phases-2, 0, 0) + trans_table(num_phases-1, 0, 0);
-    list<int> final_policy;
+    list<int> final_policy = policy(0, 0);
+    final_policy.push_back(0);
+    final_policy.push_back(0);
+    final_policy.push_front(0);
     for(sitr.begin(); sitr.end(); ++sitr)
     {
         for(sitr2.begin(); sitr2.end(); ++sitr2)
         {
             float temp = trans_table(num_phases-2, (int)sitr, (int)sitr2) + trans_table(num_phases-1, (int)sitr2, (int)sitr);
-            final_policy = policy(0, 0, 0);
-            final_policy.push_back(0);
-            final_policy.push_front(0);
             if(temp > max_profit)
             {
                 max_profit = temp;
-                final_policy = policy(0, (int)sitr, (int)sitr2);
-                final_policy.push_back((int)sitr);
+                final_policy = policy((int)sitr, (int)sitr2);
                 final_policy.push_back((int)sitr2);
-                final_policy.push_front((int)sitr2);
+                final_policy.push_back((int)sitr);
+                final_policy.push_front((int)sitr);
             }
         }
     }
