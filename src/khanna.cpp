@@ -13,7 +13,7 @@ int main()
 	SimData *s_data = new SimData(num_vms, num_phases);
 	s_data->readInput();
 	
-	State *policy[num_phases];
+	State **policy = new State*[num_phases];
 	for(int i=0; i<num_phases; i++) { policy[i] = new State(i, s_data);}
 
 	/* PHASE 0 BEGINS */
@@ -36,7 +36,7 @@ int main()
 	}
 
 	/* PHASE 0 ENDS # REST PHASES BEGINS */
-	for(int i=0; i<s_data->getNumPhases()-1; i++)
+	for(int i=0; i<num_phases-1; i++)
 	{
 		// getting the next state assuming no migration
 		State *next_state = policy[i+1];
@@ -112,26 +112,16 @@ int main()
 	for(int i=0; i<num_phases; i++)
 	{
 		policy[i]->print();
-        cout<<"\t===>\t";
-        
-        int next_state = i+1;
-        if(i == num_phases - 1) { next_state = 0;}
-
-        list<int> *migrated_vms = policy[i]->compareState(policy[next_state]);
-		if(migrated_vms->empty())
-			cout<<"no migrations";
-		else
+		if(i+1 != num_phases)
 		{
-			cout<<"migrate vm "<<*(migrated_vms->begin());
-			for(list<int>::iterator it=++(migrated_vms->begin()); it!=migrated_vms->end(); ++it)
-				cout<<", "<<*it;
+			cout<<"\t==>\t";
+			policy[i+1]->printMigrations();
 		}
         cout<<endl;
-
-        delete migrated_vms;
 	}
 
 	for(int i=0; i<num_phases; i++) { delete policy[i];}
+	delete [] policy;
 	delete s_data;
 	return 0;
 }
