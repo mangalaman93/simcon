@@ -10,16 +10,16 @@ SDIR = src
 ODIR = bin
 LIBS = -lm
 
-_DEPS = simdata.h utils.h algo.h stateIterator.h
+_DEPS = simdata.h utils.h algo.h stateIterator.h state.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
-_OBJ = simdata.o utils.o algo.o stateIterator.o
+_OBJ = simdata.o utils.o algo.o stateIterator.o state.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 $(ODIR)/%.o: $(SDIR)/%.cpp $(DEPS)
 	$(CC) $(CFLAGS) -o $@ $<
 
-all: dir $(ODIR)/mdp
+all: dir $(ODIR)/mdp $(ODIR)/khanna
 
 dir:
 	mkdir -p $(ODIR)
@@ -27,7 +27,10 @@ dir:
 $(ODIR)/mdp: $(OBJ)
 	$(CC) $(LIBS) -I$(IDIR) -o $@ $^ $(SDIR)/mdp.cpp $(PROFILE)
 
+$(ODIR)/khanna: $(OBJ)
+	$(CC) $(LIBS) -I$(IDIR) -o $@ $^ $(SDIR)/khanna.cpp $(PROFILE)
+
 clean:
 	rm -rf $(ODIR) *~ $(INCDIR)/*~
 
-.PHONY: clean
+.PHONY: clean $(ODIR)/mdp $(ODIR)/khanna
