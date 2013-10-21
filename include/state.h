@@ -34,10 +34,11 @@ typedef priority_queue<Info, vector<Info>, CompareVM> Heap;
 class State
 {
     int phase_num;
-    int num_pms;
+    int num_vms;
     list<Info> **pm_to_vm_map;
     int *vm_to_pm_map;
     double *total_util;
+    list<int> *mig_vms;
     
     void sortPMs();
 
@@ -53,7 +54,7 @@ public:
     void migrate(int set_index, Info vm_info);
     bool isIncrVar(int set_index, Info vm_info);
     void print();
-    list<int>* compareState(State *next_state);
+    void printMigrations();
 };
 
 #endif
