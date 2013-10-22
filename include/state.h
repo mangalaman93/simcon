@@ -1,3 +1,8 @@
+/*
+This class handles the new state representation. It provides
+various method for performing algorithm specific tasks.
+*/
+
 #ifndef STATE_H
 #define STATE_H
 

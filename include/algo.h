@@ -1,3 +1,12 @@
+/*
+various algorithms are implemented in this class-
+1) finding out the sterling number of second kind
+2) calculating the bell number
+we are using memoization to increase the efficiency of the
+algorithm. read more here http://en.wikipedia.org/wiki/Memoization
+for details go to http://en.wikipedia.org/wiki/Stirling_numbers_of_the_second_kind
+*/
+
 #ifndef ALGO_H
 #define ALGO_H
 

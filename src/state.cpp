@@ -12,6 +12,7 @@ State::State(int phase_num, SimData *sdata)
     mig_vms = new list<Info>;
 }
 
+// shifts the vm having utilization `util` on pm `set_index`
 void State::accommodateVm(int vm, double util, int set_index)
 {
     pm_to_vm_map[set_index]->push_back(Info(vm, util));
@@ -24,6 +25,7 @@ bool State::ifVmAllowedOnPm(int set_index, double vm_util)
     return (total_util[set_index] + vm_util <= UTIL_THRESHOLD);
 }
 
+// provides a new state with old phase utilizations
 void State::getNextState(State *state, SimData *sdata)
 {
     for(int i=0; i<num_vms; i++)
@@ -39,6 +41,7 @@ void State::getSortedViolatedVM(Heap *vm_list)
                 vm_list->push(*it);
 }
 
+// provides max heap of VMs whole PMs utilization is below lower threshold
 void State::getSortedLTViolatedVM(Heap *vm_list)
 {
     for(int i=0; i<num_vms; i++)
@@ -47,12 +50,14 @@ void State::getSortedLTViolatedVM(Heap *vm_list)
                 vm_list->push(*it);
 }
 
+// provides max heap of PMs sorted based on their utilization
 void State::getSortedPM(Heap *pm_list)
 {
     for(int i=0; i<num_vms; i++)
         pm_list->push(Info(i, UTIL_THRESHOLD-total_util[i]));
 }
 
+// migrates the VM to the given PM
 void State::migrate(int set_index, Info vm_info)
 {
     pm_to_vm_map[vm_to_pm_map[vm_info.index]]->remove(vm_info);
@@ -68,6 +73,7 @@ double calMean(double *data, int size, int k)
     return sum/size;
 }
 
+// checks if migrating the VM to given PM increases the variance
 bool State::isIncrVar(int set_index, Info vm_info)
 {
     if(set_index == vm_to_pm_map[vm_info.index]) { return false;}
@@ -86,6 +92,7 @@ bool State::isIncrVar(int set_index, Info vm_info)
     return (new_var > old_var);
 }
 
+// calculate the State Utility Value
 float State::getSUV(SimData* sdata)
 {
     float suv = 0;
@@ -120,6 +127,7 @@ float State::getSUV(SimData* sdata)
     return suv;
 }
 
+// calculate the Intermediate State Utility Value given the next state
 float State::getISUV(State *next_state, SimData* sdata)
 {
     list<Info>* mvms = next_state->mig_vms;

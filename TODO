@@ -1,5 +1,6 @@
 ### TODO ###
-- change the khanna algorithm to store migration rather than finding them later
+- graphs, report, slides
+- compare and check for specific inputs
 - pMapper algorithm
 - vmanage algorithm
 - comparision of all algorithms

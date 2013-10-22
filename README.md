@@ -26,7 +26,7 @@ Input File
 
 Output
 ------
-The `mdp` algorithm prints vm to pm mapping in all the phases with the actions
+Each algorithm prints vm to pm mapping in all the phases with the actions
 required to be undertaken to reach from one state to next consecutive state
 
 How to Run
@@ -36,4 +36,5 @@ Current Working Dir: **simcon/**
 make clean
 make
 ./bin/mdp < input
+./bin.khanna < input
 ```

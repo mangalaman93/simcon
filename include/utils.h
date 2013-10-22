@@ -1,3 +1,8 @@
+/*
+This class provides various utilities to be used by other classes.
+Right now it provides a matrix api for 2D or 3D matrices.
+*/
+
 #ifndef UTILS_H
 #define UTILS_H
 

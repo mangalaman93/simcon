@@ -1,3 +1,8 @@
+/*
+This class handles the input data. It reads from standard
+input stream and provides API to access the data
+*/
+
 #ifndef SIMDATA_H
 #define SIMDATA_H
 

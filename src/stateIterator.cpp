@@ -24,6 +24,8 @@ bool StateIterator::end() const
     return loop_end;
 }
 
+// for the algorithm refer to http://www.cs.utsa.edu/~wagner/knuth/fasc3b.pdf
+// (algorithm H on page number 26)
 void StateIterator::operator++()
 {
     if(!loop_end)
