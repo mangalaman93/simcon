@@ -5,7 +5,7 @@
 #define LOWERUTIL_THRESHOLD 0.25
 
 // Power constants
-#define STATICPOWERCONSTANT	0.40
+#define STATICPOWERCONSTANT 0.40
 #define DYNAMICPOWERCONSTANT (1 - STATICPOWERCONSTANT)
 
 // Wattage of PC (in watt, joule per hour)

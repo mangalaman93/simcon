@@ -38,7 +38,7 @@ class State
     list<Info> **pm_to_vm_map;
     int *vm_to_pm_map;
     double *total_util;
-    list<int> *mig_vms;
+    list<Info> *mig_vms;
     
     void sortPMs();
 
@@ -53,6 +53,8 @@ public:
     void getSortedPM(Heap *pm_list);
     void migrate(int set_index, Info vm_info);
     bool isIncrVar(int set_index, Info vm_info);
+    float getSUV(SimData* sdata);
+    float getISUV(State *next_state, SimData* sdata);
     void print();
     void printMigrations();
 };
