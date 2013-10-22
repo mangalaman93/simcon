@@ -2,6 +2,7 @@
 *.slo
 *.lo
 *.o
+*.out
 
 # Compiled Dynamic libraries
 *.so
@@ -12,3 +13,7 @@
 *.la
 *.a
 bin/*
+
+# input/output files
+input
+output

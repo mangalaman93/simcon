@@ -120,6 +120,16 @@ int main()
         cout<<endl;
 	}
 
+	double overall_profit = 0;
+	for(int p=0; p<num_phases; p++)
+	{
+		float profit = policy[p]->getSUV(s_data);
+		if(p+1 != num_phases)
+			profit = (profit*(1 - MIGRATIONDURATION) + MIGRATIONDURATION*policy[p]->getISUV(policy[p+1], s_data));
+        overall_profit += profit;
+	}
+	cout<<"overall profit: "<<overall_profit<<endl;
+
 	for(int i=0; i<num_phases; i++) { delete policy[i];}
 	delete [] policy;
 	delete s_data;
