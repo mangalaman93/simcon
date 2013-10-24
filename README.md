@@ -10,11 +10,14 @@ Assumptions
 * Current version of simulator only assumes CPU as resource
 * Migrations from one physical machine are done at the same time (live gang migration)
 * All numbering begins from 0, e.g. numbering of vms begins from 0 and goes till (vm_number -1)
+* All migrations are carried out before the next phase begins (in the end of the current phase)
 
 Notations and Abbreviations
 ---------------------------
 - pm = physical machine
 - vm = virtual machine
+- suv = state utility values
+- isuv = intermediate state utility values (while migrations)
 
 Input File
 ----------
@@ -23,6 +26,8 @@ Input File
 * for each phase, utilization of each vm
 * reward for each vm
 * penalty for each pm
+
+See TODO file for examples.
 
 Output
 ------
