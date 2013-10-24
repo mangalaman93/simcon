@@ -287,52 +287,71 @@ int main()
     }
 
     // printing the policy
+    ofstream profilt_file("results/mdp_cum_profits.txt");
+    ofstream util_file("results/mdp_util.txt");
+    if(!(profilt_file.is_open() && util_file.is_open()))
+    {
+        cout<<"cannot open files, exiting!"<<endl;
+        exit(1);
+    }
+
     int i = 0;
+    float cum_profit = 0;
+    float* util = new float[num_vms];
+    float* iutil = new float[num_vms];
     list<int>::iterator it=final_policy.begin();
     int last_policy = *it;
     ++it;
     for(; it!=final_policy.end(); ++it)
     {
+        // storing cumulative profit
+        cum_profit += trans_table(i, last_policy, *it);
+        profilt_file << i << "\t" << cum_profit << endl;
+
+        // finding the state vm to pm mapping
         StateIterator sitr1(num_vms);
         for(sitr1.begin(); sitr1.end(); ++sitr1)
             if((int)sitr1 == last_policy) { break;}
-
-        sitr1.print();
-        cout<<"\t\t->\tmigrate vms: ";
-
         StateIterator sitr2(num_vms);
         for(sitr2.begin(); sitr2.end(); ++sitr2)
             if((int)sitr2 == *it) { break;}
-     
+
+        // finding utilization of each pm
+        for(int j=0; j<num_vms; j++)
+            util[j] = 0;
+        for(int j=0; j<num_vms; j++)
+            util[(*sitr1)[j]] += s_data->getWorkload(i, j);
+        for(int j=0; j<num_vms; j++)
+            iutil[j] = util[j];
+
+        // printing on terminal
+        sitr1.print();
+        cout<<"\t\t->\tmigrate vms: ";
         for(int j=0; j<num_vms; j++)
         {
             if((*sitr1)[j] != (mig_table(i, last_policy, *it))[(*sitr2)[j]])
+            {
                 cout<<j<<", ";
+                iutil[(*sitr1)[j]] += MOHCPUINTENSIVE*s_data->getWorkload(i, j);
+                iutil[(mig_table(i, last_policy, *it))[(*sitr2)[j]]] += MOHCPUINTENSIVE*s_data->getWorkload(i, j);
+            }
         }
         cout<<endl;
+
+        // storing the utilization
+        util_file << i << "\t";
+        for(int j=0; j<num_vms; j++)
+            util_file << util[j] << "\t" << iutil[j] << "\t";
+        util_file << endl;
 
         i++;
         last_policy = *it;
     }
     cout<<"overall profit: "<<max_profit<<endl;
-
-    ofstream profilt_file("results/mdp_cum_profits.txt");
-    if(profilt_file.is_open())
-    {
-        int phase = 0;
-        list<int>::iterator itr=final_policy.begin();
-        int last_policy = *itr; ++itr;
-        float profit = 0;
-        for(; itr!=final_policy.end(); ++itr)
-        {
-            profit += trans_table(phase, last_policy, *itr);
-            profilt_file << phase << "\t" << profit << endl;
-            last_policy = *itr;
-            phase++;
-        }
-        profilt_file.close();
-    } else
-        cout<<"cannot open cumulative profit file"<<endl;
+    delete [] util;
+    delete [] iutil;
+    profilt_file.close();
+    util_file.close();
 
     for(int p=0; p<num_phases; p++)
         for(int i=0; i<num_states; i++)

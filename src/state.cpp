@@ -7,20 +7,20 @@ State::State(int phase_num, SimData *sdata)
     pm_to_vm_map = new list<Info>*[num_vms];
     for(int i=0; i<num_vms; i++) { pm_to_vm_map[i] = new list<Info>;}
     vm_to_pm_map = new int[sdata->getNumVM()];
-    total_util = new double[num_vms];
+    total_util = new float[num_vms];
     for(int i=0; i<num_vms; i++) { total_util[i]=0;}
     mig_vms = new list<Info>;
 }
 
 // shifts the vm having utilization `util` on pm `set_index`
-void State::accommodateVm(int vm, double util, int set_index)
+void State::accommodateVm(int vm, float util, int set_index)
 {
     pm_to_vm_map[set_index]->push_back(Info(vm, util));
     vm_to_pm_map[vm] = set_index;
     total_util[set_index] += util;
 }
 
-bool State::ifVmAllowedOnPm(int set_index, double vm_util)
+bool State::ifVmAllowedOnPm(int set_index, float vm_util)
 {
     return (total_util[set_index] + vm_util <= UTIL_THRESHOLD);
 }
@@ -66,9 +66,9 @@ void State::migrate(int set_index, Info vm_info)
     mig_vms->push_back(Info(vm_info.index, set_index));
 }
 
-double calMean(double *data, int size, int k)
+float calMean(float *data, int size, int k)
 {
-    double sum = 0;
+    float sum = 0;
     for(int i=0; i<size; i++) { sum += pow(data[i], k);}
     return sum/size;
 }
@@ -77,13 +77,13 @@ double calMean(double *data, int size, int k)
 bool State::isIncrVar(int set_index, Info vm_info)
 {
     if(set_index == vm_to_pm_map[vm_info.index]) { return false;}
-    double old_var = calMean(total_util, num_vms, 2) - pow(calMean(total_util, num_vms, 1), 2);
+    float old_var = calMean(total_util, num_vms, 2) - pow(calMean(total_util, num_vms, 1), 2);
 
     // new utilizations
     total_util[set_index] += vm_info.val;
     total_util[vm_to_pm_map[vm_info.index]] -= vm_info.val;
 
-    double new_var = calMean(total_util, num_vms, 2) - pow(calMean(total_util, num_vms, 1), 2);
+    float new_var = calMean(total_util, num_vms, 2) - pow(calMean(total_util, num_vms, 1), 2);
 
     //reverting back to original utilizations
     total_util[set_index] -= vm_info.val;
@@ -130,7 +130,6 @@ float State::getSUV(SimData* sdata)
 // calculate the Intermediate State Utility Value given the next state
 float State::getISUV(State *next_state, SimData* sdata)
 {
-    list<Info>* mvms = next_state->mig_vms;
     float isuv = 0;
     float* util = new float[num_vms];
     float* reward = new float[num_vms];
@@ -149,12 +148,7 @@ float State::getISUV(State *next_state, SimData* sdata)
         penalty[vm_to_pm_map[j]] += sdata->getVmPenalty(j);
         util[vm_to_pm_map[j]] += sdata->getWorkload(phase_num, j);
     }
-
-    for(list<Info>::iterator i = mvms->begin(); i != mvms->end(); ++i)
-    {
-        util[vm_to_pm_map[i->index]] += MOHCPUINTENSIVE*sdata->getWorkload(phase_num, i->index);
-        util[(int)(i->val)] += MOHCPUINTENSIVE*sdata->getWorkload(phase_num, i->index);
-    }
+    set_intermediate_util(next_state, util, sdata);
 
     for(int i=0; i<num_vms; i++)
     {
@@ -171,6 +165,21 @@ float State::getISUV(State *next_state, SimData* sdata)
     delete [] reward;
     delete [] penalty;
     return isuv;
+}
+
+float State::get_total_util(int pm)
+{
+    return total_util[pm];
+}
+
+void State::set_intermediate_util(State *next_state, float* iutil, SimData* sdata)
+{
+    list<Info>* mvms = next_state->mig_vms;
+    for(list<Info>::iterator i = mvms->begin(); i != mvms->end(); ++i)
+    {
+        iutil[vm_to_pm_map[i->index]] += MOHCPUINTENSIVE*sdata->getWorkload(phase_num, i->index);
+        iutil[(int)(i->val)] += MOHCPUINTENSIVE*sdata->getWorkload(phase_num, i->index);
+    }
 }
 
 void State::print()

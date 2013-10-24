@@ -24,7 +24,7 @@ int main()
 	{
 		// Assuming all the states can be accommodated on the given PMs
 		int vm_index = sorted_vms->top().index;
-		double vm_util =  sorted_vms->top().val;
+		float vm_util =  sorted_vms->top().val;
 		for(int j=0; j<num_vms; j++)
 		{
 			if(policy[0]->ifVmAllowedOnPm(j, vm_util))
@@ -53,7 +53,7 @@ int main()
 				delete sorted_violated_vm;
 				break;
 			}
-			
+
 			Heap *sorted_pm = new Heap(CompareVM(true));
 			next_state->getSortedPM(sorted_pm);
 
@@ -122,15 +122,29 @@ int main()
 	}
 
 	ofstream profilt_file("results/khanna_cum_profits.txt");
-	if(!profilt_file.is_open())
-	{
-		cout<<"cannot open cumulative profit file"<<endl;
-		exit(1);
-	}
+	ofstream util_file("results/khanna_util.txt");
+	if(!(profilt_file.is_open() && util_file.is_open()))
+    {
+        cout<<"cannot open files, exiting!"<<endl;
+        exit(1);
+    }
 
-	double overall_profit = 0;
+	float* iutil = new float[num_vms];
+	float overall_profit = 0;
 	for(int p=0; p<num_phases; p++)
 	{
+		// finding utilization of each pm
+		for(int j=0; j<num_vms; j++)
+		    iutil[j] = policy[p]->get_total_util(j);
+
+		if(p+1 != num_phases)
+			policy[p]->set_intermediate_util(policy[p+1], iutil, s_data);
+		
+		util_file << p << "\t";
+		for(int j=0; j<num_vms; j++)
+		    util_file << policy[p]->get_total_util(j) << "\t" << iutil[j] << "\t";
+		util_file << endl;
+
 		float profit = policy[p]->getSUV(s_data);
 		if(p+1 != num_phases)
 			profit = (profit*(1 - MIGRATIONDURATION) + MIGRATIONDURATION*policy[p]->getISUV(policy[p+1], s_data));
@@ -138,7 +152,9 @@ int main()
         profilt_file << p << "\t" << overall_profit << endl;
 	}
 	cout<<"overall profit: "<<overall_profit<<endl;
+	delete [] iutil;
 	profilt_file.close();
+	util_file.close();
 
 	for(int i=0; i<num_phases; i++) { delete policy[i];}
 	delete [] policy;
