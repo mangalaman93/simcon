@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cmath>
+#include <fstream>
 #include "algo.h"
 #include "simdata.h"
 #include "config.h"
@@ -221,20 +222,27 @@ int main()
     // finding the most optimum cycle
     StateIterator sitr3(num_vms);
     Matrix<float> temp_trans(num_states, num_states);
+    Matrix<float> mid_trans(num_states, num_states);
     Matrix<list<int> > policy(num_states, num_states);
     Matrix<list<int> > new_policy(num_states, num_states);
+
+    // copying the data
+    for(int i=0; i<num_states; i++)
+        for(int j=0; j<num_states; j++)
+            mid_trans(i, j) = trans_table(0, i, j);
+
     for(int p=0; p<num_phases-2; p++)
     {
         for(sitr.begin(); sitr.end(); ++sitr)
         {
             for(sitr3.begin(); sitr3.end(); ++sitr3)
             {
-                float max = trans_table(p, (int)sitr, 0) + trans_table(p+1, 0, (int)sitr3);
+                float max = mid_trans((int)sitr, 0) + trans_table(p+1, 0, (int)sitr3);
                 new_policy((int)sitr, (int)sitr3) = policy((int)sitr, 0);
                 new_policy((int)sitr, (int)sitr3).push_back(0);
                 for(sitr2.begin(); sitr2.end(); ++sitr2)
                 {
-                    float temp = trans_table(p, (int)sitr, (int)sitr2) + trans_table(p+1, (int)sitr2, (int)sitr3);
+                    float temp = mid_trans((int)sitr, (int)sitr2) + trans_table(p+1, (int)sitr2, (int)sitr3);
                     if(max < temp)
                     {
                         max = temp;
@@ -251,13 +259,13 @@ int main()
         {
             for(int j=0; j<num_states; j++)
             {
-                trans_table(p+1, i, j) = temp_trans(i, j);
+                mid_trans(i, j) = temp_trans(i, j);
                 policy(i, j) = new_policy(i, j);
             }
         }
     }
 
-    float max_profit = trans_table(num_phases-2, 0, 0) + trans_table(num_phases-1, 0, 0);
+    float max_profit = mid_trans(0, 0) + trans_table(num_phases-1, 0, 0);
     list<int> final_policy = policy(0, 0);
     final_policy.push_back(0);
     final_policy.push_back(0);
@@ -266,7 +274,7 @@ int main()
     {
         for(sitr2.begin(); sitr2.end(); ++sitr2)
         {
-            float temp = trans_table(num_phases-2, (int)sitr, (int)sitr2) + trans_table(num_phases-1, (int)sitr2, (int)sitr);
+            float temp = mid_trans((int)sitr, (int)sitr2) + trans_table(num_phases-1, (int)sitr2, (int)sitr);
             if(temp > max_profit)
             {
                 max_profit = temp;
@@ -307,6 +315,24 @@ int main()
         last_policy = *it;
     }
     cout<<"overall profit: "<<max_profit<<endl;
+
+    ofstream profilt_file("results/mdp_cum_profits.txt");
+    if(profilt_file.is_open())
+    {
+        int phase = 0;
+        list<int>::iterator itr=final_policy.begin();
+        int last_policy = *itr; ++itr;
+        float profit = 0;
+        for(; itr!=final_policy.end(); ++itr)
+        {
+            profit += trans_table(phase, last_policy, *itr);
+            profilt_file << phase << "\t" << profit << endl;
+            last_policy = *itr;
+            phase++;
+        }
+        profilt_file.close();
+    } else
+        cout<<"cannot open cumulative profit file"<<endl;
 
     for(int p=0; p<num_phases; p++)
         for(int i=0; i<num_states; i++)

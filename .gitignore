@@ -17,6 +17,7 @@ bin/*
 # input/output files
 input
 output
+results/*.txt
 
 # doc files #
 doc/build/*

@@ -1,5 +1,6 @@
 #include <iostream>
 #include <queue>
+#include <fstream>
 #include "simdata.h"
 #include "state.h"
 using namespace std;
@@ -52,7 +53,7 @@ int main()
 				delete sorted_violated_vm;
 				break;
 			}
-
+			
 			Heap *sorted_pm = new Heap(CompareVM(true));
 			next_state->getSortedPM(sorted_pm);
 
@@ -120,6 +121,13 @@ int main()
         cout<<endl;
 	}
 
+	ofstream profilt_file("results/khanna_cum_profits.txt");
+	if(!profilt_file.is_open())
+	{
+		cout<<"cannot open cumulative profit file"<<endl;
+		exit(1);
+	}
+
 	double overall_profit = 0;
 	for(int p=0; p<num_phases; p++)
 	{
@@ -127,8 +135,10 @@ int main()
 		if(p+1 != num_phases)
 			profit = (profit*(1 - MIGRATIONDURATION) + MIGRATIONDURATION*policy[p]->getISUV(policy[p+1], s_data));
         overall_profit += profit;
+        profilt_file << p << "\t" << overall_profit << endl;
 	}
 	cout<<"overall profit: "<<overall_profit<<endl;
+	profilt_file.close();
 
 	for(int i=0; i<num_phases; i++) { delete policy[i];}
 	delete [] policy;
