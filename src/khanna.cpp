@@ -142,7 +142,10 @@ int main()
 		
 		util_file << p << "\t";
 		for(int j=0; j<num_vms; j++)
-		    util_file << policy[p]->get_total_util(j) << "\t" << iutil[j] << "\t";
+		    util_file << policy[p]->get_total_util(j) << "\t";
+		util_file << endl << (p+1-MIGRATIONDURATION) << "\t";
+		for(int j=0; j<num_vms; j++)
+		    util_file << iutil[j] << "\t";
 		util_file << endl;
 
 		float profit = policy[p]->getSUV(s_data);

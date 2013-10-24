@@ -341,7 +341,10 @@ int main()
         // storing the utilization
         util_file << i << "\t";
         for(int j=0; j<num_vms; j++)
-            util_file << util[j] << "\t" << iutil[j] << "\t";
+            util_file << util[j] << "\t";
+        util_file << endl << (i+(1-MIGRATIONDURATION)) << "\t";
+        for(int j=0; j<num_vms; j++)
+            util_file << iutil[j] << "\t";
         util_file << endl;
 
         i++;
