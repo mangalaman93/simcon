@@ -143,7 +143,7 @@ float compareState(int phase, int* vm_to_pm_map1, int* vm_to_pm_map2, int num_vm
     for(int i=0; i<num_vms; i++)
         best_perm_map[i] = perm_map[i];
 
-    for(int i=2; i<fact(num_vms); i++)
+    for(int i=1; i<fact(num_vms); i++)
     {
         getNext(perm_map, num_vms);
         float temp = getISUV(phase, vm_to_pm_map1, vm_to_pm_map2, perm_map, num_vms, sdata);
@@ -231,6 +231,8 @@ int main()
         for(int j=0; j<num_states; j++)
             mid_trans(i, j) = trans_table(0, i, j);
 
+    cout<<"finding the max profit cycle ..."<<endl;
+    cout<<"total phases: "<<num_phases<<endl<<"phases complete: "; cout.flush();
     for(int p=0; p<num_phases-2; p++)
     {
         for(sitr.begin(); sitr.end(); ++sitr)
@@ -238,18 +240,18 @@ int main()
             for(sitr3.begin(); sitr3.end(); ++sitr3)
             {
                 float max = mid_trans((int)sitr, 0) + trans_table(p+1, 0, (int)sitr3);
-                new_policy((int)sitr, (int)sitr3) = policy((int)sitr, 0);
-                new_policy((int)sitr, (int)sitr3).push_back(0);
+                int index = 0;
                 for(sitr2.begin(); sitr2.end(); ++sitr2)
                 {
                     float temp = mid_trans((int)sitr, (int)sitr2) + trans_table(p+1, (int)sitr2, (int)sitr3);
                     if(max < temp)
                     {
                         max = temp;
-                        new_policy((int)sitr, (int)sitr3) = policy((int)sitr, (int)sitr2);
-                        new_policy((int)sitr, (int)sitr3).push_back((int)sitr2);
+                        index = (int)sitr2;
                     }
                 }
+                new_policy((int)sitr, (int)sitr3) = policy((int)sitr, index);
+                new_policy((int)sitr, (int)sitr3).push_back(index);
                 temp_trans((int)sitr, (int)sitr3) = max;
             }
         }
@@ -263,13 +265,14 @@ int main()
                 policy(i, j) = new_policy(i, j);
             }
         }
+
+        cout<<p<<","; cout.flush();
     }
 
+    cout<<(num_phases-1); cout.flush();
     float max_profit = mid_trans(0, 0) + trans_table(num_phases-1, 0, 0);
-    list<int> final_policy = policy(0, 0);
-    final_policy.push_back(0);
-    final_policy.push_back(0);
-    final_policy.push_front(0);
+    int index1 = 0;
+    int index2 = 0;
     for(sitr.begin(); sitr.end(); ++sitr)
     {
         for(sitr2.begin(); sitr2.end(); ++sitr2)
@@ -278,13 +281,16 @@ int main()
             if(temp > max_profit)
             {
                 max_profit = temp;
-                final_policy = policy((int)sitr, (int)sitr2);
-                final_policy.push_back((int)sitr2);
-                final_policy.push_back((int)sitr);
-                final_policy.push_front((int)sitr);
+                index1 = (int)sitr;
+                index2 = (int)sitr2;
             }
         }
     }
+    list<int> final_policy = policy(index1, index2);
+    final_policy.push_back(index2);
+    final_policy.push_back(index1);
+    final_policy.push_front(index1);
+    cout<<endl<<"max profit cycle found ..."<<endl;
 
     // printing the policy
     ofstream profilt_file("results/mdp_cum_profits.txt");
