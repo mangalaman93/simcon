@@ -98,7 +98,7 @@ float State::getSUV(SimData* sdata)
     float suv = 0;
     float * reward = new float [num_vms];
     float * penalty = new float [num_vms];
-    
+
     for(int i=0; i<num_vms; i++)
     {
         reward[i] = 0;
@@ -134,7 +134,7 @@ float State::getISUV(State *next_state, SimData* sdata)
     float* util = new float[num_vms];
     float* reward = new float[num_vms];
     float* penalty = new float[num_vms];
-    
+
     for(int i=0; i<num_vms; i++)
     {
         util[i] = 0;
@@ -160,7 +160,7 @@ float State::getISUV(State *next_state, SimData* sdata)
         else
             isuv -= penalty[i];
     }
-    
+
     delete [] util;
     delete [] reward;
     delete [] penalty;

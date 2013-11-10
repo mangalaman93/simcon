@@ -1,0 +1,6 @@
+language: cpp
+script: "make rebuild"
+branches:
+	only:
+		all_algos
+		master

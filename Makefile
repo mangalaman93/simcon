@@ -1,4 +1,4 @@
-# makefile
+# makefile (use -pg for profiling)
 
 IDIR = include
 CC = g++
@@ -11,32 +11,33 @@ ODIR = bin
 LIBS = -lm
 RES  = results
 
-_DEPS = simdata.h utils.h algo.h stateIterator.h state.h
+_DEPS = simdata.h utils.h algo.h stateIterator.h state.h config.h policy.h mdp.h khanna.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
-_OBJ = simdata.o utils.o algo.o stateIterator.o state.o
+_OBJ = simdata.o utils.o algo.o stateIterator.o state.o mdp.o khanna.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 $(ODIR)/%.o: $(SDIR)/%.cpp $(DEPS)
 	$(CC) $(CFLAGS) -o $@ $<
 
-all: dir $(ODIR)/mdp $(ODIR)/khanna
+all: dir $(ODIR)/main
 
 dir:
 	mkdir -p $(ODIR)
 
-$(ODIR)/mdp: $(OBJ)
-	$(CC) $(LIBS) -I$(IDIR) -o $@ $^ $(SDIR)/mdp.cpp $(PROFILE)
-
-$(ODIR)/khanna: $(OBJ)
-	$(CC) $(LIBS) -I$(IDIR) -o $@ $^ $(SDIR)/khanna.cpp $(PROFILE)
+$(ODIR)/main: $(OBJ)
+	$(CC) $(LIBS) -I$(IDIR) -o $@ $^ $(SDIR)/main.cpp $(PROFILE)
 
 clean:
 	rm -rf $(ODIR) *~ $(INCDIR)/*~
+
+distclean: clean
 	rm -rf $(RES)/*.pdf
 	rm -rf $(RES)/*.txt
 
 plot:
 	cd $(RES) && gnuplot workload.p cum_profits.p
 
-.PHONY: clean $(ODIR)/mdp $(ODIR)/khanna
+rebuild: distclean all
+
+.PHONY: clean $(ODIR)/main

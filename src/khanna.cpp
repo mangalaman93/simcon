@@ -13,7 +13,7 @@ int main()
 
 	SimData *s_data = new SimData(num_vms, num_phases);
 	s_data->readInput();
-	
+
 	State **policy = new State*[num_phases];
 	for(int i=0; i<num_phases; i++) { policy[i] = new State(i, s_data);}
 
@@ -139,7 +139,7 @@ int main()
 
 		if(p+1 != num_phases)
 			policy[p]->set_intermediate_util(policy[p+1], iutil, s_data);
-		
+
 		util_file << p << "\t";
 		for(int j=0; j<num_vms; j++)
 		    util_file << policy[p]->get_total_util(j) << "\t";

@@ -15,5 +15,5 @@
 // Migration overhead of CPU Intensive workload VM
 #define MOHCPUINTENSIVE 0.55
 
-// Absolute total migration time in hours
+// fraction of migration time in a phase
 #define MIGRATIONDURATION 0.3

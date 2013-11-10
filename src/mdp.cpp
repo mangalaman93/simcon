@@ -1,13 +1,9 @@
-#include <iostream>
-#include <cmath>
-#include <fstream>
-#include "algo.h"
-#include "simdata.h"
-#include "config.h"
-#include "stateIterator.h"
-using namespace std;
+#include "mdp.h"
 
-#define DEBUG false
+Mdp::Mdp(Simdata *sdata) : Policy(sdata)
+{
+    num_states = Bell::get(num_vms);
+}
 
 // factorial calculation
 long fact(int n)
@@ -46,13 +42,13 @@ void getNext(int *value, int N)
 }
 
 // SUV = state utility value
-float getSUV(int phase, int* vm_to_pm_map, int num_vms, SimData* sdata)
+float Mdp::getSUV(int phase, int* vm_to_pm_map)
 {
     float suv = 0;
     float * util = new float [num_vms];
     float * reward = new float [num_vms];
     float * penalty = new float [num_vms];
-    
+
     for(int i=0; i<num_vms; i++)
     {
         util[i] = 0;
@@ -77,7 +73,7 @@ float getSUV(int phase, int* vm_to_pm_map, int num_vms, SimData* sdata)
         else
             suv -= penalty[i];
     }
-    
+
     delete [] util;
     delete [] reward;
     delete [] penalty;
@@ -85,13 +81,13 @@ float getSUV(int phase, int* vm_to_pm_map, int num_vms, SimData* sdata)
 }
 
 // ISUV = intermediate state utility value
-float getISUV(int phase, int* vm_to_pm_map1, int* vm_to_pm_map2, int* perm_map, int num_vms, SimData* sdata)
+float Mdp::getISUV(int phase, int* vm_to_pm_map1, int* vm_to_pm_map2, int* perm_map)
 {
     float isuv = 0;
     float* util = new float[num_vms];
     float* reward = new float[num_vms];
     float* penalty = new float[num_vms];
-    
+
     for(int i=0; i<num_vms; i++)
     {
         util[i] = 0;
@@ -122,7 +118,7 @@ float getISUV(int phase, int* vm_to_pm_map1, int* vm_to_pm_map2, int* perm_map, 
         else
             isuv -= penalty[i];
     }
-    
+
     delete [] util;
     delete [] reward;
     delete [] penalty;
@@ -130,23 +126,23 @@ float getISUV(int phase, int* vm_to_pm_map1, int* vm_to_pm_map2, int* perm_map, 
 }
 
 // function for the step of local optimization
-float compareState(int phase, int* vm_to_pm_map1, int* vm_to_pm_map2, int num_vms, SimData* sdata, int *best_perm_map)
+float Mdp::compareState(int phase, int* vm_to_pm_map1, int* vm_to_pm_map2, int *best_perm_map)
 {
     // calculate State Utility Value
-    float SUV = getSUV(phase, vm_to_pm_map1, num_vms, sdata);
+    float SUV = getSUV(phase, vm_to_pm_map1);
 
     // permutation map stores mapping of PMs to the permuted PMs
     int* perm_map = new int[num_vms];
     for(int i=0; i<num_vms; i++) { perm_map[i]=i;}
 
-    float ISUV = getISUV(phase, vm_to_pm_map1, vm_to_pm_map2, perm_map, num_vms, sdata);
+    float ISUV = getISUV(phase, vm_to_pm_map1, vm_to_pm_map2, perm_map);
     for(int i=0; i<num_vms; i++)
         best_perm_map[i] = perm_map[i];
 
     for(int i=1; i<fact(num_vms); i++)
     {
         getNext(perm_map, num_vms);
-        float temp = getISUV(phase, vm_to_pm_map1, vm_to_pm_map2, perm_map, num_vms, sdata);
+        float temp = getISUV(phase, vm_to_pm_map1, vm_to_pm_map2, perm_map);
         if(temp > ISUV)
         {
             ISUV = temp;
@@ -159,37 +155,27 @@ float compareState(int phase, int* vm_to_pm_map1, int* vm_to_pm_map2, int num_vm
     return (SUV * (1 - MIGRATIONDURATION) + ISUV * MIGRATIONDURATION);
 }
 
-int main()
+int run(int phases)
 {
-    int num_vms, num_phases;
-    cin>>num_vms;
-    cin>>num_phases;
-
-    SimData *s_data = new SimData(num_vms, num_phases);
-    s_data->readInput();
-
-    // calculating the possible number of states (bell number)
-    long int num_states = Bell::get(num_vms);
-    cout<<"total number of states : "<<num_states<<endl;
+    if(phases < sdata->getNumPhases())
+    {
+        cout<<"error occured, minimum 1 cycle is required to run MDP!"<<endl;
+        exit(1);
+    }
+    run_for_phases = phases;
 
     // constructing transition matrix
     cout<<"constructing transition matrix ..."<<endl;
-    Matrix<float> trans_table(num_phases, num_states, num_states);
-    Matrix<int*> mig_table(num_phases, num_states, num_states);
     StateIterator sitr(num_vms);
     StateIterator sitr2(num_vms);
+    StateIterator sitr3(num_vms);
 
-    cout<<"total phases: "<<num_phases<<endl<<"phases complete: "; cout.flush();
+    cout<<"runnnig MDP! total phases: "<<num_phases<<endl<<"phases complete: "; cout.flush();
     for(int p=0; p<num_phases; p++)
     {
         for(sitr.begin(); sitr.end(); ++sitr)
-        {
             for(sitr2.begin(); sitr2.end(); ++sitr2)
-            {
-                mig_table(p, (int)sitr, (int)sitr2) = new int[num_vms];
-                trans_table(p, (int)sitr, (int)sitr2) = compareState(p, *sitr, *sitr2, num_vms, s_data, mig_table(p,(int)sitr,(int)sitr2));
-            }
-        }
+                trans_table(p, (int)sitr, (int)sitr2) = compareState(p, *sitr, *sitr2, mig_table(p,(int)sitr,(int)sitr2));
         cout<<p<<","; cout.flush();
     }
     cout<<endl<<"transition matrix prepared ..."<<endl;
@@ -220,7 +206,6 @@ int main()
     }
 
     // finding the most optimum cycle
-    StateIterator sitr3(num_vms);
     Matrix<float> temp_trans(num_states, num_states);
     Matrix<float> mid_trans(num_states, num_states);
     Matrix<list<int> > policy(num_states, num_states);
@@ -231,19 +216,18 @@ int main()
         for(int j=0; j<num_states; j++)
             mid_trans(i, j) = trans_table(0, i, j);
 
-    cout<<"finding the max profit cycle ..."<<endl;
-    cout<<"total phases: "<<num_phases<<endl<<"phases complete: "; cout.flush();
-    for(int p=0; p<num_phases-2; p++)
+    cout<<"finding the max profit cycle, total phases: "<<run_for_phases<<endl<<"phases complete: "; cout.flush();
+    for(int p=0; p<run_for_phases-2; p++)
     {
         for(sitr.begin(); sitr.end(); ++sitr)
         {
             for(sitr3.begin(); sitr3.end(); ++sitr3)
             {
-                float max = mid_trans((int)sitr, 0) + trans_table(p+1, 0, (int)sitr3);
+                float max = mid_trans((int)sitr, 0) + trans_table((p+1)%num_phases, 0, (int)sitr3);
                 int index = 0;
                 for(sitr2.begin(); sitr2.end(); ++sitr2)
                 {
-                    float temp = mid_trans((int)sitr, (int)sitr2) + trans_table(p+1, (int)sitr2, (int)sitr3);
+                    float temp = mid_trans((int)sitr, (int)sitr2) + trans_table((p+1)%num_phases, (int)sitr2, (int)sitr3);
                     if(max < temp)
                     {
                         max = temp;
@@ -265,19 +249,18 @@ int main()
                 policy(i, j) = new_policy(i, j);
             }
         }
-
         cout<<p<<","; cout.flush();
     }
 
-    cout<<(num_phases-1); cout.flush();
-    float max_profit = mid_trans(0, 0) + trans_table(num_phases-1, 0, 0);
+    cout<<(run_for_phases-1); cout.flush();
+    max_profit = mid_trans(0, 0) + trans_table((run_for_phases-1)%num_phases, 0, 0);
     int index1 = 0;
     int index2 = 0;
     for(sitr.begin(); sitr.end(); ++sitr)
     {
         for(sitr2.begin(); sitr2.end(); ++sitr2)
         {
-            float temp = mid_trans((int)sitr, (int)sitr2) + trans_table(num_phases-1, (int)sitr2, (int)sitr);
+            float temp = mid_trans((int)sitr, (int)sitr2) + trans_table((run_for_phases-1)%num_phases, (int)sitr2, (int)sitr);
             if(temp > max_profit)
             {
                 max_profit = temp;
@@ -291,8 +274,10 @@ int main()
     final_policy.push_back(index1);
     final_policy.push_front(index1);
     cout<<endl<<"max profit cycle found ..."<<endl;
+}
 
-    // printing the policy
+void Mdp::dumpStats()
+{
     ofstream profilt_file("results/mdp_cum_profits.txt");
     ofstream util_file("results/mdp_util.txt");
     if(!(profilt_file.is_open() && util_file.is_open()))
@@ -305,13 +290,16 @@ int main()
     float cum_profit = 0;
     float* util = new float[num_vms];
     float* iutil = new float[num_vms];
-    list<int>::iterator it=final_policy.begin();
+    list<int>::iterator it = final_policy.begin();
     int last_policy = *it;
     ++it;
+
     for(; it!=final_policy.end(); ++it)
     {
+        int mod_i = i%num_phases;
+
         // storing cumulative profit
-        cum_profit += trans_table(i, last_policy, *it);
+        cum_profit += trans_table(mod_i, last_policy, *it);
         profilt_file << i << "\t" << cum_profit << endl;
 
         // finding the state vm to pm mapping
@@ -326,23 +314,18 @@ int main()
         for(int j=0; j<num_vms; j++)
             util[j] = 0;
         for(int j=0; j<num_vms; j++)
-            util[(*sitr1)[j]] += s_data->getWorkload(i, j);
+            util[(*sitr1)[j]] += s_data->getWorkload(mod_i, j);
         for(int j=0; j<num_vms; j++)
             iutil[j] = util[j];
 
-        // printing on terminal
-        sitr1.print();
-        cout<<"\t\t->\tmigrate vms: ";
         for(int j=0; j<num_vms; j++)
         {
-            if((*sitr1)[j] != (mig_table(i, last_policy, *it))[(*sitr2)[j]])
+            if((*sitr1)[j] != (mig_table(mod_i, last_policy, *it))[(*sitr2)[j]])
             {
-                cout<<j<<", ";
-                iutil[(*sitr1)[j]] += MOHCPUINTENSIVE*s_data->getWorkload(i, j);
-                iutil[(mig_table(i, last_policy, *it))[(*sitr2)[j]]] += MOHCPUINTENSIVE*s_data->getWorkload(i, j);
+                iutil[(*sitr1)[j]] += MOHCPUINTENSIVE*s_data->getWorkload(mod_i, j);
+                iutil[(mig_table(mod_i, last_policy, *it))[(*sitr2)[j]]] += MOHCPUINTENSIVE*s_data->getWorkload(mod_i, j);
             }
         }
-        cout<<endl;
 
         // storing the utilization
         util_file << i << "\t";
@@ -356,15 +339,35 @@ int main()
         i++;
         last_policy = *it;
     }
-    cout<<"overall profit: "<<max_profit<<endl;
-    delete [] util;
-    delete [] iutil;
     profilt_file.close();
     util_file.close();
 
+    delete [] util;
+    delete [] iutil;
+}
+
+const int* Mdp::getMapping(int phase_number)
+{
+    if(phase_number > run_for_phases)
+    {
+        cout<<"error occured, mapping doesn't exists!"<<endl;
+        exit(1);
+    }
+}
+
+const int* Mdp::getMigrationList(int phase_number)
+{
+    if(phase_number > run_for_phases)
+    {
+        cout<<"error occured, mapping doesn't exists!"<<endl;
+        exit(1);
+    }
+}
+
+Mdp::~Mdp()
+{
     for(int p=0; p<num_phases; p++)
         for(int i=0; i<num_states; i++)
             for(int j=0; j<num_states; j++)
                 delete [] mig_table(p, i, j);
-    delete s_data;
 }

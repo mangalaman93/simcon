@@ -44,7 +44,7 @@ class State
     int *vm_to_pm_map;
     float *total_util;
     list<Info> *mig_vms;
-    
+
     void sortPMs();
 
 public:

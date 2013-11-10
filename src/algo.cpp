@@ -19,7 +19,7 @@ int Sterling::get(int n, int k)
         else
             (*memo)(n, k) = k*get(n-1, k) + get(n-1, k-1);
     }
-    
+
     return (*memo)(n, k);
 }
 
