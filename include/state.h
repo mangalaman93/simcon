@@ -10,6 +10,7 @@ various method for performing algorithm specific tasks.
 #include <list>
 #include <queue>
 #include <cmath>
+#include <vector>
 #include <algorithm>
 #include "simdata.h"
 #include "config.h"
@@ -61,6 +62,8 @@ public:
     float getSUV(SimData* sdata);
     float getISUV(State *next_state, SimData* sdata);
     float get_total_util(int pm);
+    int* getVmPmMaping();
+    vector<int> getMigList();
     void set_intermediate_util(State *next_state, float* iutil, SimData* sdata);
     void print();
     void printMigrations();

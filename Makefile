@@ -11,10 +11,10 @@ ODIR = bin
 LIBS = -lm
 RES  = results
 
-_DEPS = simdata.h utils.h algo.h stateIterator.h state.h config.h policy.h mdp.h
+_DEPS = simdata.h utils.h algo.h stateIterator.h state.h config.h policy.h mdp.h khanna.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
-_OBJ = simdata.o utils.o algo.o stateIterator.o state.o mdp.o policy.o
+_OBJ = simdata.o utils.o algo.o stateIterator.o state.o mdp.o policy.o khanna.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 $(ODIR)/%.o: $(SDIR)/%.cpp $(DEPS)

@@ -54,7 +54,7 @@ void Policy::printMigrationList(int phase_number)
 	cout<<"migrate vms: ";
 
     for(int j=0; j<num_vms; j++)
-        if(vm_mig_list[j] == 1)
+        if(vm_mig_list[j] != -1)
             cout<<j<<", ";
 }
 

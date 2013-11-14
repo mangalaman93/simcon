@@ -326,14 +326,15 @@ void Mdp::run(int phases)
 
         for(int j=0; j<num_vms; j++)
         {
-            mig_list[i].push_back(0);
+            mig_list[i].push_back(-1);
             if((*sitr1)[j] != (mig_table(mod_i, last_policy, *it))[(*sitr2)[j]])
             {
                 iutil[(*sitr1)[j]] += MOHCPUINTENSIVE*sdata->getWorkload(mod_i, j);
-                iutil[(mig_table(mod_i, last_policy, *it))[(*sitr2)[j]]] += MOHCPUINTENSIVE*sdata->getWorkload(mod_i, j);
+                int to_pm = (mig_table(mod_i, last_policy, *it))[(*sitr2)[j]];
+                iutil[to_pm] += MOHCPUINTENSIVE*sdata->getWorkload(mod_i, j);
 
                 // storing the migration list
-                mig_list[i][j] = 1;
+                mig_list[i][j] = to_pm;
             }
         }
 
@@ -362,7 +363,7 @@ void Mdp::run(int phases)
 
 vector<int> Mdp::getMapping(int phase_number)
 {
-    if(phase_number > run_for_phases)
+    if(phase_number >= run_for_phases)
     {
         cout<<"error occured, mapping doesn't exists!"<<endl;
         exit(1);
@@ -373,7 +374,7 @@ vector<int> Mdp::getMapping(int phase_number)
 
 vector<int> Mdp::getMigrationList(int phase_number)
 {
-    if(phase_number > run_for_phases)
+    if(phase_number >= run_for_phases)
     {
         cout<<"error occured, migration list doesn't exists!"<<endl;
         exit(1);

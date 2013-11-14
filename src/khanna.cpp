@@ -1,25 +1,30 @@
-#include <iostream>
-#include <queue>
-#include <fstream>
-#include "simdata.h"
-#include "state.h"
-using namespace std;
+#include "khanna.h"
 
-int main()
+Khanna::Khanna(SimData *s_data) : Policy(s_data)
 {
-	int num_vms, num_phases;
-	cin>>num_vms;
-	cin>>num_phases;
+	run_for_phases = -1;
+}
 
-	SimData *s_data = new SimData(num_vms, num_phases);
-	s_data->readInput();
+void Khanna::run(int phases)
+{
+	if(phases < 1)
+    {
+        cout<<"error occured, minimum 1 phase is required to run khanna!"<<endl;
+        exit(1);
+    }
+	if(run_for_phases > 0)
+	{
+		for(int i=0; i<=run_for_phases; i++) { delete policy[i];}
+		delete [] policy;
+	}
+	run_for_phases = phases;
 
-	State **policy = new State*[num_phases];
-	for(int i=0; i<num_phases; i++) { policy[i] = new State(i, s_data);}
+	policy = new State*[run_for_phases+1];
+	for(int i=0; i<=run_for_phases; i++) { policy[i] = new State(i, sdata);}
 
 	/* PHASE 0 BEGINS */
 	Heap *sorted_vms = new Heap();
-	for(int i=0; i<num_vms; i++) { sorted_vms->push(Info(i, s_data->getWorkload(0, i)));}
+	for(int i=0; i<num_vms; i++) { sorted_vms->push(Info(i, sdata->getWorkload(0, i)));}
 	for(int i=0; i<num_vms; i++)
 	{
 		// Assuming all the states can be accommodated on the given PMs
@@ -37,11 +42,11 @@ int main()
 	}
 
 	/* PHASE 0 ENDS # REST PHASES BEGINS */
-	for(int i=0; i<num_phases-1; i++)
+	for(int i=0; i<run_for_phases; i++)
 	{
 		// getting the next state assuming no migration
 		State *next_state = policy[i+1];
-		policy[i]->getNextState(next_state, s_data);
+		policy[i]->getNextState(next_state, sdata);
 
 		// migration based on SLA violation
 		while(true)
@@ -110,17 +115,6 @@ int main()
 		delete sorted_violated_vm;
 	}
 
-	for(int i=0; i<num_phases; i++)
-	{
-		policy[i]->print();
-		if(i+1 != num_phases)
-		{
-			cout<<"\t==>\t";
-			policy[i+1]->printMigrations();
-		}
-        cout<<endl;
-	}
-
 	ofstream profilt_file("results/khanna_cum_profits.txt");
 	ofstream util_file("results/khanna_util.txt");
 	if(!(profilt_file.is_open() && util_file.is_open()))
@@ -130,15 +124,13 @@ int main()
     }
 
 	float* iutil = new float[num_vms];
-	float overall_profit = 0;
-	for(int p=0; p<num_phases; p++)
+	max_profit = 0;
+	for(int p=0; p<run_for_phases; p++)
 	{
 		// finding utilization of each pm
 		for(int j=0; j<num_vms; j++)
 		    iutil[j] = policy[p]->get_total_util(j);
-
-		if(p+1 != num_phases)
-			policy[p]->set_intermediate_util(policy[p+1], iutil, s_data);
+		policy[p]->set_intermediate_util(policy[p+1], iutil, sdata);
 
 		util_file << p << "\t";
 		for(int j=0; j<num_vms; j++)
@@ -148,19 +140,41 @@ int main()
 		    util_file << iutil[j] << "\t";
 		util_file << endl;
 
-		float profit = policy[p]->getSUV(s_data);
-		if(p+1 != num_phases)
-			profit = (profit*(1 - MIGRATIONDURATION) + MIGRATIONDURATION*policy[p]->getISUV(policy[p+1], s_data));
-        overall_profit += profit;
-        profilt_file << p << "\t" << overall_profit << endl;
+		float profit = policy[p]->getSUV(sdata);
+		profit = (profit*(1 - MIGRATIONDURATION) + MIGRATIONDURATION*policy[p]->getISUV(policy[p+1], sdata));
+        max_profit += profit;
+        profilt_file << p << "\t" << max_profit << endl;
 	}
-	cout<<"overall profit: "<<overall_profit<<endl;
 	delete [] iutil;
 	profilt_file.close();
 	util_file.close();
+}
 
-	for(int i=0; i<num_phases; i++) { delete policy[i];}
+vector<int> Khanna::getMapping(int phase_number)
+{
+	if(phase_number >= run_for_phases)
+    {
+        cout<<"error occured, mapping doesn't exists!"<<endl;
+        exit(1);
+    }
+
+    int *vm_to_pm_map = policy[phase_number]->getVmPmMaping();
+    return vector<int>(vm_to_pm_map, vm_to_pm_map + num_vms*sizeof(vm_to_pm_map));
+}
+
+vector<int> Khanna::getMigrationList(int phase_number)
+{
+	if(phase_number >= run_for_phases)
+    {
+        cout<<"error occured, migration list doesn't exists!"<<endl;
+        exit(1);
+    }
+
+    return policy[phase_number+1]->getMigList();
+}
+
+Khanna::~Khanna()
+{
+	for(int i=0; i<=run_for_phases; i++) { delete policy[i];}
 	delete [] policy;
-	delete s_data;
-	return 0;
 }

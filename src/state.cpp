@@ -28,9 +28,10 @@ bool State::ifVmAllowedOnPm(int set_index, float vm_util)
 // provides a new state with old phase utilizations
 void State::getNextState(State *state, SimData *sdata)
 {
+    int num_phases = sdata->getNumPhases();
     for(int i=0; i<num_vms; i++)
         for(list<Info>::iterator it=pm_to_vm_map[i]->begin(); it!=pm_to_vm_map[i]->end(); ++it)
-            state->accommodateVm(it->index, sdata->getWorkload(state->phase_num, it->index), i);
+            state->accommodateVm(it->index, sdata->getWorkload((state->phase_num)%num_phases, it->index), i);
 }
 
 void State::getSortedViolatedVM(Heap *vm_list)
@@ -130,6 +131,7 @@ float State::getSUV(SimData* sdata)
 // calculate the Intermediate State Utility Value given the next state
 float State::getISUV(State *next_state, SimData* sdata)
 {
+    int num_phases = sdata->getNumPhases();
     float isuv = 0;
     float* util = new float[num_vms];
     float* reward = new float[num_vms];
@@ -146,7 +148,7 @@ float State::getISUV(State *next_state, SimData* sdata)
     {
         reward[vm_to_pm_map[j]] += sdata->getVmRevenue(j);
         penalty[vm_to_pm_map[j]] += sdata->getVmPenalty(j);
-        util[vm_to_pm_map[j]] += sdata->getWorkload(phase_num, j);
+        util[vm_to_pm_map[j]] += sdata->getWorkload(phase_num%num_phases, j);
     }
     set_intermediate_util(next_state, util, sdata);
 
@@ -172,13 +174,28 @@ float State::get_total_util(int pm)
     return total_util[pm];
 }
 
+int* State::getVmPmMaping()
+{
+    return vm_to_pm_map;
+}
+
+vector<int> State::getMigList()
+{
+    vector<int> v(num_vms, -1);
+    for(list<Info>::iterator it = mig_vms->begin(); it!=mig_vms->end(); ++it)
+        v[it->index] = (int)it->val;
+    return v;
+}
+
+
 void State::set_intermediate_util(State *next_state, float* iutil, SimData* sdata)
 {
+    int num_phases = sdata->getNumPhases();
     list<Info>* mvms = next_state->mig_vms;
     for(list<Info>::iterator i = mvms->begin(); i != mvms->end(); ++i)
     {
-        iutil[vm_to_pm_map[i->index]] += MOHCPUINTENSIVE*sdata->getWorkload(phase_num, i->index);
-        iutil[(int)(i->val)] += MOHCPUINTENSIVE*sdata->getWorkload(phase_num, i->index);
+        iutil[vm_to_pm_map[i->index]] += MOHCPUINTENSIVE*sdata->getWorkload(phase_num%num_phases, i->index);
+        iutil[(int)(i->val)] += MOHCPUINTENSIVE*sdata->getWorkload(phase_num%num_phases, i->index);
     }
 }
 
