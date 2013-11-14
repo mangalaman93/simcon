@@ -28,6 +28,9 @@ public:
     float getWorkload(int phase, int vm);
     float getVmRevenue(int vm);
     float getVmPenalty(int vm);
+    void setWorkload(int phase, int vm, float val);
+    void setVmRevenue(int vm, float val);
+    void setVmPenalty(int vm, float val);
 };
 
 #endif

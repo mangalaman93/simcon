@@ -25,6 +25,10 @@ float SimData::getWorkload(int phase, int vm) { return (*workload)(phase, vm);}
 float SimData::getVmRevenue(int vm) { return vm_revenue[vm];}
 float SimData::getVmPenalty(int vm) { return vm_penalty[vm];}
 
+void SimData::setWorkload(int phase, int vm, float val) { (*workload)(phase, vm) = val;}
+void SimData::setVmRevenue(int vm, float val) { vm_revenue[vm] = val;}
+void SimData::setVmPenalty(int vm, float val) { vm_penalty[vm] = val;}
+
 SimData::~SimData()
 {
 	delete workload;
