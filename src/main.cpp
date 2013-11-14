@@ -1,9 +1,6 @@
 #include <iostream>
 #include "simdata.h"
-#include "khanna.h"
 #include "mdp.h"
-
-#define DEBUG false
 
 int main()
 {
@@ -14,17 +11,10 @@ int main()
     SimData *sdata = new SimData(num_vms, num_phases);
     sdata->readInput();
 
-    cout<<"******* khanna *******"<<endl;
-    Khanna kh(sdata);
-    kh.run();
-    kh.printPolicy();
-    cout<<endl;
-
     cout<<"******* mdp *******"<<endl;
-    MDP mdp(sdata);
-    mdp.run();
+    Mdp mdp(sdata);
+    mdp.run(num_phases);
     mdp.printPolicy();
-    cout<<endl;
 
     delete sdata;
 	return 0;

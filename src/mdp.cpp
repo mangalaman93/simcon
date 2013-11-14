@@ -1,6 +1,6 @@
 #include "mdp.h"
 
-Mdp::Mdp(Simdata *sdata) : Policy(sdata)
+Mdp::Mdp(SimData *s_data) : Policy(s_data)
 {
     num_states = Bell::get(num_vms);
 }
@@ -155,9 +155,9 @@ float Mdp::compareState(int phase, int* vm_to_pm_map1, int* vm_to_pm_map2, int *
     return (SUV * (1 - MIGRATIONDURATION) + ISUV * MIGRATIONDURATION);
 }
 
-int run(int phases)
+void Mdp::run(int phases)
 {
-    if(phases < sdata->getNumPhases())
+    if(phases < num_phases)
     {
         cout<<"error occured, minimum 1 cycle is required to run MDP!"<<endl;
         exit(1);
@@ -166,6 +166,8 @@ int run(int phases)
 
     // constructing transition matrix
     cout<<"constructing transition matrix ..."<<endl;
+    Matrix<float> trans_table(num_phases, num_states, num_states);
+    Matrix<int*> mig_table(num_phases, num_states, num_states);
     StateIterator sitr(num_vms);
     StateIterator sitr2(num_vms);
     StateIterator sitr3(num_vms);
@@ -175,7 +177,10 @@ int run(int phases)
     {
         for(sitr.begin(); sitr.end(); ++sitr)
             for(sitr2.begin(); sitr2.end(); ++sitr2)
+            {
+                mig_table(p,(int)sitr,(int)sitr2) = new int[num_vms];
                 trans_table(p, (int)sitr, (int)sitr2) = compareState(p, *sitr, *sitr2, mig_table(p,(int)sitr,(int)sitr2));
+            }
         cout<<p<<","; cout.flush();
     }
     cout<<endl<<"transition matrix prepared ..."<<endl;
@@ -274,10 +279,7 @@ int run(int phases)
     final_policy.push_back(index1);
     final_policy.push_front(index1);
     cout<<endl<<"max profit cycle found ..."<<endl;
-}
 
-void Mdp::dumpStats()
-{
     ofstream profilt_file("results/mdp_cum_profits.txt");
     ofstream util_file("results/mdp_util.txt");
     if(!(profilt_file.is_open() && util_file.is_open()))
@@ -314,20 +316,28 @@ void Mdp::dumpStats()
         for(int j=0; j<num_vms; j++)
             util[j] = 0;
         for(int j=0; j<num_vms; j++)
-            util[(*sitr1)[j]] += s_data->getWorkload(mod_i, j);
+            util[(*sitr1)[j]] += sdata->getWorkload(mod_i, j);
         for(int j=0; j<num_vms; j++)
             iutil[j] = util[j];
 
+        // storing the policy
+        optimal_policy.push_back(vector<int>(*sitr1, (*sitr1) + num_vms*sizeof(*sitr1)));
+        mig_list.push_back(vector<int>());
+
         for(int j=0; j<num_vms; j++)
         {
+            mig_list[i].push_back(0);
             if((*sitr1)[j] != (mig_table(mod_i, last_policy, *it))[(*sitr2)[j]])
             {
-                iutil[(*sitr1)[j]] += MOHCPUINTENSIVE*s_data->getWorkload(mod_i, j);
-                iutil[(mig_table(mod_i, last_policy, *it))[(*sitr2)[j]]] += MOHCPUINTENSIVE*s_data->getWorkload(mod_i, j);
+                iutil[(*sitr1)[j]] += MOHCPUINTENSIVE*sdata->getWorkload(mod_i, j);
+                iutil[(mig_table(mod_i, last_policy, *it))[(*sitr2)[j]]] += MOHCPUINTENSIVE*sdata->getWorkload(mod_i, j);
+
+                // storing the migration list
+                mig_list[i][j] = 1;
             }
         }
 
-        // storing the utilization
+        // dumping utilizations
         util_file << i << "\t";
         for(int j=0; j<num_vms; j++)
             util_file << util[j] << "\t";
@@ -344,30 +354,30 @@ void Mdp::dumpStats()
 
     delete [] util;
     delete [] iutil;
-}
-
-const int* Mdp::getMapping(int phase_number)
-{
-    if(phase_number > run_for_phases)
-    {
-        cout<<"error occured, mapping doesn't exists!"<<endl;
-        exit(1);
-    }
-}
-
-const int* Mdp::getMigrationList(int phase_number)
-{
-    if(phase_number > run_for_phases)
-    {
-        cout<<"error occured, mapping doesn't exists!"<<endl;
-        exit(1);
-    }
-}
-
-Mdp::~Mdp()
-{
     for(int p=0; p<num_phases; p++)
         for(int i=0; i<num_states; i++)
             for(int j=0; j<num_states; j++)
                 delete [] mig_table(p, i, j);
+}
+
+vector<int> Mdp::getMapping(int phase_number)
+{
+    if(phase_number > run_for_phases)
+    {
+        cout<<"error occured, mapping doesn't exists!"<<endl;
+        exit(1);
+    }
+
+    return optimal_policy[phase_number];
+}
+
+vector<int> Mdp::getMigrationList(int phase_number)
+{
+    if(phase_number > run_for_phases)
+    {
+        cout<<"error occured, migration list doesn't exists!"<<endl;
+        exit(1);
+    }
+
+    return mig_list[phase_number];
 }

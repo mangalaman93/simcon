@@ -1,26 +1,29 @@
 #include "policy.h"
 
-Policy::Policy(Simdata sdata)
+Policy::Policy(SimData *s_data)
 {
-	phases_run_for = 0;
-	this.sdata = sdata;
+	run_for_phases = 0;
+    max_profit = 0;
+	sdata = s_data;
 	num_vms = sdata->getNumVM();
+    num_phases = sdata->getNumPhases();
 }
 
 void Policy::printPolicy()
 {
-	for(int p=0; p<phases_run_for; p++)
+	for(int p=0; p<run_for_phases; p++)
     {
     	printState(p);
     	cout<<"\t==>\t";
     	printMigrationList(p);
     	cout<<endl;
     }
+    cout<<"overall_profit: "<<max_profit<<endl;
 }
 
-Policy::printState(int phase_number)
+void Policy::printState(int phase_number)
 {
-	int* vm_to_pm_map = getMapping(phase_number);
+	vector<int> vm_to_pm_map = getMapping(phase_number);
 	list<int>** pm_to_vm_map = new list<int>*[num_vms];
     for(int i=0; i<num_vms; i++) { pm_to_vm_map[i] = new list<int>;}
     for(int i=0; i<num_vms; i++) { pm_to_vm_map[vm_to_pm_map[i]]->push_back(i);}
@@ -28,7 +31,7 @@ Policy::printState(int phase_number)
     cout<<"[";
     for(int i=0; i<num_vms; i++)
     {
-        if(pm_to_vm_map[i]->num_vms() != 0)
+        if(pm_to_vm_map[i]->size() != 0)
         {
             cout<<"{";
             for(list<int>::iterator it=pm_to_vm_map[i]->begin(); it!=pm_to_vm_map[i]->end(); ++it)
@@ -47,7 +50,7 @@ Policy::printState(int phase_number)
 
 void Policy::printMigrationList(int phase_number)
 {
-	int* vm_mig_list = getMigrationList(phase_number);
+	vector<int> vm_mig_list = getMigrationList(phase_number);
 	cout<<"migrate vms: ";
 
     for(int j=0; j<num_vms; j++)

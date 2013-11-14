@@ -15,18 +15,17 @@ class Mdp : public Policy
 {
 	long int num_states;
 	vector< vector<int> > optimal_policy;
-	vector< list<int> > mig_list;
+	vector< vector<int> > mig_list;
 
 	float getISUV(int phase, int* vm_to_pm_map1, int* vm_to_pm_map2, int* perm_map);
 	float getSUV(int phase, int* vm_to_pm_map);
 	float compareState(int phase, int* vm_to_pm_map1, int* vm_to_pm_map2, int *best_perm_map);
 
   public:
-	Mdp(Simdata *sdata);
-	void run();
-	const int* getMapping(int phase_number);
-	const int* getMigrationList(int phase_number);
-	void dumpStats();
+	Mdp(SimData *s_data);
+	void run(int phases);
+	vector<int> getMapping(int phase_number);
+	vector<int> getMigrationList(int phase_number);
 };
 
 #endif
