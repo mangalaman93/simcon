@@ -7,7 +7,6 @@
 
 #define DEBUG false
 
-
 class Policy
 {
   protected:
