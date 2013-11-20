@@ -115,7 +115,7 @@ float State::getSUV(SimData* sdata)
     for(int i=0; i<num_vms; i++)
     {
         if(total_util[i] > 0)
-            suv -= (STATICPOWERCONSTANT + DYNAMICPOWERCONSTANT * (total_util[i]>1?1:total_util[i])) * MAXPOWER * COSTPERKWH;
+            suv -= (STATICPOWERCONSTANT + DYNAMICPOWERCONSTANT * (total_util[i]>1?1:total_util[i])) * MAXPOWER * COSTPERKWH / 3600;
 
         if(total_util[i] <= UTIL_THRESHOLD)
             suv += reward[i];
@@ -125,7 +125,7 @@ float State::getSUV(SimData* sdata)
 
     delete [] reward;
     delete [] penalty;
-    return suv;
+    return suv * PHASE_LENGTH;
 }
 
 // calculate the Intermediate State Utility Value given the next state
@@ -150,12 +150,12 @@ float State::getISUV(State *next_state, SimData* sdata)
         penalty[vm_to_pm_map[j]] += sdata->getVmPenalty(j);
         util[vm_to_pm_map[j]] += sdata->getWorkload(phase_num%num_phases, j);
     }
-    set_intermediate_util(next_state, util, sdata);
+    setIntermediateUtil(next_state, util, sdata);
 
     for(int i=0; i<num_vms; i++)
     {
         if(util[i] > 0)
-            isuv -= (STATICPOWERCONSTANT + DYNAMICPOWERCONSTANT * (util[i]>1?1:util[i])) * MAXPOWER * COSTPERKWH;
+            isuv -= (STATICPOWERCONSTANT + DYNAMICPOWERCONSTANT * (util[i]>1?1:util[i])) * MAXPOWER * COSTPERKWH / 3600;
 
         if(util[i] <= UTIL_THRESHOLD)
             isuv += reward[i];
@@ -166,7 +166,7 @@ float State::getISUV(State *next_state, SimData* sdata)
     delete [] util;
     delete [] reward;
     delete [] penalty;
-    return isuv;
+    return isuv * PHASE_LENGTH;
 }
 
 float State::get_total_util(int pm)
@@ -179,16 +179,14 @@ int* State::getVmPmMaping()
     return vm_to_pm_map;
 }
 
-vector<int> State::getMigList()
+void State::getMigList(vector<int>* mapping)
 {
-    vector<int> v(num_vms, -1);
     for(list<Info>::iterator it = mig_vms->begin(); it!=mig_vms->end(); ++it)
-        v[it->index] = (int)it->val;
-    return v;
+        (*mapping)[it->index] = (int)it->val;
 }
 
 
-void State::set_intermediate_util(State *next_state, float* iutil, SimData* sdata)
+void State::setIntermediateUtil(State *next_state, float* iutil, SimData* sdata)
 {
     int num_phases = sdata->getNumPhases();
     list<Info>* mvms = next_state->mig_vms;

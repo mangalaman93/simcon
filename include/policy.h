@@ -22,9 +22,10 @@ class Policy
 	Policy(SimData *s_data);
 	virtual ~Policy();
 	virtual void run(int phases) = 0;
-	virtual vector<int> getMapping(int phase_number) = 0;
-	virtual vector<int> getMigrationList(int phase_number) = 0;
+	virtual void getMapping(int phase_number, vector<int>* mapping) = 0;
+	virtual void getMigrationList(int phase_number, vector<int>* mapping) = 0;
 	virtual void printPolicy();
+	float getOverallProfit();
 };
 
 #endif

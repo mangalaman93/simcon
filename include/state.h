@@ -63,8 +63,8 @@ public:
     float getISUV(State *next_state, SimData* sdata);
     float get_total_util(int pm);
     int* getVmPmMaping();
-    vector<int> getMigList();
-    void set_intermediate_util(State *next_state, float* iutil, SimData* sdata);
+    void getMigList(vector<int>* mapping);
+    void setIntermediateUtil(State *next_state, float* iutil, SimData* sdata);
     void print();
     void printMigrations();
 };

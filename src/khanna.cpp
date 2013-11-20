@@ -40,6 +40,7 @@ void Khanna::run(int phases)
 		}
 		sorted_vms->pop();
 	}
+	delete sorted_vms;
 
 	/* PHASE 0 ENDS # REST PHASES BEGINS */
 	for(int i=0; i<run_for_phases; i++)
@@ -130,7 +131,7 @@ void Khanna::run(int phases)
 		// finding utilization of each pm
 		for(int j=0; j<num_vms; j++)
 		    iutil[j] = policy[p]->get_total_util(j);
-		policy[p]->set_intermediate_util(policy[p+1], iutil, sdata);
+		policy[p]->setIntermediateUtil(policy[p+1], iutil, sdata);
 
 		util_file << p << "\t";
 		for(int j=0; j<num_vms; j++)
@@ -150,7 +151,7 @@ void Khanna::run(int phases)
 	util_file.close();
 }
 
-vector<int> Khanna::getMapping(int phase_number)
+void Khanna::getMapping(int phase_number, vector<int>* mapping)
 {
 	if(phase_number >= run_for_phases)
     {
@@ -159,10 +160,11 @@ vector<int> Khanna::getMapping(int phase_number)
     }
 
     int *vm_to_pm_map = policy[phase_number]->getVmPmMaping();
-    return vector<int>(vm_to_pm_map, vm_to_pm_map + num_vms*sizeof(vm_to_pm_map));
+    for(int j=0; j<num_vms; j++)
+        (*mapping)[j] = (vm_to_pm_map[j]);
 }
 
-vector<int> Khanna::getMigrationList(int phase_number)
+void Khanna::getMigrationList(int phase_number, vector<int>* mapping)
 {
 	if(phase_number >= run_for_phases)
     {
@@ -170,7 +172,7 @@ vector<int> Khanna::getMigrationList(int phase_number)
         exit(1);
     }
 
-    return policy[phase_number+1]->getMigList();
+    policy[phase_number+1]->getMigList(mapping);
 }
 
 Khanna::~Khanna()

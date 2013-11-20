@@ -24,8 +24,8 @@ class Mdp : public Policy
   public:
 	Mdp(SimData *s_data);
 	void run(int phases);
-	vector<int> getMapping(int phase_number);
-	vector<int> getMigrationList(int phase_number);
+	void getMapping(int phase_number, vector<int>* mapping);
+	void getMigrationList(int phase_number, vector<int>* mapping);
 };
 
 #endif

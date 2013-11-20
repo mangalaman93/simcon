@@ -66,7 +66,7 @@ float Mdp::getSUV(int phase, int* vm_to_pm_map)
     for(int i=0; i<num_vms; i++)
     {
         if(util[i] > 0)
-            suv -= (STATICPOWERCONSTANT + DYNAMICPOWERCONSTANT * (util[i]>1?1:util[i])) * MAXPOWER * COSTPERKWH;
+            suv -= (STATICPOWERCONSTANT + DYNAMICPOWERCONSTANT * (util[i]>1?1:util[i])) * MAXPOWER * COSTPERKWH / 3600;
 
         if(util[i] <= UTIL_THRESHOLD)
             suv += reward[i];
@@ -77,7 +77,7 @@ float Mdp::getSUV(int phase, int* vm_to_pm_map)
     delete [] util;
     delete [] reward;
     delete [] penalty;
-    return suv;
+    return suv * PHASE_LENGTH;
 }
 
 // ISUV = intermediate state utility value
@@ -111,7 +111,7 @@ float Mdp::getISUV(int phase, int* vm_to_pm_map1, int* vm_to_pm_map2, int* perm_
     for(int i=0; i<num_vms; i++)
     {
         if(util[i] > 0)
-            isuv -= (STATICPOWERCONSTANT + DYNAMICPOWERCONSTANT * (util[i]>1?1:util[i])) * MAXPOWER * COSTPERKWH;
+            isuv -= (STATICPOWERCONSTANT + DYNAMICPOWERCONSTANT * (util[i]>1?1:util[i])) * MAXPOWER * COSTPERKWH / 3600;
 
         if(util[i] <= UTIL_THRESHOLD)
             isuv += reward[i];
@@ -122,7 +122,7 @@ float Mdp::getISUV(int phase, int* vm_to_pm_map1, int* vm_to_pm_map2, int* perm_
     delete [] util;
     delete [] reward;
     delete [] penalty;
-    return isuv;
+    return isuv * PHASE_LENGTH;
 }
 
 // function for the step of local optimization
@@ -321,7 +321,10 @@ void Mdp::run(int phases)
             iutil[j] = util[j];
 
         // storing the policy
-        optimal_policy.push_back(vector<int>(*sitr1, (*sitr1) + num_vms*sizeof(*sitr1)));
+        vector<int> v;
+        for(int j=0; j<num_vms; j++)
+            v.push_back((*sitr1)[j]);
+        optimal_policy.push_back(v);
         mig_list.push_back(vector<int>());
 
         for(int j=0; j<num_vms; j++)
@@ -361,7 +364,7 @@ void Mdp::run(int phases)
                 delete [] mig_table(p, i, j);
 }
 
-vector<int> Mdp::getMapping(int phase_number)
+void Mdp::getMapping(int phase_number, vector<int>* mapping)
 {
     if(phase_number >= run_for_phases)
     {
@@ -369,10 +372,11 @@ vector<int> Mdp::getMapping(int phase_number)
         exit(1);
     }
 
-    return optimal_policy[phase_number];
+    for(unsigned int i=0; i<optimal_policy[phase_number].size(); i++)
+        (*mapping)[i] = optimal_policy[phase_number][i];
 }
 
-vector<int> Mdp::getMigrationList(int phase_number)
+void Mdp::getMigrationList(int phase_number, vector<int>* mapping)
 {
     if(phase_number >= run_for_phases)
     {
@@ -380,5 +384,6 @@ vector<int> Mdp::getMigrationList(int phase_number)
         exit(1);
     }
 
-    return mig_list[phase_number];
+    for(unsigned int i=0; i<mig_list[phase_number].size(); i++)
+        (*mapping)[i] = mig_list[phase_number][i];
 }

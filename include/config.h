@@ -19,4 +19,4 @@
 #define MIGRATIONDURATION 0.3
 
 // length of every phase
-#define PHASE_LENGTH 10
+#define PHASE_LENGTH 15*60

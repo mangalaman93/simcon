@@ -23,10 +23,11 @@ void Policy::printPolicy()
 
 void Policy::printState(int phase_number)
 {
-	vector<int> vm_to_pm_map = getMapping(phase_number);
+	vector<int>* vm_to_pm_map = new vector<int>(num_vms, -1);
+    getMapping(phase_number, vm_to_pm_map);
 	list<int>** pm_to_vm_map = new list<int>*[num_vms];
     for(int i=0; i<num_vms; i++) { pm_to_vm_map[i] = new list<int>;}
-    for(int i=0; i<num_vms; i++) { pm_to_vm_map[vm_to_pm_map[i]]->push_back(i);}
+    for(int i=0; i<num_vms; i++) { pm_to_vm_map[(*vm_to_pm_map)[i]]->push_back(i);}
 
     cout<<"[";
     for(int i=0; i<num_vms; i++)
@@ -46,16 +47,25 @@ void Policy::printState(int phase_number)
 
     for(int i=0; i<num_vms; i++) { delete pm_to_vm_map[i];}
     delete [] pm_to_vm_map;
+    delete vm_to_pm_map;
 }
 
 void Policy::printMigrationList(int phase_number)
 {
-	vector<int> vm_mig_list = getMigrationList(phase_number);
+	vector<int>* vm_mig_list = new vector<int>(num_vms, -1);
+    getMigrationList(phase_number, vm_mig_list);
 	cout<<"migrate vms: ";
 
     for(int j=0; j<num_vms; j++)
-        if(vm_mig_list[j] != -1)
+        if((*vm_mig_list)[j] != -1)
             cout<<j<<", ";
+
+    delete vm_mig_list;
+}
+
+float Policy::getOverallProfit()
+{
+    return max_profit;
 }
 
 Policy::~Policy() {}
