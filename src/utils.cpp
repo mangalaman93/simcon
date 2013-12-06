@@ -1,4 +1,5 @@
 #include "utils.h"
+#include "mdp.h"
 #include <list>
 
 template <class T>
@@ -42,3 +43,5 @@ template class Matrix<int>;
 template class Matrix<int*>;
 template class Matrix<float>;
 template class Matrix<list<int> >;
+template class Matrix<pthread_t>;
+template class Matrix<struct ThreadData*>;

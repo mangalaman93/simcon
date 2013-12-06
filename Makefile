@@ -8,7 +8,7 @@ CFLAGS = -Wall -c $(DEBUG) -I$(IDIR) $(PROFILE)
 
 SDIR = src
 ODIR = bin
-LIBS = -lm
+LIBS = -lm -lpthread
 RES  = results
 
 _DEPS = simdata.h utils.h algo.h stateIterator.h state.h config.h policy.h mdp.h khanna.h
@@ -26,7 +26,7 @@ dir:
 	mkdir -p $(ODIR)
 
 $(ODIR)/main: $(OBJ)
-	$(CC) $(LIBS) -I$(IDIR) -o $@ $^ $(SDIR)/main.cpp $(PROFILE)
+	$(CC) -I$(IDIR) -o $@ $^ $(SDIR)/main.cpp $(PROFILE) $(LIBS)
 
 clean:
 	rm -rf $(ODIR) *~ $(INCDIR)/*~
