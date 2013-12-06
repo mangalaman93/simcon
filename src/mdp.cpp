@@ -160,11 +160,16 @@ void *updateTransMat(void *threadarg)
     struct ThreadData *my_data = (struct ThreadData*) threadarg;
     int p = my_data->p;
 
+    StateIterator sitr(my_data->num_vms);
     StateIterator sitr2(my_data->num_vms);
-    for(sitr2.begin(); sitr2.end(); ++sitr2)
+    for(sitr.begin(); sitr.end(); ++sitr)
     {
-        (*(my_data->mig_table))(p,my_data->state_no,(int)sitr2) = new int[my_data->num_vms];
-        (*(my_data->trans_table))(p,my_data->state_no,(int)sitr2) = my_data->mdp->compareState(p, my_data->state_array, *sitr2, (*(my_data->mig_table))(p,my_data->state_no, (int)sitr2));
+        for(sitr2.begin(); sitr2.end(); ++sitr2)
+        {
+            (*(my_data->mig_table))(p,(int)sitr,(int)sitr2) = new int[my_data->num_vms];
+            (*(my_data->trans_table))(p,(int)sitr,(int)sitr2) = my_data->mdp->compareState(p, *sitr, *sitr2, (*(my_data->mig_table))(p,(int)sitr, (int)sitr2));
+        }
+        cout<<p<<"_"<<(int)sitr<<", "; cout.flush();
     }
 
     pthread_exit(NULL);
@@ -189,8 +194,8 @@ void Mdp::run(int phases)
 
     cout<<"runnnig MDP! total phases: "<<num_phases<<", total states: "<<num_states<<endl;
     cout<<"creating threads: "; cout.flush();
-    Matrix<pthread_t> threads(num_phases, num_states);
-    Matrix<struct ThreadData*> td(num_phases, num_states);
+    pthread_t threads[num_phases];
+    struct ThreadData* td[num_phases];
     pthread_attr_t attr;
     void *status;
     pthread_attr_init(&attr);
@@ -198,36 +203,30 @@ void Mdp::run(int phases)
 
     for(int p=0; p<num_phases; p++)
     {
-        for(sitr.begin(); sitr.end(); ++sitr)
+        td[p] = new struct ThreadData(num_vms, p, &mig_table, &trans_table, this);
+        int rc = pthread_create(&threads[p], NULL, updateTransMat, (void *)td[p]);
+        if(rc)
         {
-            td(p, (int)sitr) = new struct ThreadData(num_vms, p, (int)sitr, *sitr, &mig_table, &trans_table, this);
-            int rc = pthread_create(&threads(p, (int)sitr), NULL, updateTransMat, (void *)td(p, (int)sitr));
-            if(rc)
-            {
-                cout << "Error:unable to create thread," << rc << endl;
-                exit(-1);
-            }
-            cout<<(p*num_states + (int)sitr)<<","; cout.flush();
+            cout << "Error:unable to create thread," << rc << endl;
+            exit(-1);
         }
+        cout<<p<<","; cout.flush();
     }
-    cout<<endl<<"created "<<num_phases*num_states<<" number of thread!"<<endl;
+    cout<<endl<<"created "<<num_phases<<" number of thread!"<<endl;
 
     // wait for other threads to complete
     pthread_attr_destroy(&attr);
     cout<<"thread complete: ";
     for(int p=0; p<num_phases; p++)
     {
-        for(int s=0; s<num_states; s++)
+        int rc = pthread_join(threads[p], &status);
+        if (rc)
         {
-            int rc = pthread_join(threads(p, s), &status);
-            if (rc)
-            {
-                cout << "Error:unable to join," << rc << endl;
-                exit(-1);
-            }
-            delete td(p, s);
-            cout<<(p*num_states + s)<<","; cout.flush();
+            cout << "Error:unable to join," << rc << endl;
+            exit(-1);
         }
+        delete td[p];
+        cout<<p<<","<<endl;
     }
     cout<<endl<<"transition matrix prepared ..."<<endl;
 
