@@ -29,7 +29,7 @@ void Policy::printState(int phase_number)
     for(int i=0; i<num_vms; i++) { pm_to_vm_map[i] = new list<int>;}
     for(int i=0; i<num_vms; i++) { pm_to_vm_map[(*vm_to_pm_map)[i]]->push_back(i);}
 
-    cout<<"[";
+    // cout<<"[";
     for(int i=0; i<num_vms; i++)
     {
         if(pm_to_vm_map[i]->size() != 0)
@@ -37,13 +37,13 @@ void Policy::printState(int phase_number)
             cout<<"{";
             for(list<int>::iterator it=pm_to_vm_map[i]->begin(); it!=pm_to_vm_map[i]->end(); ++it)
             {
-                if(it == pm_to_vm_map[i]->begin()) cout<<*it;
-                else cout<<","<<*it;
+                if(it == pm_to_vm_map[i]->begin()) cout<<"["<<*it<<","<<sdata->getWorkload(phase_number%num_phases, i)<<"]";
+                else cout<<",["<<*it<<","<<sdata->getWorkload(phase_number%num_phases, i)<<"]";
             }
-            cout<<"}";
+            cout<<"} ";
         }
     }
-    cout<<"]";
+    // cout<<"]";
 
     for(int i=0; i<num_vms; i++) { delete pm_to_vm_map[i];}
     delete [] pm_to_vm_map;
