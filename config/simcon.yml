@@ -1,0 +1,4 @@
+google_drive:
+    username    : "mangalaman93@gmail.com"
+    password    : "<%= ENV['GOOGLE_DRIVE_PASSWORD'] %>"
+    key         : "0Aoq3-tdSgQ83dDdFUmJ1dm9VaTNMUDFLVldxanFWa3c"

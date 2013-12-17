@@ -1,0 +1,15 @@
+#!/usr/bin/env ruby
+
+require 'dotenv'
+require 'yaml'
+require 'erb'
+require_relative '../rlib/spreadsheet'
+
+# loading the environment variables
+Dotenv.load('config/.env')
+data = YAML::load(ERB.new(File.read('config/simcon.yml')).result)
+
+# test
+ss = Spreadsheet.new(data["google_drive"]["username"],
+					 data["google_drive"]["password"],
+					 data["google_drive"]["key"])

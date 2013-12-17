@@ -22,3 +22,23 @@ results/*.pdf
 
 # doc files #
 doc/build/*
+
+# Ruby files #
+*.rbc
+*.sassc
+.sass-cache
+capybara-*.html
+.rspec
+/.bundle
+/vendor/bundle
+/log/*
+/tmp/*
+/db/*.sqlite3
+/public/system/*
+/coverage/
+/spec/tmp/*
+**.orig
+rerun.txt
+pickle-email-*.html
+.rvmrc
+config/.env
