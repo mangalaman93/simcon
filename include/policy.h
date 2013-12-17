@@ -5,7 +5,7 @@
 #include <list>
 #include "simdata.h"
 
-#define DEBUG false
+#define DEBUG true
 
 class Policy
 {
