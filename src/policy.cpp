@@ -37,8 +37,8 @@ void Policy::printState(int phase_number)
             cout<<"{";
             for(list<int>::iterator it=pm_to_vm_map[i]->begin(); it!=pm_to_vm_map[i]->end(); ++it)
             {
-                if(it == pm_to_vm_map[i]->begin()) cout<<"["<<*it<<","<<sdata->getWorkload(phase_number%num_phases, i)<<"]";
-                else cout<<",["<<*it<<","<<sdata->getWorkload(phase_number%num_phases, i)<<"]";
+                if(it == pm_to_vm_map[i]->begin()) cout<<"["<<*it<<","<<sdata->getWorkload(phase_number%num_phases, *it)<<"]";
+                else cout<<",["<<*it<<","<<sdata->getWorkload(phase_number%num_phases, *it)<<"]";
             }
             cout<<"} ";
         }

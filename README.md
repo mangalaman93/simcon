@@ -27,7 +27,8 @@ Input File
 * reward for each vm
 * penalty for each pm
 
-See TODO file for examples.
+You can also use simcon Ruby script to generate input file with random workload. The script
+also llows you to run simulator and push output to spreadsheet.
 
 Output
 ------
@@ -40,6 +41,9 @@ Current Working Dir: **simcon/**
 ```
 make clean
 make
-./bin/mdp < input
-./bin.khanna < input
+./bin/main < input
 ```
+
+Ruby Script simcon
+------------------
+Run `./script/simcon -h` for help. For help with subcommands, run `./script/simcon subcommand -h`

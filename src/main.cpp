@@ -14,13 +14,13 @@ int main()
 
     cout<<"############## mdp ##############"<<endl;
     Mdp mdp(sdata);
-    mdp.run(num_phases*4);
+    mdp.run(num_phases);
     mdp.printPolicy();
 
     cout<<endl;
     cout<<"############## khanna ##############"<<endl;
     Khanna kh(sdata);
-    kh.run(num_phases*4);
+    kh.run(num_phases);
     kh.printPolicy();
 
     delete sdata;

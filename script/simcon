@@ -8,13 +8,18 @@ require_relative '../rlib/spreadsheet'
 
 MAIN_COMMAND = "simcon"
 SUB_GEN = "gen"
+SUB_RUN = "run"
+SUB_PUSH = "push"
 OPT_VM = :vm
 OPT_PLEN = :length
-OPT_INFILE = :file
-SUB_COMMANDS = [SUB_GEN]
+OPT_INFILE = :infile
+OPT_OUTFILE = :outfile
+OPT_NAME = :name
+OPT_ID = :id
+SUB_COMMANDS = [SUB_GEN, SUB_RUN, SUB_PUSH]
 
 # function called according to the command line argument
-def generate_workloads(data, num_vms, phase_length, input_file)
+def generate_workloads(num_vms, phase_length, input_file)
 	num_phases = (24*60)/phase_length
 	begin
 		file = File.open(input_file, "w")
@@ -22,20 +27,20 @@ def generate_workloads(data, num_vms, phase_length, input_file)
 		# workloads
 		(1..num_phases).each {
 			(1..num_vms).each {
-				file.write("#{(Rand.new.rand(1..80)+1)/100.0} ")
+				file.write("#{(Random.new.rand(1..40)+20)/100.0} ")
 			}
 			file.write("\n")
 		}
 
 		# revenue
 		(1..num_vms).each {
-			file.write("1, ")
+			file.write("1 ")
 		}
 		file.write("\n")
 
 		# penalty
 		(1..num_vms).each {
-			file.write("2, ")
+			file.write("2 ")
 		}
 		file.write("\n")
 	rescue IOError => e
@@ -45,15 +50,21 @@ def generate_workloads(data, num_vms, phase_length, input_file)
 	end
 end
 
-def generate_spreadsheet
+# incomplete
+def run_simcon(input_file, out_file)
+	system('make distclean && make')
+	puts "running simcon"
+	system("./bin/main < #{input_file} > #{out_file}")
+	system("make plot")
+	puts "done"
+end
+
+# incomplete
+def push_to_sheet(data, name, sheet_id)
 	ss = Spreadsheet.new(data["google_drive"]["username"],
 						 data["google_drive"]["password"],
 						 data["google_drive"]["key"])
 end
-
-# loading the environment variables
-Dotenv.load('config/.env')
-data = YAML::load(ERB.new(File.read('config/simcon.yml')).result)
 
 # parsing the sub commands and options
 global_opts = Trollop::options do
@@ -63,7 +74,7 @@ Utility to visualize MDP performance
 
 Usage: simcon subcommand [option value]
 subcommand:
-	gen
+	gen, run, push
 
 Options:
 EOS
@@ -75,16 +86,38 @@ cmd = ARGV.shift
 cmd_opts = case cmd
 #---------------------------------------------------------------------------------#
 when SUB_GEN
-  Trollop::options do
-    banner <<-EOS
+	Trollop::options do
+		banner <<-EOS
 Utility to genetate random worklods
 
 Options:
 EOS
-    opt OPT_VM, "select number of virtual machines", :type => :int, :default => 6
-    opt OPT_PLEN, "select length of phase", :type => :int, :default => 10
-    opt OPT_INFILE, "select input file to write generated data to", :type => :string, :default => "input"
-  end
+		opt OPT_VM, "select number of virtual machines", :type => :int, :default => 6
+		opt OPT_PLEN, "select length of phase", :type => :int, :default => 10
+		opt OPT_INFILE, "select input file to write generated data to", :type => :string, :default => "input"
+	end
+#---------------------------------------------------------------------------------#
+when SUB_RUN
+	Trollop::options do
+		banner <<-EOS
+Utility to genetate random worklods
+
+Options:
+EOS
+	    opt OPT_INFILE, "select input file to pass to simcon", :type => :string, :default => "input"
+	    opt OPT_OUTFILE, "select outut file to pass to simcon", :type => :string, :default => "output"
+	end
+#---------------------------------------------------------------------------------#
+when SUB_PUSH
+	Trollop::options do
+    	banner <<-EOS
+Utility to genetate random worklods
+
+Options:
+EOS
+	    opt OPT_NAME, "provide a name of for new spreadsheet", :type => :string, :default => "test"
+	    opt OPT_ID, "provide id of the existing spreadsheet", :type => :int
+	end
 #---------------------------------------------------------------------------------#
 else
   Trollop::die "unknown subcommand #{cmd.inspect}"
@@ -93,7 +126,14 @@ end
 # calling the corresponding function
 case cmd
 when SUB_GEN
-	generate_workloads(data, cmd_opts[OPT_VM], cmd_opts[OPT_PLEN], cmd_opts[OPT_INFILE])
+	generate_workloads(cmd_opts[OPT_VM], cmd_opts[OPT_PLEN], cmd_opts[OPT_INFILE])
+when SUB_RUN
+	run_simcon(cmd_opts[OPT_INFILE], cmd_opts[OPT_OUTFILE])
+when SUB_PUSH
+	# loading the environment variables
+	Dotenv.load('config/.env')
+	data = YAML::load(ERB.new(File.read('config/simcon.yml')).result)
+	push_to_sheet(data, cmd_opts[OPT_NAME], cmd_opts[OPT_ID])
 else
 	abort("Error: inavalid subcommand")
 end
