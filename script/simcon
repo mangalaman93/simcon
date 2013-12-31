@@ -59,11 +59,15 @@ def run_simcon(input_file, out_file)
 	puts "done"
 end
 
-# incomplete
 def push_to_sheet(data, name, sheet_id)
+	name = name || "test"
 	ss = Spreadsheet.new(data["google_drive"]["username"],
 						 data["google_drive"]["password"],
-						 data["google_drive"]["key"])
+						 data["google_drive"]["key"],
+						 name,
+						 sheet_id)
+	ss.update_workloads
+	ss.update_utilizations
 end
 
 # parsing the sub commands and options
@@ -115,7 +119,7 @@ Utility to genetate random worklods
 
 Options:
 EOS
-	    opt OPT_NAME, "provide a name of for new spreadsheet", :type => :string, :default => "test"
+	    opt OPT_NAME, "provide a name for new spreadsheet", :type => :string, :default => "test"
 	    opt OPT_ID, "provide id of the existing spreadsheet", :type => :int
 	end
 #---------------------------------------------------------------------------------#
