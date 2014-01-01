@@ -1,12 +1,13 @@
 # spreadsheet class to update data in google spreadsheet
 
 require 'google_drive'
+require 'net/http'
 
 class Spreadsheet
 	PHASES = 144
 
 	def initialize(email, password, key, id)
-		@session = GoogleDrive.login(email, password)
+		@session = GoogleDrive.login(email, password, Net::HTTP::Proxy('netmon.iitb.ac.in', 80, 'bkd.online', '2453419*'))
 		if id.nil?
 			@ws = @session.spreadsheet_by_key(key).worksheets[@session.spreadsheet_by_key(key).worksheets.size-1]
 		else
