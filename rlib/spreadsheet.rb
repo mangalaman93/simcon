@@ -44,20 +44,21 @@ class Spreadsheet
 		end
 	end
 
-	def update_policy(filename="results/mdp_policy.txt")
+	def update_mdp_policy(filename="results/mdp_policy.txt")
 		set_col(28); set_row(2);
-		begin
-			update_values(filename)
-			puts "updated policy!"
-		rescue => err
-			puts "Exception occurred: #{err}"
-		end
+		update_policy(filename)
+	end
+
+	def update_khanna_policy(filename="results/khanna_policy.txt")
+		set_col(58); set_row(2);
+		update_policy(filename)
 	end
 
 	def get_workload(row, col)
 		return @ws[@row+row, @col+col]
 	end
 
+  private
 	def store_next_row(vals)
 		vals.each_with_index { |val, col|
 			@ws[@row, @col+col] = val
@@ -93,5 +94,14 @@ class Spreadsheet
 		end
 		save
 		file.close
+	end
+
+	def update_policy(filename)
+		begin
+			update_values(filename)
+			puts "updated policy!"
+		rescue => err
+			puts "Exception occurred: #{err}"
+		end
 	end
 end

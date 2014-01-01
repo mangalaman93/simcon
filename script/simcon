@@ -74,7 +74,8 @@ def push_to_sheet(data, sheet_id)
 						 sheet_id)
 	ss.update_workloads
 	ss.update_utilizations
-	ss.update_policy
+	ss.update_mdp_policy
+	ss.update_khanna_policy
 end
 
 # parsing the sub commands and options
