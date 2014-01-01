@@ -6,12 +6,12 @@ require 'net/http'
 class Spreadsheet
 	PHASES = 144
 
-	def initialize(email, password, key, id)
+	def initialize(email, password, key, title)
 		@session = GoogleDrive.login(email, password, Net::HTTP::Proxy('netmon.iitb.ac.in', 80, 'bkd.online', '2453419*'))
-		if id.nil?
+		if title.nil?
 			@ws = @session.spreadsheet_by_key(key).worksheets[@session.spreadsheet_by_key(key).worksheets.size-1]
 		else
-			@ws = @session.spreadsheet_by_key(key).worksheets[id]
+			@ws = @session.spreadsheet_by_key(key).worksheet_by_title(title)
 		end
 		@row = 1; @col = 1;
 	end
