@@ -16,12 +16,14 @@ int main()
     Mdp mdp(sdata);
     mdp.run(num_phases);
     mdp.printPolicy();
+    mdp.dumpPolicy();
 
     cout<<endl;
     cout<<"############## khanna ##############"<<endl;
     Khanna kh(sdata);
     kh.run(num_phases);
     kh.printPolicy();
+    kh.dumpPolicy();
 
     delete sdata;
 	return 0;

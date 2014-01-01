@@ -34,14 +34,18 @@ class Spreadsheet
 	def update_utilizations(filename="results/mdp_util.txt")
 		set_col(15); set_row(2);
 		begin
-			file = File.new(filename, "r")
-			while (line = file.gets)
-				tokens = line.split(" ")
-				store_next_row(tokens)
-			end
-			save
-			file.close
+			update_values(filename)
 			puts "updated utilizations!"
+		rescue => err
+			puts "Exception occurred: #{err}"
+		end
+	end
+
+	def update_policy(filename="results/mdp_policy.txt")
+		set_col(28); set_row(2);
+		begin
+			update_values(filename)
+			puts "updated policy!"
 		rescue => err
 			puts "Exception occurred: #{err}"
 		end
@@ -72,5 +76,15 @@ class Spreadsheet
 
 	def set_row(row)
 		@row = row
+	end
+
+	def update_values(filename)
+		file = File.new(filename, "r")
+		while (line = file.gets)
+			tokens = line.split(" ")
+			store_next_row(tokens)
+		end
+		save
+		file.close
 	end
 end

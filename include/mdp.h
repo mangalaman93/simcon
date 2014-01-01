@@ -27,6 +27,7 @@ class Mdp : public Policy
 	void run(int phases);
 	void getMapping(int phase_number, vector<int>* mapping);
 	void getMigrationList(int phase_number, vector<int>* mapping);
+	void dumpPolicy();
 };
 
 struct ThreadData

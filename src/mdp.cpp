@@ -432,3 +432,8 @@ void Mdp::getMigrationList(int phase_number, vector<int>* mapping)
     for(unsigned int i=0; i<mig_list[phase_number].size(); i++)
         (*mapping)[i] = mig_list[phase_number][i];
 }
+
+void Mdp::dumpPolicy()
+{
+    dumpPolicyHelper("mdp");
+}

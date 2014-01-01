@@ -3,6 +3,8 @@
 
 #include <vector>
 #include <list>
+#include <fstream>
+#include <cstring>
 #include "simdata.h"
 
 #define DEBUG false
@@ -17,6 +19,7 @@ class Policy
 	SimData *sdata;
 	virtual void printState(int phase_number);
 	virtual void printMigrationList(int phase_number);
+	void dumpPolicyHelper(string algo);
 
   public:
 	Policy(SimData *s_data);
@@ -25,6 +28,7 @@ class Policy
 	virtual void getMapping(int phase_number, vector<int>* mapping) = 0;
 	virtual void getMigrationList(int phase_number, vector<int>* mapping) = 0;
 	virtual void printPolicy();
+	virtual void dumpPolicy() = 0;
 	float getOverallProfit();
 };
 

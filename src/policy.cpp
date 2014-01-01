@@ -50,6 +50,37 @@ void Policy::printState(int phase_number)
     delete vm_to_pm_map;
 }
 
+void Policy::dumpPolicyHelper(string algo)
+{
+    ofstream policy_file(string("results/"+algo+"_policy.txt").c_str());
+    if(!policy_file.is_open())
+    {
+        cout<<"cannot open file, exiting!"<<endl;
+        exit(1);
+    }
+
+    for(int p=0; p<run_for_phases; p++)
+    {
+        vector<int>* vm_to_pm_map = new vector<int>(num_vms, -1);
+        getMapping(p, vm_to_pm_map);
+        for(int i=0; i<num_vms; ++i) //pm loop
+        {
+            policy_file << p << "," << i;
+            for(int j=0; j<num_vms; j++)
+            {
+                if((*vm_to_pm_map)[j] == i)
+                    policy_file << "\t" << sdata->getWorkload(p%num_phases, j);
+                else
+                    policy_file << "\t" << 0;
+            }
+            policy_file << endl;
+        }
+        delete vm_to_pm_map;
+    }
+
+    policy_file.close();
+}
+
 void Policy::printMigrationList(int phase_number)
 {
 	vector<int>* vm_mig_list = new vector<int>(num_vms, -1);

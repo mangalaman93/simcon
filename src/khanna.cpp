@@ -175,6 +175,11 @@ void Khanna::getMigrationList(int phase_number, vector<int>* mapping)
     policy[phase_number+1]->getMigList(mapping);
 }
 
+void Khanna::dumpPolicy()
+{
+    dumpPolicyHelper(string("khanna"));
+}
+
 Khanna::~Khanna()
 {
 	for(int i=0; i<=run_for_phases; i++) { delete policy[i];}
