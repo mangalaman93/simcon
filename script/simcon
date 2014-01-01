@@ -10,13 +10,14 @@ MAIN_COMMAND = "simcon"
 SUB_GEN = "gen"
 SUB_RUN = "run"
 SUB_PUSH = "push"
+SUB_COPY = "copy"
 OPT_VM = :vm
 OPT_PLEN = :length
 OPT_INFILE = :infile
 OPT_OUTFILE = :outfile
 OPT_NAME = :name
 OPT_ID = :id
-SUB_COMMANDS = [SUB_GEN, SUB_RUN, SUB_PUSH]
+SUB_COMMANDS = [SUB_GEN, SUB_RUN, SUB_PUSH, SUB_COPY]
 
 # function called according to the command line argument
 def generate_workloads(num_vms, phase_length, input_file)
@@ -79,7 +80,7 @@ Utility to visualize MDP performance
 
 Usage: simcon subcommand [option value]
 subcommand:
-	gen, run, push
+	gen, run, push, copy
 
 Options:
 EOS
@@ -105,7 +106,7 @@ EOS
 when SUB_RUN
 	Trollop::options do
 		banner <<-EOS
-Utility to genetate random worklods
+Utility to run simulation
 
 Options:
 EOS
@@ -116,12 +117,21 @@ EOS
 when SUB_PUSH
 	Trollop::options do
     	banner <<-EOS
-Utility to genetate random worklods
+Utility to generate google spreadsheet
 
 Options:
 EOS
 	    opt OPT_NAME, "provide a name for new spreadsheet", :type => :string, :default => "test"
 	    opt OPT_ID, "provide id of the existing spreadsheet", :type => :int
+	end
+#---------------------------------------------------------------------------------#
+when SUB_COPY
+	Trollop::options do
+    	banner <<-EOS
+Utility to copy all result files
+
+Options:
+EOS
 	end
 #---------------------------------------------------------------------------------#
 else
@@ -139,6 +149,21 @@ when SUB_PUSH
 	Dotenv.load('config/.env')
 	data = YAML::load(ERB.new(File.read('config/simcon.yml')).result)
 	push_to_sheet(data, cmd_opts[OPT_NAME], cmd_opts[OPT_ID])
+when SUB_COPY
+	folders = Dir.entries("examples/")
+	folders.delete("."); folders.delete("..");
+	name = 0
+	folders.each { |f|
+		if (name < f.to_i)
+			name = f.to_i
+		end
+		name = name + 1
+	}
+	throw "cannot copy" if (system("mkdir examples/#{name}") == false)
+	["input", "output", "results/*.pdf", "results/*.txt"].each { |copyfrom|
+		throw "cannot copy!" if (system("mv #{copyfrom} examples/#{name}/") == false)
+	}
+	puts "all files moved successfully"
 else
 	abort("Error: inavalid subcommand")
 end
