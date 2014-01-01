@@ -1,3 +1,8 @@
+/*
+Policy abstract class, this class should be used as base class for the
+"algorithm to design policy" class
+*/
+
 #ifndef POLICY_H
 #define POLICY_H
 

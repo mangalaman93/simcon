@@ -1,3 +1,7 @@
+/*
+implementation oh Khanna algorithm
+*/
+
 #ifndef KHANNA_H
 #define KHANNA_H
 

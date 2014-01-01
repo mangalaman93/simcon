@@ -15,20 +15,27 @@ OPT_VM = :vm
 OPT_PLEN = :length
 OPT_INFILE = :infile
 OPT_OUTFILE = :outfile
-OPT_NAME = :name
 OPT_ID = :id
 SUB_COMMANDS = [SUB_GEN, SUB_RUN, SUB_PUSH, SUB_COPY]
 
 # function called according to the command line argument
-def generate_workloads(num_vms, phase_length, input_file)
+def generate_workloads(data, num_vms, phase_length, input_file, sheet_id)
 	num_phases = (24*60)/phase_length
+	ss = Spreadsheet.new(data["google_drive"]["username"],
+						 data["google_drive"]["password"],
+						 data["google_drive"]["key"],
+						 sheet_id) unless sheet_id.nil?
 	begin
 		file = File.open(input_file, "w")
 		file.write("#{num_vms}\n#{num_phases}\n")
 		# workloads
-		(1..num_phases).each {
-			(1..num_vms).each {
-				file.write("#{(Random.new.rand(1..40)+20)/100.0} ")
+		(1..num_phases).each { |phase|
+			(1..num_vms).each { |vm|
+				if sheet_id.nil?
+					file.write("#{(Random.new.rand(1..40)+20)/100.0}\t")
+				else
+					file.write("#{ss.get_workload(phase, vm)}\t")
+				end
 			}
 			file.write("\n")
 		}
@@ -60,12 +67,10 @@ def run_simcon(input_file, out_file)
 	puts "done"
 end
 
-def push_to_sheet(data, name, sheet_id)
-	name = name || "test"
+def push_to_sheet(data, sheet_id)
 	ss = Spreadsheet.new(data["google_drive"]["username"],
 						 data["google_drive"]["password"],
 						 data["google_drive"]["key"],
-						 name,
 						 sheet_id)
 	ss.update_workloads
 	ss.update_utilizations
@@ -101,6 +106,7 @@ EOS
 		opt OPT_VM, "select number of virtual machines", :type => :int, :default => 6
 		opt OPT_PLEN, "select length of phase", :type => :int, :default => 10
 		opt OPT_INFILE, "select input file to write generated data to", :type => :string, :default => "input"
+		opt OPT_ID, "provide id of the existing spreadsheet", :type => :int
 	end
 #---------------------------------------------------------------------------------#
 when SUB_RUN
@@ -121,7 +127,6 @@ Utility to generate google spreadsheet
 
 Options:
 EOS
-	    opt OPT_NAME, "provide a name for new spreadsheet", :type => :string, :default => "test"
 	    opt OPT_ID, "provide id of the existing spreadsheet", :type => :int
 	end
 #---------------------------------------------------------------------------------#
@@ -141,14 +146,17 @@ end
 # calling the corresponding function
 case cmd
 when SUB_GEN
-	generate_workloads(cmd_opts[OPT_VM], cmd_opts[OPT_PLEN], cmd_opts[OPT_INFILE])
+	# loading the environment variables
+	Dotenv.load('config/.env')
+	data = YAML::load(ERB.new(File.read('config/simcon.yml')).result)
+	generate_workloads(data, cmd_opts[OPT_VM], cmd_opts[OPT_PLEN], cmd_opts[OPT_INFILE], cmd_opts[OPT_ID])
 when SUB_RUN
 	run_simcon(cmd_opts[OPT_INFILE], cmd_opts[OPT_OUTFILE])
 when SUB_PUSH
 	# loading the environment variables
 	Dotenv.load('config/.env')
 	data = YAML::load(ERB.new(File.read('config/simcon.yml')).result)
-	push_to_sheet(data, cmd_opts[OPT_NAME], cmd_opts[OPT_ID])
+	push_to_sheet(data, cmd_opts[OPT_ID])
 when SUB_COPY
 	folders = Dir.entries("examples/")
 	folders.delete("."); folders.delete("..");

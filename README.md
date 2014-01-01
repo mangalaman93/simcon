@@ -28,7 +28,7 @@ Input File
 * penalty for each pm
 
 You can also use simcon Ruby script to generate input file with random workload. The script
-also llows you to run simulator and push output to spreadsheet.
+also allows you to run simulator and push output to spreadsheet.
 
 Output
 ------

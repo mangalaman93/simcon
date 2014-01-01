@@ -291,8 +291,3 @@ khanna :-
 {[0,0.1],[6,0.1]} {[1,0.8]} {[3,0.5],[4,0.5],[5,0.5]} {[2,0.2]} 	==>	migrate vms:
 {[0,0.1],[6,0.1]} {[1,0.8]} {[3,0.5],[4,0.5],[5,0.5]} {[2,0.2]} 	==>	migrate vms: 2, 4, 5,
 overall_profit: 105044
-
-
-new matrics
-##################
-=> stack graph (check figure 4.3(a) in Satish's Thesis) &&& existing graphs

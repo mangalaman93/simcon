@@ -1,3 +1,7 @@
+/*
+Implementation of MDP algorithm
+*/
+
 #ifndef MDP_H
 #define MDP_H
 

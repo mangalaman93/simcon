@@ -18,5 +18,5 @@
 // fraction of migration time in a phase
 #define MIGRATIONDURATION 0.3
 
-// length of every phase
-#define PHASE_LENGTH (15*60)
+// length of every phase (min)
+#define PHASE_LENGTH (10)

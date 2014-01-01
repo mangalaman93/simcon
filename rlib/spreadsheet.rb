@@ -1,9 +1,11 @@
+# spreadsheet class to update data in google spreadsheet
+
 require 'google_drive'
 
 class Spreadsheet
 	PHASES = 144
 
-	def initialize(email, password, key, name, id)
+	def initialize(email, password, key, id)
 		@session = GoogleDrive.login(email, password)
 		if id.nil?
 			@ws = @session.spreadsheet_by_key(key).worksheets[@session.spreadsheet_by_key(key).worksheets.size-1]
@@ -49,6 +51,10 @@ class Spreadsheet
 		rescue => err
 			puts "Exception occurred: #{err}"
 		end
+	end
+
+	def get_workload(row, col)
+		return @ws[@row+row, @col+col]
 	end
 
 	def store_next_row(vals)
