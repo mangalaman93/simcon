@@ -16,10 +16,10 @@ class Spreadsheet
 		@row = 1; @col = 1;
 	end
 
-	def update_workloads(filename="input")
+	def update_workloads(dir, filename="input")
 		set_col(2); set_row(2);
 		begin
-			file = File.new(filename, "r")
+			file = File.new("#{dir}/#{filename}", "r")
 		    counter = 0; file.gets; file.gets; # skipping first 2 lines
 			while (line = file.gets) && counter < PHASES
 				tokens = line.split(" ")
@@ -34,24 +34,24 @@ class Spreadsheet
 		end
 	end
 
-	def update_utilizations(filename="results/mdp_util.txt")
+	def update_utilizations(dir, filename="mdp_util.txt")
 		set_col(15); set_row(2);
 		begin
-			update_values(filename)
+			update_values("#{dir}/#{filename}")
 			puts "updated utilizations!"
 		rescue => err
 			puts "Exception occurred: #{err}"
 		end
 	end
 
-	def update_mdp_policy(filename="results/mdp_policy.txt")
+	def update_mdp_policy(dir, filename="mdp_policy.txt")
 		set_col(28); set_row(2);
-		update_policy(filename)
+		update_policy("#{dir}/#{filename}")
 	end
 
-	def update_khanna_policy(filename="results/khanna_policy.txt")
+	def update_khanna_policy(dir, filename="khanna_policy.txt")
 		set_col(58); set_row(2);
-		update_policy(filename)
+		update_policy("#{dir}/#{filename}")
 	end
 
 	def get_workload(row, col)

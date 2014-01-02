@@ -12,7 +12,7 @@ State::State(int phase_num, SimData *sdata)
     mig_vms = new list<Info>;
 }
 
-// shifts the vm having utilization `util` on pm `set_index`
+// puts the vm having utilization `util` on pm `set_index`
 void State::accommodateVm(int vm, float util, int set_index)
 {
     pm_to_vm_map[set_index]->push_back(Info(vm, util));
@@ -42,7 +42,7 @@ void State::getSortedViolatedVM(Heap *vm_list)
                 vm_list->push(*it);
 }
 
-// provides max heap of VMs whole PMs utilization is below lower threshold
+// provides max heap of VMs that are on PM whose utilization is below lower threshold
 void State::getSortedLTViolatedVM(Heap *vm_list)
 {
     for(int i=0; i<num_vms; i++)
@@ -51,7 +51,7 @@ void State::getSortedLTViolatedVM(Heap *vm_list)
                 vm_list->push(*it);
 }
 
-// provides max heap of PMs sorted based on their utilization
+// provides max heap of PMs sorted based on their utilization ~ min heap of residual capacities
 void State::getSortedPM(Heap *pm_list)
 {
     for(int i=0; i<num_vms; i++)
@@ -97,8 +97,8 @@ bool State::isIncrVar(int set_index, Info vm_info)
 float State::getSUV(SimData* sdata)
 {
     float suv = 0;
-    float * reward = new float [num_vms];
-    float * penalty = new float [num_vms];
+    float *reward = new float [num_vms];
+    float *penalty = new float [num_vms];
 
     for(int i=0; i<num_vms; i++)
     {
@@ -115,7 +115,7 @@ float State::getSUV(SimData* sdata)
     for(int i=0; i<num_vms; i++)
     {
         if(total_util[i] > 0)
-            suv -= (STATICPOWERCONSTANT + DYNAMICPOWERCONSTANT * (total_util[i]>1?1:total_util[i])) * MAXPOWER * COSTPERKWH / 3600;
+            suv -= (STATICPOWERCONSTANT + DYNAMICPOWERCONSTANT * (total_util[i]>1?1:total_util[i])) * MAXPOWER * COSTPERKWH /60/1000;
 
         if(total_util[i] <= UTIL_THRESHOLD)
             suv += reward[i];
@@ -129,7 +129,7 @@ float State::getSUV(SimData* sdata)
 }
 
 // calculate the Intermediate State Utility Value given the next state
-float State::getISUV(State *next_state, SimData* sdata)
+float State::getISUV(SimData* sdata)
 {
     int num_phases = sdata->getNumPhases();
     float isuv = 0;
@@ -150,12 +150,12 @@ float State::getISUV(State *next_state, SimData* sdata)
         penalty[vm_to_pm_map[j]] += sdata->getVmPenalty(j);
         util[vm_to_pm_map[j]] += sdata->getWorkload(phase_num%num_phases, j);
     }
-    setIntermediateUtil(next_state, util, sdata);
+    setIntermediateUtil(util, sdata);
 
     for(int i=0; i<num_vms; i++)
     {
         if(util[i] > 0)
-            isuv -= (STATICPOWERCONSTANT + DYNAMICPOWERCONSTANT * (util[i]>1?1:util[i])) * MAXPOWER * COSTPERKWH / 3600;
+            isuv -= (STATICPOWERCONSTANT + DYNAMICPOWERCONSTANT * (util[i]>1?1:util[i])) * MAXPOWER * COSTPERKWH /1000/60;
 
         if(util[i] <= UTIL_THRESHOLD)
             isuv += reward[i];
@@ -185,12 +185,10 @@ void State::getMigList(vector<int>* mapping)
         (*mapping)[it->index] = (int)it->val;
 }
 
-
-void State::setIntermediateUtil(State *next_state, float* iutil, SimData* sdata)
+void State::setIntermediateUtil(float* iutil, SimData* sdata)
 {
     int num_phases = sdata->getNumPhases();
-    list<Info>* mvms = next_state->mig_vms;
-    for(list<Info>::iterator i = mvms->begin(); i != mvms->end(); ++i)
+    for(list<Info>::iterator i = mig_vms->begin(); i != mig_vms->end(); ++i)
     {
         iutil[vm_to_pm_map[i->index]] += MOHCPUINTENSIVE*sdata->getWorkload(phase_num%num_phases, i->index);
         iutil[(int)(i->val)] += MOHCPUINTENSIVE*sdata->getWorkload(phase_num%num_phases, i->index);

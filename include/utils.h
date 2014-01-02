@@ -16,7 +16,7 @@ class Matrix
     int rows, cols, height;
     T *data;
 
-public:
+  public:
     Matrix(int num_rows, int num_cols, int h=1);
     T& operator() (int row, int col, int h=0);
     T operator() (int row, int col, int h=0) const;

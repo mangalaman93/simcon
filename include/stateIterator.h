@@ -26,7 +26,7 @@ class StateIterator
     int *auxillary;
     int state_number;
 
-public:
+  public:
     StateIterator(int n);
     ~StateIterator();
     void begin();

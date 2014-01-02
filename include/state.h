@@ -27,7 +27,7 @@ struct Info
 class CompareVM
 {
     bool reverse;
-public:
+  public:
     CompareVM(const bool& rev=false) { reverse=rev;}
     bool operator()(Info& vm1, Info& vm2)
     {
@@ -48,7 +48,7 @@ class State
 
     void sortPMs();
 
-public:
+  public:
     State(int phase_num, SimData *sdata);
     ~State();
     void accommodateVm(int vm, float util, int set_index);
@@ -60,11 +60,11 @@ public:
     void migrate(int set_index, Info vm_info);
     bool isIncrVar(int set_index, Info vm_info);
     float getSUV(SimData* sdata);
-    float getISUV(State *next_state, SimData* sdata);
+    float getISUV(SimData* sdata);
     float get_total_util(int pm);
     int* getVmPmMaping();
     void getMigList(vector<int>* mapping);
-    void setIntermediateUtil(State *next_state, float* iutil, SimData* sdata);
+    void setIntermediateUtil(float* iutil, SimData* sdata);
     void print();
     void printMigrations();
 };

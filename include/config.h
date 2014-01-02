@@ -10,13 +10,13 @@
 
 // Wattage of PC (in watt, joule per hour)
 #define MAXPOWER 250
-#define COSTPERKWH 5
+#define COSTPERKWH 10
 
 // Migration overhead of CPU Intensive workload VM
-#define MOHCPUINTENSIVE 0.55
+#define MOHCPUINTENSIVE 0.5
 
 // fraction of migration time in a phase
-#define MIGRATIONDURATION 0.3
+#define MIGRATIONDURATION 0.1
 
 // length of every phase (min)
 #define PHASE_LENGTH (10)

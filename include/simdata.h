@@ -19,7 +19,7 @@ class SimData
     float *vm_revenue;
     float *vm_penalty;
 
-public:
+  public:
     SimData(int num_vms, int num_phases);
     ~SimData();
     void readInput();

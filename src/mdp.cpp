@@ -66,7 +66,7 @@ float Mdp::getSUV(int phase, int* vm_to_pm_map)
     for(int i=0; i<num_vms; i++)
     {
         if(util[i] > 0)
-            suv -= (STATICPOWERCONSTANT + DYNAMICPOWERCONSTANT * (util[i]>1?1:util[i])) * MAXPOWER * COSTPERKWH / 3600;
+            suv -= (STATICPOWERCONSTANT + DYNAMICPOWERCONSTANT * (util[i]>1?1:util[i])) * MAXPOWER * COSTPERKWH /1000/60;
 
         if(util[i] <= UTIL_THRESHOLD)
             suv += reward[i];
@@ -111,7 +111,7 @@ float Mdp::getISUV(int phase, int* vm_to_pm_map1, int* vm_to_pm_map2, int* perm_
     for(int i=0; i<num_vms; i++)
     {
         if(util[i] > 0)
-            isuv -= (STATICPOWERCONSTANT + DYNAMICPOWERCONSTANT * (util[i]>1?1:util[i])) * MAXPOWER * COSTPERKWH / 3600;
+            isuv -= (STATICPOWERCONSTANT + DYNAMICPOWERCONSTANT * (util[i]>1?1:util[i])) * MAXPOWER * COSTPERKWH /60/1000;
 
         if(util[i] <= UTIL_THRESHOLD)
             isuv += reward[i];
@@ -155,7 +155,7 @@ float Mdp::compareState(int phase, int* vm_to_pm_map1, int* vm_to_pm_map2, int *
     return (SUV * (1 - MIGRATIONDURATION) + ISUV * MIGRATIONDURATION);
 }
 
-void *updateTransMat(void *threadarg)
+void* updateTransMat(void *threadarg)
 {
     struct ThreadData *my_data = (struct ThreadData*) threadarg;
     int p = my_data->p;

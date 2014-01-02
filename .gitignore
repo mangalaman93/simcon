@@ -15,8 +15,8 @@
 bin/*
 
 # input/output files
-input
-output
+in*
+out*
 results/*.txt
 results/*.pdf
 
@@ -42,4 +42,5 @@ rerun.txt
 pickle-email-*.html
 .rvmrc
 config/.env
-examples/*
+examples*/*
+sftp-config.json
