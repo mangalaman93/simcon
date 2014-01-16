@@ -20,7 +20,7 @@ set origin DX, DY
 set bmargin DX; set tmargin DX; set lmargin DY; set rmargin DY
 set ylabel "utilization"
 set key box
-set key at screen 1, 0.95
+set key at screen 1, 0.9
 
 
 
@@ -30,9 +30,9 @@ i=1
 
 plot  newhistogram , "mdp_policy.txt" every::(i-1)*pms::i*pms-1 using 2 t "VM-0" fs pattern 1, '' every::(i-1)*pms::i*pms-1 using 3 t "VM-1" fs pattern 2, '' every::(i-1)*pms::i*pms-1 using 4 t "VM-2" fs pattern 3,  '' every::(i-1)*pms::i*pms-1 using 5 t "VM-3" fs pattern 4,  '' every::(i-1)*pms::i*pms-1 using 6 t "VM-4" fs pattern 5, '' every::(i-1)*pms::i*pms-1 using 7 t "VM-5" fs pattern 6 
 
-#unset key
-#unset ytics
-#unset ylabel
+unset key
+unset ytics
+unset ylabel
 
 
 do for[i=2:phases] {
@@ -45,7 +45,7 @@ i=1
 
 plot  newhistogram, "khanna_policy.txt" every::(i-1)*pms::i*pms-1 using 2 t "VM-0" fs pattern 1 , '' every::(i-1)*pms::i*pms-1 using 3 t "VM-1" fs pattern 2, '' every::(i-1)*pms::i*pms-1 using 4 t "VM-2" fs pattern 3,  '' every::(i-1)*pms::i*pms-1 using 5 t "VM-3" fs pattern 4,  '' every::(i-1)*pms::i*pms-1 using 6 t "VM-4" fs pattern 5, '' every::(i-1)*pms::i*pms-1 using 7 t "VM-5" fs pattern 6
 
-#unset ytics
+unset ytics
 
 do for [i=2:phases] {
 plot  newhistogram , "khanna_policy.txt" every::(i-1)*pms::i*pms-1 using 2 t "VM-0" fs pattern 1 , '' every::(i-1)*pms::i*pms-1 using 3 t "VM-1" fs pattern 2, '' every::(i-1)*pms::i*pms-1 using 4 t "VM-2" fs pattern 3,  '' every::(i-1)*pms::i*pms-1 using 5 t "VM-3" fs pattern 4,  '' every::(i-1)*pms::i*pms-1 using 6 t "VM-4" fs pattern 5, '' every::(i-1)*pms::i*pms-1 using 7 t "VM-5" fs pattern 6 

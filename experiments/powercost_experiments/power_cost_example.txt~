@@ -1,0 +1,4 @@
+To study the effect of power cost on migration decisions, we ran our simulator for 3 different power-costs. 
+case1: (powercost = 10) No migrations
+case2: (powercost = 150) 2 migrations, at the end of phase1 and phase6 respectively.
+case3: (powercost = 500) 10 migrations.  

@@ -18,7 +18,7 @@ void Policy::printPolicy()
     	printMigrationList(p);
     	cout<<endl;
     }
-    cout<<"overall_profit: "<<max_profit<<endl;
+    cout<<"overall_profit: "<<max_profit/(run_for_phases/num_phases)<<endl;
 }
 
 void Policy::printState(int phase_number)

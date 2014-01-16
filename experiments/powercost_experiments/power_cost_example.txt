@@ -1,0 +1,7 @@
+To study the effect of power cost on migration decisions, we ran our simulator for 3 different power-costs. 
+case1: (powercost = 10) No migrations
+case2: (powercost = 150) 2 migrations, at the end of phase1 and phase6 respectively.
+case3: (powercost = 500) 10 migrations.  
+
+As we have already discussed in our previous examples, MDP takes the decisions which result in maximum profit while Khanna reacts to SLA violations.
+The change in powercost has no impact on Khanna decisions, therefore, khanna behaves same in all 3 cases. Since MDP takes decisions based profit, change in power cost affects migration decisions taken by MDP. In case1, power cost is low and so it can use extra PM to avoid migrations. PM2, PM3 and PM5 have very low utilizations during the cycle. In case2, power cost is moderate, MDP balances out the tradeoff between migration cost and running cost of PM to return maximum profit cycle by migrating VMs at end of Phase1 and Phase6 respectively. In case3, power cost is very high, MDP tries maximum consolidation and hence the large number of migrations.
