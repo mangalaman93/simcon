@@ -16,6 +16,7 @@ bin/*
 
 # input/output files
 in*
+!include/
 out*
 results/*.txt
 results/*.pdf

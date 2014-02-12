@@ -2,6 +2,7 @@
 #include "simdata.h"
 #include "khanna.h"
 #include "mdp.h"
+#include "astar.h"
 
 int main()
 {
@@ -17,6 +18,12 @@ int main()
     mdp.run(num_phases);
     mdp.printPolicy();
     mdp.dumpPolicy();
+
+    cout<<"############## astar ##############"<<endl;
+    Astar astar(sdata);
+    astar.run(num_phases);
+    astar.printPolicy();
+    astar.dumpPolicy();
 
     cout<<endl;
     cout<<"############## khanna ##############"<<endl;
