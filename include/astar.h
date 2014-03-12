@@ -21,16 +21,16 @@ struct AstarNode
 {
     int phase_number;
     int state_index;
-    float g_val;
+    Matrix<float> *g_plus_h;
 
-    AstarNode(int pn, int sn, float gv)
-    : phase_number(pn), state_index(sn), g_val(gv) {}
+    AstarNode(int pn, int sn, Matrix<float>* gph)
+    : phase_number(pn), state_index(sn), g_plus_h(gph) {}
 
     AstarNode(const AstarNode& an)
     {
     	phase_number = an.phase_number;
     	state_index = an.state_index;
-    	g_val = an.g_val;
+    	g_plus_h = an.g_plus_h;
     }
 };
 typedef struct AstarNode AstarNode;
@@ -40,7 +40,7 @@ class CompareAstarNode
   public:
     bool operator()(AstarNode& an1, AstarNode& an2)
     {
-        return(an1.g_val < an2.g_val);
+        return((*an1.g_plus_h)(an1.phase_number, an1.state_index) < (*an2.g_plus_h)(an2.phase_number, an2.state_index));
     }
 };
 
