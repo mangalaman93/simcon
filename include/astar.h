@@ -40,7 +40,7 @@ class CompareAstarNode
   public:
     bool operator()(AstarNode& an1, AstarNode& an2)
     {
-        return((*an1.g_plus_h)(an1.phase_number, an1.state_index) < (*an2.g_plus_h)(an2.phase_number, an2.state_index));
+        return((*an1.g_plus_h)(an1.phase_number, an1.state_index) > (*an2.g_plus_h)(an2.phase_number, an2.state_index));
     }
 };
 
