@@ -255,6 +255,70 @@ void Astar::run(int phases)
         }
     }
 
+    float min_edge_cost = trans_table(0, 0, 0);
+    for(int p=0; p<num_phases; p++)
+        for(sitr.begin(); sitr.end(); ++sitr)
+            for(sitr2.begin(); sitr2.end(); ++sitr2)
+            {
+                if(min_edge_cost > trans_table(p, (int)sitr, (int)sitr2))
+                    min_edge_cost = trans_table(p, (int)sitr, (int)sitr2);
+            }
+
+    for(int p=0; p<num_phases; p++)
+        for(sitr.begin(); sitr.end(); ++sitr)
+            for(sitr2.begin(); sitr2.end(); ++sitr2)
+                trans_table(p, (int)sitr, (int)sitr2) += min_edge_cost;
+
+    float min_cost = 0;
+    for(int start_state=0; start_state<num_states; start_state++)
+    {
+        // A* search
+        priority_queue<AstarNode, vector<AstarNode>, CompareAstarNode> open_list;
+        Matrix<float> g_value(num_phases+1, num_states);
+        Matrix<bool> not_closed(num_phases+1, num_states);
+        for(int i=0; i<num_phases+1; i++)
+            for(int j=0; j<num_states; j++)
+                not_closed(i, j) = true;
+
+        // adding phase 0 node
+        AstarNode to_relax(0, start_state, 0);
+        open_list.push(to_relax);
+
+        while(to_relax.phase_number != num_phases)
+        {
+            int new_phase_number = to_relax.phase_number + 1;
+
+            if(new_phase_number == num_phases)
+                open_list.push(AstarNode(num_phases, start_state, 0));
+            else
+            {
+                // relax node (first add all the adjacent nodes to open list, excluding which are already closed & having higher g value)
+                for(sitr.begin(); sitr.end(); ++sitr)
+                {
+                    float new_g_value = g_value(to_relax.phase_number, to_relax.state_index) +
+                                        trans_table(to_relax.phase_number, to_relax.state_index, (int)sitr);
+                    if(not_closed(new_phase_number, (int)sitr) ||
+                        new_g_value < g_value(new_phase_number, (int)sitr))
+                    {
+                        g_value(new_phase_number, (int)sitr) = new_g_value;
+                        open_list.push(AstarNode(new_phase_number, (int)sitr, new_g_value));
+                    }
+                }
+
+                not_closed(to_relax.phase_number, to_relax.state_index) = false;
+            }
+        }
+
+        if(min_cost > g_value(num_phases, start_state))
+            min_cost = g_value(num_phases, start_state);
+    }
+    cerr<<"MIN COST USING A*: "<<min_cost - min_edge_cost <<endl;
+
+    for(int p=0; p<num_phases; p++)
+        for(sitr.begin(); sitr.end(); ++sitr)
+            for(sitr2.begin(); sitr2.end(); ++sitr2)
+                trans_table(p, (int)sitr, (int)sitr2) -= min_edge_cost;
+
     // finding the most optimum cycle
     Matrix<float> temp_trans(num_states, num_states);
     Matrix<float> mid_trans(num_states, num_states);

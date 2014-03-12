@@ -9,12 +9,40 @@ Implementation of MDP algorithm
 #include <cmath>
 #include <fstream>
 #include <pthread.h>
+#include <queue>
 #include "algo.h"
 #include "simdata.h"
 #include "config.h"
 #include "stateIterator.h"
 #include "policy.h"
 using namespace std;
+
+struct AstarNode
+{
+    int phase_number;
+    int state_index;
+    float g_val;
+
+    AstarNode(int pn, int sn, float gv)
+    : phase_number(pn), state_index(sn), g_val(gv) {}
+
+    AstarNode(const AstarNode& an)
+    {
+    	phase_number = an.phase_number;
+    	state_index = an.state_index;
+    	g_val = an.g_val;
+    }
+};
+typedef struct AstarNode AstarNode;
+
+class CompareAstarNode
+{
+  public:
+    bool operator()(AstarNode& an1, AstarNode& an2)
+    {
+        return(an1.g_val < an2.g_val);
+    }
+};
 
 class Astar : public Policy
 {
