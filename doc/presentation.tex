@@ -1,0 +1,496 @@
+\documentclass{beamer}
+\mode<presentation>
+
+%% packages
+\usepackage{beamerthemeshadow}
+\usepackage{xcolor}
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{times}
+\usepackage[T1]{fontenc}
+\usepackage{wrapfig}
+\usepackage{color}
+\usepackage{graphicx}
+\usepackage{subfigure}
+\usepackage{multirow}
+\usepackage{amsmath}
+\usepackage{tikz}
+\usetikzlibrary{automata,positioning,arrows}
+\usepackage{tikz,ifthen}
+\usepackage{etoolbox}
+\usepackage{hyperref}
+
+%% The Beamer class comes with a number of default slide themes which change the colors and layouts of slides. For more details go to  http://deic.uab.es/~iblanes/beamer_gallery/
+%\usetheme{default}
+%\usetheme{AnnArbor} % Yellow colored theme, 3 parition in footer
+%\usetheme{Antibes}  % Blue shadowed theme, 2 partition in footer
+%\usetheme{Bergen}   % left side navigation, 2 partition in footer
+%\usetheme{Berkeley}
+%\usetheme{Berlin}   % bottom vertical partition, horizontal top navigation
+%\usetheme{Boadilla} % light blue navigation, 3 partition at bottom
+%\usetheme{CambridgeUS} % red color cool theme, 3 partition
+%\usetheme{Copenhagen}
+%\usetheme{Darmstadt}
+%\usetheme{Dresden}
+\usetheme{EastLansing} % cool green colored theme
+%\usetheme{Frankfurt}
+%\usetheme{Goettingen}
+%\usetheme{Hannover}
+%\usetheme{Ilmenau}
+%\usetheme{JuanLesPins}
+%\usetheme{Luebeck}
+%\usetheme{Madrid}
+%\usetheme{Malmoe}
+%\usetheme{Marburg}
+%\usetheme{Montpellier}
+%\usetheme{PaloAlto}
+%\usetheme{Pittsburgh}
+%\usetheme{Rochester}
+%\usetheme{Singapore}
+%\usetheme{Szeged}
+%\usetheme{Warsaw}
+
+%% As well as themes, the Beamer class has a number of color themes for any slide theme.
+%\usecolortheme{albatross}
+%\usecolortheme{beaver}
+%\usecolortheme{beetle}
+%\usecolortheme{crane}
+%\usecolortheme{dolphin}
+%\usecolortheme{dove}
+%\usecolortheme{fly}
+%\usecolortheme{lily}
+%\usecolortheme{orchid}
+%\usecolortheme{rose}
+%\usecolortheme{seagull}
+%\usecolortheme{seahorse}
+%\usecolortheme{whale}
+%\usecolortheme{wolverine}
+
+%% font themes
+%\usefonttheme{structurebold}
+%\usefonttheme{professionalfonts}
+%\usefonttheme{structuresmallcapsserif}
+%\usefonttheme{serif}
+\usefonttheme{structureitalicserif}
+
+%% color definition
+\definecolor{theme_color}{RGB}{0,51,25}
+
+%% custom color
+%\setbeamercolor{alerted text}{fg=orange}
+%\setbeamercolor{background canvas}{bg=white}
+%\setbeamercolor{block body alerted}{bg=normal text.bg!90!black}
+%\setbeamercolor{block body}{bg=normal text.bg!90!black}
+%\setbeamercolor{block body example}{bg=normal text.bg!90!black}
+%\setbeamercolor{block title alerted}{use={normal text,alerted text},fg=alerted text.fg!75!normal text.fg,bg=normal text.bg!75!black}
+%\setbeamercolor{block title}{bg=blue}
+%\setbeamercolor{block title example}{use={normal text,example text},fg=example text.fg!75!normal text.fg,bg=normal text.bg!75!black}
+%\setbeamercolor{fine separation line}{}
+%\setbeamercolor{frametitle}{fg=brown}
+%\setbeamercolor{item projected}{fg=black}
+%\setbeamercolor{normal text}{bg=black,fg=yellow}
+%\setbeamercolor{palette sidebar primary}{use=normal text,fg=normal text.fg}
+%\setbeamercolor{palette sidebar quaternary}{use=structure,fg=structure.fg}
+%\setbeamercolor{palette sidebar secondary}{use=structure,fg=structure.fg}
+%\setbeamercolor{palette sidebar tertiary}{use=normal text,fg=normal text.fg}
+%\setbeamercolor{section in sidebar}{fg=brown}
+%\setbeamercolor{section in sidebar shaded}{fg= grey}
+%\setbeamercolor{separation line}{}
+%\setbeamercolor{sidebar}{bg=red}
+%\setbeamercolor{sidebar}{parent=palette primary}
+\setbeamercolor{structure}{fg=theme_color}
+%\setbeamercolor{subsection in sidebar}{fg=brown}
+%\setbeamercolor{subsection in sidebar shaded}{fg= grey}
+%\setbeamercolor{title}{fg=brown}
+%\setbeamercolor{titlelike}{fg=brown}
+
+%% control header
+\setbeamertemplate{headline}{}
+
+%% control footer
+%\setbeamertemplate{footline}
+%\setbeamertemplate{footline}[page number]
+
+%% removes navigation symbol
+%\setbeamertemplate{navigation symbols}{}
+
+%% bibilography settings
+\setbeamertemplate{frametitle continuation}[from second]
+\setbeamercolor*{bibliography entry title}{fg=black}
+\setbeamercolor*{bibliography entry author}{fg=black}
+\setbeamercolor*{bibliography entry location}{fg=black}
+\setbeamercolor*{bibliography entry note}{fg=black}
+
+%% same slide number for continuation slides
+\newcounter{multipleslide}
+\makeatletter
+\newcommand{\multipleframe}
+{
+	\setcounter{multipleslide}{\value{framenumber}}
+	\stepcounter{multipleslide}
+	\patchcmd{\beamer@@tmpl@footline}
+	{\insertframenumber}
+	{\themultipleslide}
+	{}
+	{}
+}
+\newcommand{\restoreframe}
+{
+	\patchcmd{\beamer@@tmpl@footline}
+	{\themultipleslide}
+  	{\insertframenumber}
+	{}
+	{}
+	\setcounter{framenumber}{\value{multipleslide}}
+}
+\makeatother
+
+%% title page
+\title[Dynamic Server Consolidation (simcon)]
+{
+	R \& D Project (CS 692) \\
+	Dynamic Server Consolidation Problem \\
+	as Markov Decision Process \\
+	(New Approaches)
+}
+\author[Aman Mangal, (IIT Bombay)]
+{	\sffamily
+	\textbf{By:} Aman Mangal \\
+	\textbf{Advisor:} Prof Varsha Apte \\
+	IIT Bombay
+}
+\date{\today}
+
+\begin{document}
+\begin{frame}
+\addtocounter{framenumber}{-1}
+\begin{figure}
+    \includegraphics[width=2.3cm]{images/iitb}
+\end{figure}
+\titlepage
+\end{frame}
+
+\begin{frame}\frametitle{Presentation Outline}
+\tableofcontents
+\end{frame}
+
+\section{Introduction}
+\begin{frame}{Introduction}
+\addtocounter{framenumber}{-1}
+\tableofcontents[currentsection]
+\end{frame}
+
+\subsection{Current Status}
+\begin{frame}{What We Have Done?}
+\begin{itemize}
+\item Proposed a utilization based profit model for a data center-
+\begin{itemize}
+\item Profit = Fee/Revenue - SLA Penalty - Power Cost
+\item Resilient to change in technology, independent of the assumption that migration is always costly
+\end{itemize}
+\item Formulation of DSCP as Finite Horizon MDP for cyclic workload-
+\begin{itemize}
+\item Deterministic actions, fixed number of phases
+\item Long term profit based, two step solution
+\item MDP solution using backward induction method proposed by Puterman (Dynamic Programming)
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+\subsection{Issues \& Direction of Improvements}
+\multipleframe
+\begin{frame}{Issues}
+\begin{itemize}
+\item Profit model does not fully mimic the response time of the system
+\begin{itemize}
+\item Anshu's work
+\end{itemize}
+\item Has exponential asymptotic complexity in the number of VMs
+\begin{itemize}
+\item B  $< \left(\frac{0.79M}{\log M}\right)^{M}$
+\item Order of B: O$\left(\frac{M}{\log M}\right) ^{M}$
+\item Time Complexity: \\
+\hspace*{1cm} $O\left(N_P*B^{2}*M! + \left(N_P-1\right)*B^{3}\right)$
+\item Space Complexity : \\
+\hspace*{1cm} $O\left(N_P*B^{2}*M + N_P*B^{2}\right)$
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Possible Approaches to Reduce Complexity}
+\begin{itemize}
+\item Step 1 (local optimization step)
+\item Step 2 (Global optimization step)
+\begin{itemize}
+\item Shortest path algorithms
+\begin{itemize}
+\item Single source (Dijkstra's Algorithm)
+\item Single pair (A* search)
+\item All pairs
+\end{itemize}
+\item MDP specific solutions
+\begin{itemize}
+\item Variation of policy iteration and evaluation
+\item Papers related to solving large MDPs
+\end{itemize}
+\item Reinforcement learning based solutions
+\begin{itemize}
+\item Approximate solutions
+\item UCT and its variations
+\end{itemize}
+\item Combination of offline and online solutions
+\end{itemize}
+\end{itemize}
+\end{frame}
+\restoreframe
+
+\section{Shortest Path Algorithms}
+\begin{frame}{Shortest Path Algorithms}
+\addtocounter{framenumber}{-1}
+\tableofcontents[currentsection]
+\end{frame}
+
+\subsection{Applicability \& Problem Statement}
+\begin{frame}{Problem Statement}
+\begin{itemize}
+\item Given a weighted directed graph G = (V, E), find the shortest path i.e. path with lowest weight sum
+\begin{center}
+\begin{figure}[h]
+\begin{tikzpicture}[scale=0.6, transform shape, shorten >=1pt, node distance=2cm,auto]
+\tikzstyle{every state}=[draw=blue!50, very thick, fill=blue!20]
+\node[state] (s11)                {$s_{1,1}$};
+\node[state] (s12) [right of=s11] {$s_{1,2}$};
+\node[state] (s22) [below of=s12] {$s_{2,2}$};
+\node[state] (s32) [below of=s22] {$s_{3,2}$};
+\node[state] (s13) [right of=s12] {$s_{1,3}$};
+\node[state] (s23) [below of=s13] {$s_{2,3}$};
+\node[state] (s33) [below of=s23] {$s_{3,3}$};
+\node[state] (s14) [right of=s13] {$s_{1,4}$};
+\node[state] (s24) [below of=s14] {$s_{2,4}$};
+\node[state] (s34) [below of=s24] {$s_{3,4}$};
+
+\tikzstyle{every state}=[draw=none, very thick, node distance=1cm]
+\node[state] (sd2) [below of=s32] {$\vdots$};
+\node[state] (sd3) [below of=s33] {$\vdots$};
+\node[state] (sd4) [below of=s34] {$\vdots$};
+
+\node[state] (s1d) [right of=s14] {$\cdots$};
+\node[state] (s2d) [right of=s24] {$\cdots$};
+\node[state] (s3d) [right of=s34] {$\cdots$};
+\node[state] (sdd) [right of=sd4] {$\ddots$};
+\node[state] (sdn) [below of=sdd] {$\cdots$};
+
+\node[state] (snd) [right of=sdd] {$\vdots$};
+
+\tikzstyle{every state}=[draw=blue!50, very thick, fill=blue!20, node distance=1cm, auto]
+\node[state] (sn2) [below of=sd2] {$s_{B,2}$};
+\node[state] (sn3) [below of=sd3] {$s_{B,3}$};
+\node[state] (sn4) [below of=sd4] {$s_{B,4}$};
+
+\node[state] (s1n) [right of=s1d] {$s_{1,N_p}$};
+\node[state] (s2n) [right of=s2d] {$s_{2,N_p}$};
+\node[state] (s3n) [right of=s3d] {$s_{3,N_p}$};
+\node[state] (snn) [right of=snd] {$s_{B,N_p}$};
+
+\tikzstyle{every state}=[draw=blue!50, very thick, fill=blue!20, node distance=2cm, auto]
+\node[state] (s11') [right of=s1n] {$s_{1,1}$};
+
+\foreach \x in {s12, s22, s32, sn2}
+{\path[->] (s11) edge node {} (\x);}
+\foreach \x in {s12, s22, s32, sn2}
+{\path[->] (\x) edge node {} (s13)
+                edge node {} (s23)
+                edge node {} (s33)
+                edge node {} (sn3);}
+\foreach \x in {s13, s23, s33, sn3}
+{\path[->] (\x) edge node {} (s14)
+                edge node {} (s24)
+                edge node {} (s34)
+                edge node {} (sn4);}
+\foreach \x in {s1n, s2n, s3n, snn}
+{\path[->] (\x) edge node {} (s11');}
+\end{tikzpicture}
+\end{figure}
+\end{center}
+\item \#E = $(N_p-2)*B^2 + 2*B$
+\item \#V = $(N_p-1)*B + 2$
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Applicability}
+\begin{itemize}
+\item Requires absence of non-positive total weight cycles in the graph
+\begin{itemize}
+\item True in case of our formulation of DSCP as MDP
+\item There are no cycles in the MDP\footnote{From now onward MDP refers to our formulation of DSCP as MDP unless specified explicitly}
+\end{itemize}
+\item Dijkstra's algorithm requires non-negative edges
+\begin{itemize}
+\item Shifting the edge weights by a constant amount will work in MDP
+\item Let's prove it but before that let's formalize the problem we are trying to solve
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+\multipleframe
+\begin{frame}{Negative Edges}
+\begin{itemize}
+\item Consider 2 version of the same problem
+\item Graph B having more weights by a fixed offset than the graph A such that all the weights are positive in graph B
+\end{itemize}
+\begin{columns}[onlytextwidth]
+\begin{column}{0.5\textwidth}
+\begin{figure}[h]
+\begin{center}
+\begin{tikzpicture}[scale=0.6, transform shape, shorten >=1pt, node distance=2cm,auto]
+\tikzstyle{every state}=[draw=blue!50, very thick, fill=blue!20]
+\node[state] (s11)                {$s_{1,1}$};
+\node[state] (s12) [right of=s11] {$s_{1,2}$};
+\node[state] (s22) [below of=s12] {$s_{2,2}$};
+\node[state] (s32) [below of=s22] {$s_{3,2}$};
+\node[state] (s13) [right of=s12] {$s_{1,3}$};
+\node[state] (s23) [below of=s13] {$s_{2,3}$};
+\node[state] (s33) [below of=s23] {$s_{3,3}$};
+
+\tikzstyle{every state}=[draw=none, very thick, node distance=1.4cm]
+\node[state] (sd2) [below of=s32] {$\vdots$};
+\node[state] (sd3) [below of=s33] {$\vdots$};
+
+\node[state] (s1d) [right of=s13] {$\cdots$};
+\node[state] (s2d) [right of=s23] {$\cdots$};
+\node[state] (s3d) [right of=s33] {$\cdots$};
+\node[state] (sdd) [right of=sd3] {$\ddots$};
+\node[state] (sdn) [below of=sdd] {$\cdots$};
+
+\node[state] (snd) [right of=sdd] {$\vdots$};
+
+\tikzstyle{every state}=[draw=blue!50, very thick, fill=blue!20, node distance=1.4cm, auto]
+\node[state] (sn2) [below of=sd2] {$s_{B,2}$};
+\node[state] (sn3) [below of=sd3] {$s_{B,3}$};
+
+\node[state] (s1n) [right of=s1d] {$s_{1,N_p}$};
+\node[state] (s2n) [right of=s2d] {$s_{2,N_p}$};
+\node[state] (s3n) [right of=s3d] {$s_{3,N_p}$};
+\node[state] (snn) [right of=sdn] {$s_{B,N_p}$};
+
+\tikzstyle{every state}=[draw=blue!50, very thick, fill=blue!20, node distance=2cm, auto]
+\node[state] (s11') [right of=s1n] {$s_{1,1}$};
+
+\path[->] (s11) edge node {} (s22);
+\path[->] (s22) edge node {} (s23);
+\path[->] (s23) edge node {} (s3d);
+\path[->] (s3d) edge node {} (s3n);
+\path[->] (s3n) edge node {} (s11');
+\end{tikzpicture}
+\end{center}
+\caption{(A)}
+\end{figure}
+\end{column}
+\vrule{}
+\begin{column}{0.5\textwidth}
+\begin{figure}[h]
+\begin{center}
+\begin{tikzpicture}[scale=0.6, transform shape, shorten >=1pt, node distance=2cm,auto]
+\tikzstyle{every state}=[draw=blue!50, very thick, fill=blue!20]
+\node[state] (s11)                {$s_{1,1}$};
+\node[state] (s12) [right of=s11] {$s_{1,2}$};
+\node[state] (s22) [below of=s12] {$s_{2,2}$};
+\node[state] (s32) [below of=s22] {$s_{3,2}$};
+\node[state] (s13) [right of=s12] {$s_{1,3}$};
+\node[state] (s23) [below of=s13] {$s_{2,3}$};
+\node[state] (s33) [below of=s23] {$s_{3,3}$};
+
+\tikzstyle{every state}=[draw=none, very thick, node distance=1.4cm]
+\node[state] (sd2) [below of=s32] {$\vdots$};
+\node[state] (sd3) [below of=s33] {$\vdots$};
+
+\node[state] (s1d) [right of=s13] {$\cdots$};
+\node[state] (s2d) [right of=s23] {$\cdots$};
+\node[state] (s3d) [right of=s33] {$\cdots$};
+\node[state] (sdd) [right of=sd3] {$\ddots$};
+\node[state] (sdn) [below of=sdd] {$\cdots$};
+
+\node[state] (snd) [right of=sdd] {$\vdots$};
+
+\tikzstyle{every state}=[draw=blue!50, very thick, fill=blue!20, node distance=1.4cm, auto]
+\node[state] (sn2) [below of=sd2] {$s_{B,2}$};
+\node[state] (sn3) [below of=sd3] {$s_{B,3}$};
+
+\node[state] (s1n) [right of=s1d] {$s_{1,N_p}$};
+\node[state] (s2n) [right of=s2d] {$s_{2,N_p}$};
+\node[state] (s3n) [right of=s3d] {$s_{3,N_p}$};
+\node[state] (snn) [right of=sdn] {$s_{B,N_p}$};
+
+\tikzstyle{every state}=[draw=blue!50, very thick, fill=blue!20, node distance=2cm, auto]
+\node[state] (s11') [right of=s1n] {$s_{1,1}$};
+
+\path[->] (s11) edge node {} (s12);
+\path[->] (s12) edge node {} (s33);
+\path[->] (s33) edge node {} (s3d);
+\path[->] (s3d) edge node {} (s2n);
+\path[->] (s2n) edge node {} (s11');
+\end{tikzpicture}
+\end{center}
+\caption{(B)}
+\end{figure}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Negative Edges}
+\begin{itemize}
+\item Proof by contradiction, assuming only one optimal path in a graph
+\item Let's say optimal path in both the graphs is different, $P_A$ and $P_B$
+\item Cost of $P_A$, in Graph B-\\
+\hspace*{1cm} $CB_{P_A}$ = ($CA_{P_A}$ + $N_p$*offset)
+\item Cost of optimal path of graph B, in Graph B-\\
+\hspace*{1cm} $CB_{P_B}$ = ($CA_{P_B}$ + $N_p$*offset)
+\item Clearly, $CA_{P_A} \leq CA_{P_B}  \Rightarrow  CB_{P_A} \leq CB_{P_B}$, leads to contradiction
+\item This proof can be extended to graphs having more than one optimal path
+\end{itemize}
+\end{frame}
+\restoreframe
+
+\subsection{Complexity Analysis}
+\begin{frame}{Complexity Analysis}
+\begin{table}
+\begin{tabular}{|p{2.5cm}|p{4cm}|c|}
+\hline 
+ & \textbf{Time Complexity} & \textbf{Space Complexity} \\ 
+\hline 
+Backward Induction & $N_P*B^{2}*M! + N_p*B^3$ & $N_P*B^{2}*M$ \\ 
+\hline 
+Dijkstra's Algorithm & $N_P*B^{2}*M! + N_p*B^3$ & $N_p*B^2$ \\ 
+\hline 
+Bellman-Ford Algorithm & $N_P*B^{2}*M! + N_p^2*B^4$ & $N_p*B^2$ \\ 
+\hline 
+A* search & $N_P*B^{2}*M! + N_p*B^3$ & $N_p*B^2$ \\ 
+\hline 
+\end{tabular} 
+\end{table}
+\begin{itemize}
+\item In practice, complexity follows-
+\begin{center}
+Backward Induction > Dijkstra's Algorithm > A* search
+\end{center}
+\end{itemize}
+\end{frame}
+
+\section{References}
+\multipleframe
+\begin{frame}[allowframebreaks]
+\frametitle{References}
+\begin{thebibliography}{9}
+\bibitem{permut}
+    http://serverbob.3x.ro/IA/DDU0147.html
+\bibitem{coursera}
+	http://coursera.org
+\end{thebibliography}
+\end{frame}
+\restoreframe
+
+\begin{frame} \frametitle{Thank you}
+\Huge{\centerline{\color{theme_color}Questions?}}
+\end{frame}
+
+\end{document}
