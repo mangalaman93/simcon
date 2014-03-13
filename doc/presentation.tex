@@ -15,7 +15,7 @@
 \usepackage{multirow}
 \usepackage{amsmath}
 \usepackage{tikz}
-\usetikzlibrary{automata,positioning,arrows}
+\usetikzlibrary{automata,positioning,arrows,positioning}
 \usepackage{tikz,ifthen}
 \usepackage{etoolbox}
 \usepackage{hyperref}
@@ -251,13 +251,28 @@
 \end{frame}
 
 \subsection{Applicability \& Problem Statement}
+\begin{frame}{Applicability}
+\begin{itemize}
+\item Requires absence of non-positive total weight cycles in the graph
+\begin{itemize}
+\item True in case of our formulation of DSCP as MDP
+\item There are no cycles in the MDP\footnote{From now onward MDP refers to our formulation of DSCP as MDP unless specified explicitly}
+\end{itemize}
+\item Dijkstra's algorithm requires non-negative edges
+\begin{itemize}
+\item Shifting the edge weights by a constant amount will work in MDP
+\item Let's prove it but before that let's formalize the problem we are trying to solve
+\end{itemize}
+\end{itemize}
+\end{frame}
+
 \begin{frame}{Problem Statement}
 \begin{itemize}
 \item Given a weighted directed graph G = (V, E), find the shortest path i.e. path with lowest weight sum
 \begin{center}
 \begin{figure}[h]
 \begin{tikzpicture}[scale=0.6, transform shape, shorten >=1pt, node distance=2cm,auto]
-\tikzstyle{every state}=[draw=blue!50, very thick, fill=blue!20]
+\tikzstyle{every state}=[>=stealth', draw=blue!50, very thick, fill=blue!20]
 \node[state] (s11)                {$s_{1,1}$};
 \node[state] (s12) [right of=s11] {$s_{1,2}$};
 \node[state] (s22) [below of=s12] {$s_{2,2}$};
@@ -269,7 +284,7 @@
 \node[state] (s24) [below of=s14] {$s_{2,4}$};
 \node[state] (s34) [below of=s24] {$s_{3,4}$};
 
-\tikzstyle{every state}=[draw=none, very thick, node distance=1cm]
+\tikzstyle{every state}=[>=stealth', draw=none, very thick, node distance=1cm]
 \node[state] (sd2) [below of=s32] {$\vdots$};
 \node[state] (sd3) [below of=s33] {$\vdots$};
 \node[state] (sd4) [below of=s34] {$\vdots$};
@@ -282,7 +297,7 @@
 
 \node[state] (snd) [right of=sdd] {$\vdots$};
 
-\tikzstyle{every state}=[draw=blue!50, very thick, fill=blue!20, node distance=1cm, auto]
+\tikzstyle{every state}=[>=stealth', draw=blue!50, very thick, fill=blue!20, node distance=1cm, auto]
 \node[state] (sn2) [below of=sd2] {$s_{B,2}$};
 \node[state] (sn3) [below of=sd3] {$s_{B,3}$};
 \node[state] (sn4) [below of=sd4] {$s_{B,4}$};
@@ -290,9 +305,9 @@
 \node[state] (s1n) [right of=s1d] {$s_{1,N_p}$};
 \node[state] (s2n) [right of=s2d] {$s_{2,N_p}$};
 \node[state] (s3n) [right of=s3d] {$s_{3,N_p}$};
-\node[state] (snn) [right of=snd] {$s_{B,N_p}$};
+\node[state] (snn) [right of=sdn] {$s_{B,N_p}$};
 
-\tikzstyle{every state}=[draw=blue!50, very thick, fill=blue!20, node distance=2cm, auto]
+\tikzstyle{every state}=[>=stealth', draw=blue!50, very thick, fill=blue!20, node distance=2cm, auto]
 \node[state] (s11') [right of=s1n] {$s_{1,1}$};
 
 \foreach \x in {s12, s22, s32, sn2}
@@ -317,33 +332,18 @@
 \end{itemize}
 \end{frame}
 
-\begin{frame}{Applicability}
-\begin{itemize}
-\item Requires absence of non-positive total weight cycles in the graph
-\begin{itemize}
-\item True in case of our formulation of DSCP as MDP
-\item There are no cycles in the MDP\footnote{From now onward MDP refers to our formulation of DSCP as MDP unless specified explicitly}
-\end{itemize}
-\item Dijkstra's algorithm requires non-negative edges
-\begin{itemize}
-\item Shifting the edge weights by a constant amount will work in MDP
-\item Let's prove it but before that let's formalize the problem we are trying to solve
-\end{itemize}
-\end{itemize}
-\end{frame}
-
 \multipleframe
 \begin{frame}{Negative Edges}
 \begin{itemize}
 \item Consider 2 version of the same problem
-\item Graph B having more weights by a fixed offset than the graph A such that all the weights are positive in graph B
+\item Graph B having more weights by a fixed offset than the graph A, such that all the weights are positive in graph B
 \end{itemize}
 \begin{columns}[onlytextwidth]
 \begin{column}{0.5\textwidth}
 \begin{figure}[h]
 \begin{center}
 \begin{tikzpicture}[scale=0.6, transform shape, shorten >=1pt, node distance=2cm,auto]
-\tikzstyle{every state}=[draw=blue!50, very thick, fill=blue!20]
+\tikzstyle{every state}=[>=stealth', draw=blue!50, very thick, fill=blue!20]
 \node[state] (s11)                {$s_{1,1}$};
 \node[state] (s12) [right of=s11] {$s_{1,2}$};
 \node[state] (s22) [below of=s12] {$s_{2,2}$};
@@ -352,7 +352,7 @@
 \node[state] (s23) [below of=s13] {$s_{2,3}$};
 \node[state] (s33) [below of=s23] {$s_{3,3}$};
 
-\tikzstyle{every state}=[draw=none, very thick, node distance=1.4cm]
+\tikzstyle{every state}=[>=stealth', draw=none, very thick, node distance=1.4cm]
 \node[state] (sd2) [below of=s32] {$\vdots$};
 \node[state] (sd3) [below of=s33] {$\vdots$};
 
@@ -364,7 +364,7 @@
 
 \node[state] (snd) [right of=sdd] {$\vdots$};
 
-\tikzstyle{every state}=[draw=blue!50, very thick, fill=blue!20, node distance=1.4cm, auto]
+\tikzstyle{every state}=[>=stealth', draw=blue!50, very thick, fill=blue!20, node distance=1.4cm, auto]
 \node[state] (sn2) [below of=sd2] {$s_{B,2}$};
 \node[state] (sn3) [below of=sd3] {$s_{B,3}$};
 
@@ -373,7 +373,7 @@
 \node[state] (s3n) [right of=s3d] {$s_{3,N_p}$};
 \node[state] (snn) [right of=sdn] {$s_{B,N_p}$};
 
-\tikzstyle{every state}=[draw=blue!50, very thick, fill=blue!20, node distance=2cm, auto]
+\tikzstyle{every state}=[>=stealth', draw=blue!50, very thick, fill=blue!20, node distance=2cm, auto]
 \node[state] (s11') [right of=s1n] {$s_{1,1}$};
 
 \path[->] (s11) edge node {} (s22);
@@ -391,7 +391,7 @@
 \begin{figure}[h]
 \begin{center}
 \begin{tikzpicture}[scale=0.6, transform shape, shorten >=1pt, node distance=2cm,auto]
-\tikzstyle{every state}=[draw=blue!50, very thick, fill=blue!20]
+\tikzstyle{every state}=[>=stealth', draw=blue!50, very thick, fill=blue!20]
 \node[state] (s11)                {$s_{1,1}$};
 \node[state] (s12) [right of=s11] {$s_{1,2}$};
 \node[state] (s22) [below of=s12] {$s_{2,2}$};
@@ -400,7 +400,7 @@
 \node[state] (s23) [below of=s13] {$s_{2,3}$};
 \node[state] (s33) [below of=s23] {$s_{3,3}$};
 
-\tikzstyle{every state}=[draw=none, very thick, node distance=1.4cm]
+\tikzstyle{every state}=[>=stealth', draw=none, very thick, node distance=1.4cm]
 \node[state] (sd2) [below of=s32] {$\vdots$};
 \node[state] (sd3) [below of=s33] {$\vdots$};
 
@@ -412,7 +412,7 @@
 
 \node[state] (snd) [right of=sdd] {$\vdots$};
 
-\tikzstyle{every state}=[draw=blue!50, very thick, fill=blue!20, node distance=1.4cm, auto]
+\tikzstyle{every state}=[>=stealth', draw=blue!50, very thick, fill=blue!20, node distance=1.4cm, auto]
 \node[state] (sn2) [below of=sd2] {$s_{B,2}$};
 \node[state] (sn3) [below of=sd3] {$s_{B,3}$};
 
@@ -421,7 +421,7 @@
 \node[state] (s3n) [right of=s3d] {$s_{3,N_p}$};
 \node[state] (snn) [right of=sdn] {$s_{B,N_p}$};
 
-\tikzstyle{every state}=[draw=blue!50, very thick, fill=blue!20, node distance=2cm, auto]
+\tikzstyle{every state}=[>=stealth', draw=blue!50, very thick, fill=blue!20, node distance=2cm, auto]
 \node[state] (s11') [right of=s1n] {$s_{1,1}$};
 
 \path[->] (s11) edge node {} (s12);
@@ -450,6 +450,706 @@
 \end{itemize}
 \end{frame}
 \restoreframe
+
+\begin{frame}{Problem Statement (MDP)}
+\begin{itemize}
+\item Given an MDP with some profit function(including negative profit values), find the path with maximum profit?
+\begin{center}
+\begin{figure}[h]
+\begin{tikzpicture}[scale=0.6, transform shape, shorten >=1pt, node distance=2cm,auto]
+\tikzstyle{every state}=[>=stealth', draw=blue!50, very thick, fill=blue!20]
+\node[state] (s11)                {$s_{1,1}$};
+\node[state] (s12) [right of=s11] {$s_{1,2}$};
+\node[state] (s22) [below of=s12] {$s_{2,2}$};
+\node[state] (s32) [below of=s22] {$s_{3,2}$};
+\node[state] (s13) [right of=s12] {$s_{1,3}$};
+\node[state] (s23) [below of=s13] {$s_{2,3}$};
+\node[state] (s33) [below of=s23] {$s_{3,3}$};
+\node[state] (s14) [right of=s13] {$s_{1,4}$};
+\node[state] (s24) [below of=s14] {$s_{2,4}$};
+\node[state] (s34) [below of=s24] {$s_{3,4}$};
+
+\tikzstyle{every state}=[>=stealth', draw=none, very thick, node distance=1cm]
+\node[state] (sd2) [below of=s32] {$\vdots$};
+\node[state] (sd3) [below of=s33] {$\vdots$};
+\node[state] (sd4) [below of=s34] {$\vdots$};
+
+\node[state] (s1d) [right of=s14] {$\cdots$};
+\node[state] (s2d) [right of=s24] {$\cdots$};
+\node[state] (s3d) [right of=s34] {$\cdots$};
+\node[state] (sdd) [right of=sd4] {$\ddots$};
+\node[state] (sdn) [below of=sdd] {$\cdots$};
+
+\node[state] (snd) [right of=sdd] {$\vdots$};
+
+\tikzstyle{every state}=[>=stealth', draw=blue!50, very thick, fill=blue!20, node distance=1cm, auto]
+\node[state] (sn2) [below of=sd2] {$s_{B,2}$};
+\node[state] (sn3) [below of=sd3] {$s_{B,3}$};
+\node[state] (sn4) [below of=sd4] {$s_{B,4}$};
+
+\node[state] (s1n) [right of=s1d] {$s_{1,N_p}$};
+\node[state] (s2n) [right of=s2d] {$s_{2,N_p}$};
+\node[state] (s3n) [right of=s3d] {$s_{3,N_p}$};
+\node[state] (snn) [right of=sdn] {$s_{B,N_p}$};
+
+\tikzstyle{every state}=[>=stealth', draw=blue!50, very thick, fill=blue!20, node distance=2cm, auto]
+\node[state] (s11') [right of=s1n] {$s_{1,1}$};
+
+\foreach \x in {s12, s22, s32, sn2}
+{\path[->] (s11) edge node {} (\x);}
+\foreach \x in {s12, s22, s32, sn2}
+{\path[->] (\x) edge node {} (s13)
+                edge node {} (s23)
+                edge node {} (s33)
+                edge node {} (sn3);}
+\foreach \x in {s13, s23, s33, sn3}
+{\path[->] (\x) edge node {} (s14)
+                edge node {} (s24)
+                edge node {} (s34)
+                edge node {} (sn4);}
+\foreach \x in {s1n, s2n, s3n, snn}
+{\path[->] (\x) edge node {} (s11');}
+\end{tikzpicture}
+\end{figure}
+\end{center}
+\item Find cost $\Rightarrow$ multiply all profit values with -1
+\item Positive cost $\Rightarrow$ subtract minimum edge cost from all cost values
+\item Find the path having minimum cost and add ($N_p \times$ minimum edge cost) to minimum cost. Multiply it with -1 to find optimal profit
+\item Corresponding path will be the optimal path
+\end{itemize}
+\end{frame}
+
+\subsection{Algorithms (Dijkstra's, A* etc.)}
+\multipleframe
+\begin{frame}{Dijkstra's Algorithm}
+\begin{center}
+\begin{figure}[h]
+\begin{tikzpicture}[scale=0.8, transform shape, shorten >=1pt, node distance=4cm,auto]
+\tikzstyle{every state}=[>=stealth', draw=none, very thick, fill=blue!40]
+\node[state] (A) [fill=red!50] {A};
+\node[state] () [draw=none, fill=none,above of=A,xshift=0,yshift=-3.3cm] {0};
+\node[state] (B) [above right of=A] {B};
+\node[state] (C) [below right of=A] {C};
+\node[state] (D) [right of=B] {D};
+\node[state] (E) [right of=C] {E};
+\node[state] (F) [below right of=D] {F};
+
+\path (A) edge node {4} (B)
+          edge node {2} (C)
+      (B) edge node {1} (C)
+          edge node {5} (D)
+      (C) edge node {8} (D)
+          edge node {10} (E)
+      (D) edge node {2} (E)
+          edge node {6} (F)
+      (E) edge node {3} (F);
+\end{tikzpicture}
+\end{figure}
+\end{center}
+\begin{itemize}
+\item OL: \{A\}
+\item CL: \{\}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Dijkstra's Algorithm}
+\begin{center}
+\begin{figure}[h]
+\begin{tikzpicture}[scale=0.8, transform shape, shorten >=1pt, node distance=4cm,auto]
+\tikzstyle{every state}=[>=stealth', draw=none, very thick, fill=blue!40]
+\node[state] (A) [fill=red!50] {A};
+\node[state] () [draw=none, fill=none,above of=A,xshift=0,yshift=-3.3cm] {0};
+\node[state] (B) [above right of=A, fill=red!50] {B};
+\node[state] () [draw=none, fill=none,above of=B,xshift=0,yshift=-3.3cm] {4,A};
+\node[state] (C) [below right of=A, fill=red!50] {C};
+\node[state] () [draw=none, fill=none,below of=C,xshift=0,yshift=+3.3cm] {2,A};
+\node[state] (D) [right of=B] {D};
+\node[state] (E) [right of=C] {E};
+\node[state] (F) [below right of=D] {F};
+
+\path (A) edge [thick] node {4} (B)
+          edge [thick] node {2} (C)
+      (B) edge node {1} (C)
+          edge node {5} (D)
+      (C) edge node {8} (D)
+          edge node {10} (E)
+      (D) edge node {2} (E)
+          edge node {6} (F)
+      (E) edge node {3} (F);
+\end{tikzpicture}
+\end{figure}
+\end{center}
+\begin{itemize}
+\item OL: \{B,C\}
+\item CL: \{A\}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Dijkstra's Algorithm}
+\begin{center}
+\begin{figure}[h]
+\begin{tikzpicture}[scale=0.8, transform shape, shorten >=1pt, node distance=4cm,auto]
+\tikzstyle{every state}=[>=stealth', draw=none, very thick, fill=blue!40]
+\node[state] (A) [fill=red!50] {A};
+\node[state] () [draw=none, fill=none,above of=A,xshift=0,yshift=-3.3cm] {0};
+\node[state] (B) [above right of=A, fill=red!50] {B};
+\node[state] () [draw=none, fill=none,above of=B,xshift=0,yshift=-3.3cm] {3,C};
+\node[state] (C) [below right of=A, fill=red!50] {C};
+\node[state] () [draw=none, fill=none,below of=C,xshift=0,yshift=+3.3cm] {2,A};
+\node[state] (D) [fill=red!50, right of=B] {D};
+\node[state] () [draw=none, fill=none,above of=D,xshift=0,yshift=-3.3cm] {10,C};
+\node[state] (E) [fill=red!50, right of=C] {E};
+\node[state] () [draw=none, fill=none,below of=E,xshift=0,yshift=+3.3cm] {12,C};
+\node[state] (F) [below right of=D] {F};
+
+\path (A) edge [thick] node {4} (B)
+          edge [thick] node {2} (C)
+      (B) edge [thick] node {1} (C)
+          edge node {5} (D)
+      (C) edge [thick] node {8} (D)
+          edge [thick] node {10} (E)
+      (D) edge node {2} (E)
+          edge node {6} (F)
+      (E) edge node {3} (F);
+\end{tikzpicture}
+\end{figure}
+\end{center}
+\begin{itemize}
+\item OL: \{B,D,E\}
+\item CL: \{A,C\}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Dijkstra's Algorithm}
+\begin{center}
+\begin{figure}[h]
+\begin{tikzpicture}[scale=0.8, transform shape, shorten >=1pt, node distance=4cm,auto]
+\tikzstyle{every state}=[>=stealth', draw=none, very thick, fill=blue!40]
+\node[state] (A) [fill=red!50] {A};
+\node[state] () [draw=none, fill=none,above of=A,xshift=0,yshift=-3.3cm] {0};
+\node[state] (B) [above right of=A, fill=red!50] {B};
+\node[state] () [draw=none, fill=none,above of=B,xshift=0,yshift=-3.3cm] {3,C};
+\node[state] (C) [below right of=A, fill=red!50] {C};
+\node[state] () [draw=none, fill=none,below of=C,xshift=0,yshift=+3.3cm] {2,A};
+\node[state] (D) [fill=red!50, right of=B] {D};
+\node[state] () [draw=none, fill=none,above of=D,xshift=0,yshift=-3.3cm] {9,B};
+\node[state] (E) [fill=red!50, right of=C] {E};
+\node[state] () [draw=none, fill=none,below of=E,xshift=0,yshift=+3.3cm] {12,C};
+\node[state] (F) [below right of=D] {F};
+
+\path (A) edge [thick] node {4} (B)
+          edge [thick] node {2} (C)
+      (B) edge [thick] node {1} (C)
+          edge [thick] node {5} (D)
+      (C) edge [thick] node {8} (D)
+          edge [thick] node {10} (E)
+      (D) edge node {2} (E)
+          edge node {6} (F)
+      (E) edge node {3} (F);
+\end{tikzpicture}
+\end{figure}
+\end{center}
+\begin{itemize}
+\item OL: \{D,E\}
+\item CL: \{A,C,B\}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Dijkstra's Algorithm}
+\begin{center}
+\begin{figure}[h]
+\begin{tikzpicture}[scale=0.8, transform shape, shorten >=1pt, node distance=4cm,auto]
+\tikzstyle{every state}=[>=stealth', draw=none, very thick, fill=blue!40]
+\node[state] (A) [fill=red!50] {A};
+\node[state] () [draw=none, fill=none,above of=A,xshift=0,yshift=-3.3cm] {0};
+\node[state] (B) [above right of=A, fill=red!50] {B};
+\node[state] () [draw=none, fill=none,above of=B,xshift=0,yshift=-3.3cm] {3,C};
+\node[state] (C) [below right of=A, fill=red!50] {C};
+\node[state] () [draw=none, fill=none,below of=C,xshift=0,yshift=+3.3cm] {2,A};
+\node[state] (D) [fill=red!50, right of=B] {D};
+\node[state] () [draw=none, fill=none,above of=D,xshift=0,yshift=-3.3cm] {9,B};
+\node[state] (E) [fill=red!50, right of=C] {E};
+\node[state] () [draw=none, fill=none,below of=E,xshift=0,yshift=+3.3cm] {11,D};
+\node[state] (F) [fill=red!50, below right of=D] {F};
+\node[state] () [draw=none, fill=none,below of=F,xshift=0,yshift=+3.3cm] {15,D};
+
+\path (A) edge [thick] node {4} (B)
+          edge [thick] node {2} (C)
+      (B) edge [thick] node {1} (C)
+          edge [thick] node {5} (D)
+      (C) edge [thick] node {8} (D)
+          edge [thick] node {10} (E)
+      (D) edge [thick] node {2} (E)
+          edge [thick] node {6} (F)
+      (E) edge node {3} (F);
+\end{tikzpicture}
+\end{figure}
+\end{center}
+\begin{itemize}
+\item OL: \{E,F\}
+\item CL: \{A,C,B,D\}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Dijkstra's Algorithm}
+\begin{center}
+\begin{figure}[h]
+\begin{tikzpicture}[scale=0.8, transform shape, shorten >=1pt, node distance=4cm,auto]
+\tikzstyle{every state}=[>=stealth', draw=none, very thick, fill=blue!40]
+\node[state] (A) [fill=red!50] {A};
+\node[state] () [draw=none, fill=none,above of=A,xshift=0,yshift=-3.3cm] {0};
+\node[state] (B) [above right of=A, fill=red!50] {B};
+\node[state] () [draw=none, fill=none,above of=B,xshift=0,yshift=-3.3cm] {3,C};
+\node[state] (C) [below right of=A, fill=red!50] {C};
+\node[state] () [draw=none, fill=none,below of=C,xshift=0,yshift=+3.3cm] {2,A};
+\node[state] (D) [fill=red!50, right of=B] {D};
+\node[state] () [draw=none, fill=none,above of=D,xshift=0,yshift=-3.3cm] {9,B};
+\node[state] (E) [fill=red!50, right of=C] {E};
+\node[state] () [draw=none, fill=none,below of=E,xshift=0,yshift=+3.3cm] {11,D};
+\node[state] (F) [fill=red!50, below right of=D] {F};
+\node[state] () [draw=none, fill=none,below of=F,xshift=0,yshift=+3.3cm] {14,E};
+
+\path (A) edge [thick] node {4} (B)
+          edge [thick] node {2} (C)
+      (B) edge [thick] node {1} (C)
+          edge [thick] node {5} (D)
+      (C) edge [thick] node {8} (D)
+          edge [thick] node {10} (E)
+      (D) edge [thick] node {2} (E)
+          edge [thick] node {6} (F)
+      (E) edge [thick] node {3} (F);
+\end{tikzpicture}
+\end{figure}
+\end{center}
+\begin{itemize}
+\item OL: \{F\}
+\item CL: \{A,C,B,D,E\}
+\end{itemize}
+\end{frame}
+\restoreframe
+
+\multipleframe
+\begin{frame}{A* Search}
+\begin{center}
+\begin{figure}[h]
+\begin{tikzpicture}[scale=0.8, transform shape, shorten >=1pt, node distance=4cm,auto]
+\tikzstyle{every state}=[>=stealth', draw=none, very thick, fill=blue!40]
+\node[state] (A) [fill=red!50] {A, 14};
+\node[state] () [draw=none, fill=none,above of=A,xshift=0,yshift=-3.1cm] {14};
+\node[state] (B) [above right of=A] {B, 10};
+\node[state] (C) [below right of=A] {C, 11};
+\node[state] (D) [right of=B] {D, 5};
+\node[state] (E) [right of=C] {E, 3};
+\node[state] (F) [below right of=D] {F, 0};
+
+\path (A) edge node {4} (B)
+          edge node {2} (C)
+      (B) edge node {1} (C)
+          edge node {5} (D)
+      (C) edge node {8} (D)
+          edge node {10} (E)
+      (D) edge node {2} (E)
+          edge node {6} (F)
+      (E) edge node {3} (F);
+\end{tikzpicture}
+\end{figure}
+\end{center}
+\begin{itemize}
+\item OL: \{A\}
+\item CL: \{\}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{A* Search}
+\begin{center}
+\begin{figure}[h]
+\begin{tikzpicture}[scale=0.8, transform shape, shorten >=1pt, node distance=4cm,auto]
+\tikzstyle{every state}=[>=stealth', draw=none, very thick, fill=blue!40]
+\node[state] (A) [fill=red!50] {A, 14};
+\node[state] () [draw=none, fill=none,above of=A,xshift=0,yshift=-3.1cm] {14};
+\node[state] (B) [fill=red!50, above right of=A] {B, 10};
+\node[state] () [draw=none, fill=none,above of=B,xshift=0,yshift=-3.1cm] {14,A};
+\node[state] (C) [fill=red!50, below right of=A] {C, 13};
+\node[state] () [draw=none, fill=none,below of=C,xshift=0,yshift=+3.1cm] {13,A};
+\node[state] (D) [right of=B] {D, 5};
+\node[state] (E) [right of=C] {E, 3};
+\node[state] (F) [below right of=D] {F, 0};
+
+\path (A) edge [thick] node {4} (B)
+          edge [thick] node {2} (C)
+      (B) edge node {1} (C)
+          edge node {5} (D)
+      (C) edge node {8} (D)
+          edge node {10} (E)
+      (D) edge node {2} (E)
+          edge node {6} (F)
+      (E) edge node {3} (F);
+\end{tikzpicture}
+\end{figure}
+\end{center}
+\begin{itemize}
+\item OL: \{B,C\}
+\item CL: \{A\}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{A* Search}
+\begin{center}
+\begin{figure}[h]
+\begin{tikzpicture}[scale=0.8, transform shape, shorten >=1pt, node distance=4cm,auto]
+\tikzstyle{every state}=[>=stealth', draw=none, very thick, fill=blue!40]
+\node[state] (A) [fill=red!50] {A, 14};
+\node[state] () [draw=none, fill=none,above of=A,xshift=0,yshift=-3.1cm] {14};
+\node[state] (B) [fill=red!50, above right of=A] {B, 10};
+\node[state] () [draw=none, fill=none,above of=B,xshift=0,yshift=-3.1cm] {13,C};
+\node[state] (C) [fill=red!50, below right of=A] {C, 13};
+\node[state] () [draw=none, fill=none,below of=C,xshift=0,yshift=+3.1cm] {13,A};
+\node[state] (D) [fill=red!50, right of=B] {D, 5};
+\node[state] () [draw=none, fill=none,below of=C,xshift=0,yshift=+3.1cm] {13,A};
+\node[state] (E) [fill=red!50, right of=C] {E, 3};
+\node[state] () [draw=none, fill=none,below of=C,xshift=0,yshift=+3.1cm] {13,C};
+\node[state] (F) [below right of=D] {F, 0};
+
+\path (A) edge [thick] node {4} (B)
+          edge [thick] node {2} (C)
+      (B) edge [thick] node {1} (C)
+          edge node {5} (D)
+      (C) edge [thick] node {8} (D)
+          edge [thick] node {10} (E)
+      (D) edge node {2} (E)
+          edge node {6} (F)
+      (E) edge node {3} (F);
+\end{tikzpicture}
+\end{figure}
+\end{center}
+\begin{itemize}
+\item OL: \{B,C\}
+\item CL: \{A\}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{A* Search}
+\begin{center}
+\begin{figure}[h]
+\begin{tikzpicture}[scale=0.8, transform shape, shorten >=1pt, node distance=4cm,auto]
+\tikzstyle{every state}=[>=stealth', draw=none, very thick, fill=blue!40]
+\node[state] (A) [fill=red!50] {A, 14};
+\node[state] () [draw=none, fill=none,above of=A,xshift=0,yshift=-3.1cm] {14};
+\node[state] (B) [fill=red!50, above right of=A] {B, 10};
+\node[state] () [draw=none, fill=none,above of=B,xshift=0,yshift=-3.1cm] {13,A};
+\node[state] (C) [fill=red!50, below right of=A] {C, 13};
+\node[state] () [draw=none, fill=none,below of=C,xshift=0,yshift=+3.1cm] {15,A};
+\node[state] (D) [fill=red!50, right of=B] {D, 5};
+\node[state] () [draw=none, fill=none,above of=D,xshift=0,yshift=-3.1cm] {14,B};
+\node[state] (E) [right of=C] {E, 3};
+\node[state] (F) [below right of=D] {F, 0};
+
+\path (A) edge [thick] node {4} (B)
+          edge [thick] node {2} (C)
+      (B) edge [thick] node {1} (C)
+          edge [thick] node {5} (D)
+      (C) edge node {8} (D)
+          edge node {10} (E)
+      (D) edge node {2} (E)
+          edge node {6} (F)
+      (E) edge node {3} (F);
+\end{tikzpicture}
+\end{figure}
+\end{center}
+\begin{itemize}
+\item OL: \{C,D\}
+\item CL: \{A,B\}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{A* Search}
+\begin{center}
+\begin{figure}[h]
+\begin{tikzpicture}[scale=0.8, transform shape, shorten >=1pt, node distance=4cm,auto]
+\tikzstyle{every state}=[>=stealth', draw=none, very thick, fill=blue!40]
+\node[state] (A) [fill=red!50] {A, 14};
+\node[state] () [draw=none, fill=none,above of=A,xshift=0,yshift=-3.1cm] {14};
+\node[state] (B) [fill=red!50, above right of=A] {B, 10};
+\node[state] () [draw=none, fill=none,above of=B,xshift=0,yshift=-3.1cm] {14,A};
+\node[state] (C) [fill=red!50, below right of=A] {C, 13};
+\node[state] () [draw=none, fill=none,below of=C,xshift=0,yshift=+3.1cm] {15,A};
+\node[state] (D) [fill=red!50, right of=B] {D, 5};
+\node[state] () [draw=none, fill=none,above of=D,xshift=0,yshift=-3.1cm] {14,B};
+\node[state] (E) [fill=red!50, right of=C] {E, 3};
+\node[state] () [draw=none, fill=none,below of=E,xshift=0,yshift=+3.1cm] {14,D};
+\node[state] (F) [fill=red!50, below right of=D] {F, 0};
+\node[state] () [draw=none, fill=none,below of=F,xshift=0,yshift=+3.1cm] {15,F};
+
+\path (A) edge [thick] node {4} (B)
+          edge [thick] node {2} (C)
+      (B) edge [thick] node {1} (C)
+          edge [thick] node {5} (D)
+      (C) edge [thick] node {8} (D)
+          edge node {10} (E)
+      (D) edge [thick] node {2} (E)
+          edge [thick] node {6} (F)
+      (E) edge node {3} (F);
+\end{tikzpicture}
+\end{figure}
+\end{center}
+\begin{itemize}
+\item OL: \{C,E,F\}
+\item CL: \{A,B,D\}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{A* Search}
+\begin{center}
+\begin{figure}[h]
+\begin{tikzpicture}[scale=0.8, transform shape, shorten >=1pt, node distance=4cm,auto]
+\tikzstyle{every state}=[>=stealth', draw=none, very thick, fill=blue!40]
+\node[state] (A) [fill=red!50] {A, 14};
+\node[state] () [draw=none, fill=none,above of=A,xshift=0,yshift=-3.1cm] {14};
+\node[state] (B) [fill=red!50, above right of=A] {B, 10};
+\node[state] () [draw=none, fill=none,above of=B,xshift=0,yshift=-3.1cm] {14,A};
+\node[state] (C) [fill=red!50, below right of=A] {C, 13};
+\node[state] () [draw=none, fill=none,below of=C,xshift=0,yshift=+3.1cm] {15,A};
+\node[state] (D) [fill=red!50, right of=B] {D, 5};
+\node[state] () [draw=none, fill=none,above of=D,xshift=0,yshift=-3.1cm] {14,B};
+\node[state] (E) [fill=red!50, right of=C] {E, 3};
+\node[state] () [draw=none, fill=none,below of=E,xshift=0,yshift=+3.1cm] {14,D};
+\node[state] (F) [fill=red!50, below right of=D] {F, 0};
+\node[state] () [draw=none, fill=none,below of=F,xshift=0,yshift=+3.1cm] {14,F};
+
+\path (A) edge [thick] node {4} (B)
+          edge [thick] node {2} (C)
+      (B) edge [thick] node {1} (C)
+          edge [thick] node {5} (D)
+      (C) edge [thick] node {8} (D)
+          edge node {10} (E)
+      (D) edge [thick] node {2} (E)
+          edge [thick] node {6} (F)
+      (E) edge [thick] node {3} (F);
+\end{tikzpicture}
+\end{figure}
+\end{center}
+\begin{itemize}
+\item OL: \{C,F\}
+\item CL: \{A,B,D,E\}
+\end{itemize}
+\end{frame}
+\restoreframe
+
+\multipleframe
+\begin{frame}{Heuristic Search}
+\begin{center}
+\begin{figure}[h]
+\begin{tikzpicture}[scale=0.8, transform shape, shorten >=1pt, node distance=4cm,auto]
+\tikzstyle{every state}=[>=stealth', draw=none, very thick, fill=blue!40]
+\node[state] (A) [fill=red!50] {A, 14};
+\node[state] () [draw=none, fill=none,above of=A,xshift=0,yshift=-3.1cm] {0};
+\node[state] (B) [above right of=A] {B, 14};
+\node[state] (C) [below right of=A] {C, 20};
+\node[state] (D) [right of=B] {D, 14};
+\node[state] (E) [right of=C] {E, 14};
+\node[state] (F) [below right of=D] {F, 0};
+
+\path (A) edge node {4} (B)
+          edge node {2} (C)
+      (B) edge node {1} (C)
+          edge node {5} (D)
+      (C) edge node {8} (D)
+          edge node {10} (E)
+      (D) edge node {2} (E)
+          edge node {6} (F)
+      (E) edge node {3} (F);
+\end{tikzpicture}
+\end{figure}
+\end{center}
+\begin{itemize}
+\item OL: \{A\}
+\item CL: \{\}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Heuristic Search}
+\begin{center}
+\begin{figure}[h]
+\begin{tikzpicture}[scale=0.8, transform shape, shorten >=1pt, node distance=4cm,auto]
+\tikzstyle{every state}=[>=stealth', draw=none, very thick, fill=blue!40]
+\node[state] (A) [fill=red!50] {A, 14};
+\node[state] () [draw=none, fill=none,above of=A,xshift=0,yshift=-3.1cm] {0};
+\node[state] (B) [fill=red!50, above right of=A] {B, 14};
+\node[state] () [draw=none, fill=none,above of=B,xshift=0,yshift=-3.1cm] {4,A};
+\node[state] (C) [fill=red!50, below right of=A] {C, 20};
+\node[state] () [draw=none, fill=none,below of=C,xshift=0,yshift=+3.1cm] {2,A};
+\node[state] (D) [right of=B] {D, 14};
+\node[state] (E) [right of=C] {E, 14};
+\node[state] (F) [below right of=D] {F, 0};
+
+\path (A) edge [thick] node {4} (B)
+          edge [thick] node {2} (C)
+      (B) edge node {1} (C)
+          edge node {5} (D)
+      (C) edge node {8} (D)
+          edge node {10} (E)
+      (D) edge node {2} (E)
+          edge node {6} (F)
+      (E) edge node {3} (F);
+\end{tikzpicture}
+\end{figure}
+\end{center}
+\begin{itemize}
+\item OL: \{B,C\}
+\item CL: \{A\}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Heuristic Search}
+\begin{center}
+\begin{figure}[h]
+\begin{tikzpicture}[scale=0.8, transform shape, shorten >=1pt, node distance=4cm,auto]
+\tikzstyle{every state}=[>=stealth', draw=none, very thick, fill=blue!40]
+\node[state] (A) [fill=red!50] {A, 14};
+\node[state] () [draw=none, fill=none,above of=A,xshift=0,yshift=-3.1cm] {0};
+\node[state] (B) [fill=red!50, above right of=A] {B, 14};
+\node[state] () [draw=none, fill=none,above of=B,xshift=0,yshift=-3.1cm] {4,A};
+\node[state] (C) [fill=red!50, below right of=A] {C, 20};
+\node[state] () [draw=none, fill=none,below of=C,xshift=0,yshift=+3.1cm] {2,A};
+\node[state] (D) [fill=red!50, right of=B] {D, 14};
+\node[state] () [draw=none, fill=none,above of=D,xshift=0,yshift=-3.1cm] {9,B};
+\node[state] (E) [right of=C] {E, 14};
+\node[state] (F) [below right of=D] {F, 0};
+
+\path (A) edge [thick] node {4} (B)
+          edge [thick] node {2} (C)
+      (B) edge [thick] node {1} (C)
+          edge [thick] node {5} (D)
+      (C) edge node {8} (D)
+          edge node {10} (E)
+      (D) edge node {2} (E)
+          edge node {6} (F)
+      (E) edge node {3} (F);
+\end{tikzpicture}
+\end{figure}
+\end{center}
+\begin{itemize}
+\item OL: \{C,D\}
+\item CL: \{A,B\}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Heuristic Search}
+\begin{center}
+\begin{figure}[h]
+\begin{tikzpicture}[scale=0.8, transform shape, shorten >=1pt, node distance=4cm,auto]
+\tikzstyle{every state}=[>=stealth', draw=none, very thick, fill=blue!40]
+\node[state] (A) [fill=red!50] {A, 14};
+\node[state] () [draw=none, fill=none,above of=A,xshift=0,yshift=-3.1cm] {0};
+\node[state] (B) [fill=red!50, above right of=A] {B, 14};
+\node[state] () [draw=none, fill=none,above of=B,xshift=0,yshift=-3.1cm] {4,A};
+\node[state] (C) [fill=red!50, below right of=A] {C, 20};
+\node[state] () [draw=none, fill=none,below of=C,xshift=0,yshift=+3.1cm] {2,A};
+\node[state] (D) [fill=red!50, right of=B] {D, 14};
+\node[state] () [draw=none, fill=none,above of=D,xshift=0,yshift=-3.1cm] {9,B};
+\node[state] (E) [fill=red!50, right of=C] {E, 14};
+\node[state] () [draw=none, fill=none,below of=E,xshift=0,yshift=+3.1cm] {11,D};
+\node[state] (F) [fill=red!50, below right of=D] {F, 0};
+\node[state] () [draw=none, fill=none,below of=F,xshift=0,yshift=+3.1cm] {15,F};
+
+\path (A) edge [thick] node {4} (B)
+          edge [thick] node {2} (C)
+      (B) edge [thick] node {1} (C)
+          edge [thick] node {5} (D)
+      (C) edge [thick] node {8} (D)
+          edge node {10} (E)
+      (D) edge [thick] node {2} (E)
+          edge [thick] node {6} (F)
+      (E) edge node {3} (F);
+\end{tikzpicture}
+\end{figure}
+\end{center}
+\begin{itemize}
+\item OL: \{C,E,F\}
+\item CL: \{A,B,D\}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Heuristic Search}
+\begin{center}
+\begin{figure}[h]
+\begin{tikzpicture}[scale=0.8, transform shape, shorten >=1pt, node distance=4cm,auto]
+\tikzstyle{every state}=[>=stealth', draw=none, very thick, fill=blue!40]
+\node[state] (A) [fill=red!50] {A, 14};
+\node[state] () [draw=none, fill=none,above of=A,xshift=0,yshift=-3.1cm] {0};
+\node[state] (B) [fill=red!50, above right of=A] {B, 14};
+\node[state] () [draw=none, fill=none,above of=B,xshift=0,yshift=-3.1cm] {4,A};
+\node[state] (C) [fill=red!50, below right of=A] {C, 20};
+\node[state] () [draw=none, fill=none,below of=C,xshift=0,yshift=+3.1cm] {2,A};
+\node[state] (D) [fill=red!50, right of=B] {D, 14};
+\node[state] () [draw=none, fill=none,above of=D,xshift=0,yshift=-3.1cm] {9,B};
+\node[state] (E) [fill=red!50, right of=C] {E, 14};
+\node[state] () [draw=none, fill=none,below of=E,xshift=0,yshift=+3.1cm] {11,D};
+\node[state] (F) [fill=red!50, below right of=D] {F, 0};
+\node[state] () [draw=none, fill=none,below of=F,xshift=0,yshift=+3.1cm] {14,F};
+
+\path (A) edge [thick] node {4} (B)
+          edge [thick] node {2} (C)
+      (B) edge [thick] node {1} (C)
+          edge [thick] node {5} (D)
+      (C) edge [thick] node {8} (D)
+          edge node {10} (E)
+      (D) edge [thick] node {2} (E)
+          edge [thick] node {6} (F)
+      (E) edge [thick] node {3} (F);
+\end{tikzpicture}
+\end{figure}
+\end{center}
+\begin{itemize}
+\item OL: \{C,F\}
+\item CL: \{A,B,D,E\}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Heuristic Search}
+\begin{center}
+\begin{figure}[h]
+\begin{tikzpicture}[scale=0.8, transform shape, shorten >=1pt, node distance=4cm,auto]
+\tikzstyle{every state}=[>=stealth', draw=none, very thick, fill=blue!40]
+\node[state] (A) [fill=red!50] {A, 14};
+\node[state] () [draw=none, fill=none,above of=A,xshift=0,yshift=-3.1cm] {0};
+\node[state] (B) [fill=red!50, above right of=A] {B, 14};
+\node[state] () [draw=none, fill=none,above of=B,xshift=0,yshift=-3.1cm] {4,A};
+\node[state] (C) [fill=red!50, below right of=A] {C, 20};
+\node[state] () [draw=none, fill=none,below of=C,xshift=0,yshift=+3.1cm] {2,A};
+\node[state] (D) [fill=red!50, right of=B] {D, 14};
+\node[state] () [draw=none, fill=none,above of=D,xshift=0,yshift=-3.1cm] {9,B};
+\node[state] (E) [fill=red!50, right of=C] {E, 14};
+\node[state] () [draw=none, fill=none,below of=E,xshift=0,yshift=+3.1cm] {11,D};
+\node[state] (F) [fill=red!50, below right of=D] {F, 0};
+\node[state] () [draw=none, fill=none,below of=F,xshift=0,yshift=+3.1cm] {14,F};
+
+\path (A) edge [thick] node {4} (B)
+          edge [thick] node {2} (C)
+      (B) edge [thick] node {1} (C)
+          edge [thick] node {5} (D)
+      (C) edge [thick] node {8} (D)
+          edge node {10} (E)
+      (D) edge [thick] node {2} (E)
+          edge [thick] node {6} (F)
+      (E) edge [thick] node {3} (F);
+\end{tikzpicture}
+\end{figure}
+\end{center}
+\begin{itemize}
+\item OL: \{C,F\}
+\item CL: \{A,B,D,E\}
+\end{itemize}
+\end{frame}
+\restoreframe
+
+\begin{frame}{Progress on Code Front}
+\begin{itemize}
+\item Dijkstra's Algorithm Implemented
+\item A* Implemented
+\item Heuristic Search?
+\end{itemize}
+\end{frame}
 
 \subsection{Complexity Analysis}
 \begin{frame}{Complexity Analysis}
