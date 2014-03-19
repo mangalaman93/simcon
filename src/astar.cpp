@@ -230,6 +230,156 @@ void Astar::run(int phases)
     }
     cout<<endl<<"transition matrix prepared ..."<<endl;
 
+    // converting to cost from profit & finding out min edge
+    float min_edge_cost = -trans_table(0, 0, 0);
+    for(int p=0; p<num_phases; p++)
+    {
+        for(sitr.begin(); sitr.end(); ++sitr)
+        {
+            for(sitr2.begin(); sitr2.end(); ++sitr2)
+            {
+                trans_table(p, (int)sitr, (int)sitr2) *= -1;
+                if(min_edge_cost > trans_table(p, (int)sitr, (int)sitr2))
+                    min_edge_cost = trans_table(p, (int)sitr, (int)sitr2);
+            }
+        }
+    }
+
+    // decreasing min_edge cost for safety purposes (so that no entry/cost is 0)
+    min_edge_cost--;
+
+    // shifting in A*
+    for(int p=0; p<num_phases; p++)
+        for(sitr.begin(); sitr.end(); ++sitr)
+            for(sitr2.begin(); sitr2.end(); ++sitr2)
+                trans_table(p, (int)sitr, (int)sitr2) -= min_edge_cost;
+
+    float min_cost = numeric_limits<float>::max();
+    int best_start_state = -1;
+    Matrix<int> *best_path = new Matrix<int>(num_phases+1, num_states);
+    Matrix<int> *temp_path = new Matrix<int>(num_phases+1, num_states);
+    for(int start_state=0; start_state<num_states; start_state++)
+    {
+        // A* search
+        priority_queue<AstarNode, vector<AstarNode>, CompareAstarNode> open_list;
+        Matrix<float> g_value(num_phases+1, num_states);
+        Matrix<bool> closed(num_phases+1, num_states);
+        Matrix<bool> opened(num_phases+1, num_states);
+
+        // initialising
+        for(int i=0; i<num_phases+1; i++)
+        {
+            for(int j=0; j<num_states; j++)
+            {
+                closed(i, j) = false;
+                opened(i, j) = false;
+                g_value(i, j) = numeric_limits<float>::max();
+            }
+        }
+
+        // adding phase 0 node
+        g_value(0, start_state) = 0;
+        AstarNode to_relax(0, start_state, 0);
+        open_list.push(to_relax);
+
+        while(to_relax.phase_number != num_phases)
+        {
+            if(DEBUG)
+            {
+                priority_queue<AstarNode, vector<AstarNode>, CompareAstarNode> temp_list(open_list);
+                while(!temp_list.empty()) {
+                    cout<<temp_list.top().phase_number<<","<<temp_list.top().state_index<<"->"<<temp_list.top().g_plus_h<<endl;
+                    temp_list.pop();
+                }
+                cout<<endl;
+
+                for(int i=0; i<num_phases+1; i++)
+                {
+                    for(int j=0; j<num_states; j++)
+                        cout<<closed(i, j)<<",";
+                    cout<<endl;
+                }
+                cout<<endl;
+
+                for(int i=0; i<num_phases+1; i++)
+                {
+                    for(int j=0; j<num_states; j++)
+                        cout<<opened(i, j)<<",";
+                    cout<<endl;
+                }
+                cout<<endl<<endl;
+            }
+
+            open_list.pop();
+            if((to_relax.g_plus_h != g_value(to_relax.phase_number, to_relax.state_index))
+             || closed(to_relax.phase_number, to_relax.state_index))
+            {
+                to_relax = open_list.top();
+                continue;
+            }
+
+            int new_phase_number = to_relax.phase_number + 1;
+            if(new_phase_number == num_phases)
+            {
+                float new_g_value = g_value(to_relax.phase_number, to_relax.state_index) +
+                                    trans_table(to_relax.phase_number, to_relax.state_index, start_state);
+
+                if(new_g_value < g_value(num_phases, start_state))
+                {
+                    g_value(num_phases, start_state) = g_value(to_relax.phase_number, to_relax.state_index) +
+                                                       trans_table(to_relax.phase_number, to_relax.state_index, start_state);
+                    (*temp_path)(num_phases, start_state) = to_relax.state_index;
+                    open_list.push(AstarNode(num_phases, start_state, new_g_value));
+
+                    closed(num_phases, start_state) = false;
+                    opened(num_phases, start_state) = true;
+                }
+            } else
+            {
+                // relax node (first add all the adjacent nodes to open list, excluding which are already closed & having higher g value)
+                for(sitr.begin(); sitr.end(); ++sitr)
+                {
+                    float new_g_value = g_value(to_relax.phase_number, to_relax.state_index) +
+                                        trans_table(to_relax.phase_number, to_relax.state_index, (int)sitr);
+                    if(new_g_value < g_value(new_phase_number, (int)sitr))
+                    {
+                        g_value(new_phase_number, (int)sitr) = new_g_value;
+                        (*temp_path)(new_phase_number, (int)sitr) = to_relax.state_index;
+                        open_list.push(AstarNode(new_phase_number, (int)sitr, new_g_value));
+
+                        closed(new_phase_number, (int)sitr) = false;
+                        opened(new_phase_number, (int)sitr) = true;
+                    }
+                }
+            }
+
+            closed(to_relax.phase_number, to_relax.state_index) = true;
+            opened(to_relax.phase_number, to_relax.state_index) = false;
+            to_relax = open_list.top();
+        }
+
+        if(min_cost > g_value(num_phases, start_state))
+        {
+            min_cost = g_value(num_phases, start_state);
+            Matrix<int>* temp = best_path;
+            best_path = temp_path;
+            temp_path = temp;
+            best_start_state = start_state;
+        }
+    }
+    max_profit = min_cost + num_phases*min_edge_cost;
+    max_profit *= -1;
+
+    for(int p=0; p<num_phases; p++)
+        for(sitr.begin(); sitr.end(); ++sitr)
+            for(sitr2.begin(); sitr2.end(); ++sitr2)
+                trans_table(p, (int)sitr, (int)sitr2) += min_edge_cost;
+
+    for(int p=0; p<num_phases; p++)
+        for(sitr.begin(); sitr.end(); ++sitr)
+            for(sitr2.begin(); sitr2.end(); ++sitr2)
+                trans_table(p, (int)sitr, (int)sitr2) *= -1;
+
     // printing the transition matrix
     if(DEBUG)
     {
@@ -255,163 +405,14 @@ void Astar::run(int phases)
         }
     }
 
-    float min_edge_cost = -trans_table(0, 0, 0);
-    for(int p=0; p<num_phases; p++)
-        for(sitr.begin(); sitr.end(); ++sitr)
-            for(sitr2.begin(); sitr2.end(); ++sitr2)
-            {
-                trans_table(p, (int)sitr, (int)sitr2) *= -1;
-                if(min_edge_cost > trans_table(p, (int)sitr, (int)sitr2))
-                    min_edge_cost = trans_table(p, (int)sitr, (int)sitr2);
-            }
-
-    min_edge_cost++;
-    for(int p=0; p<num_phases; p++)
-        for(sitr.begin(); sitr.end(); ++sitr)
-            for(sitr2.begin(); sitr2.end(); ++sitr2)
-                trans_table(p, (int)sitr, (int)sitr2) -= min_edge_cost;
-
-    float min_cost = 100000;
-    for(int start_state=0; start_state<num_states; start_state++)
+    list<int> final_policy;
+    final_policy.push_back(best_start_state);
+    int back_pointer = best_start_state;
+    for(int i=num_phases; i>0; i--)
     {
-        // A* search
-        priority_queue<AstarNode, vector<AstarNode>, CompareAstarNode> open_list;
-        Matrix<float> g_value(num_phases+1, num_states);
-        Matrix<bool> closed(num_phases+1, num_states);
-        Matrix<bool> opened(num_phases+1, num_states);
-
-        for(int i=0; i<num_phases+1; i++)
-            for(int j=0; j<num_states; j++)
-            {
-                closed(i, j) = false;
-                opened(i, j) = false;
-            }
-
-        // adding phase 0 node
-        g_value(0, start_state) = 0;
-        AstarNode to_relax(0, start_state, &g_value);
-        open_list.push(to_relax);
-
-        while(to_relax.phase_number != num_phases)
-        {
-            open_list.pop();
-            int new_phase_number = to_relax.phase_number + 1;
-
-            if(new_phase_number == num_phases)
-            {
-                g_value(num_phases, start_state) = g_value(to_relax.phase_number, to_relax.state_index) +
-                                        trans_table(to_relax.phase_number, to_relax.state_index, start_state);
-                open_list.push(AstarNode(num_phases, start_state, &g_value));
-                closed(num_phases, start_state) = false;
-                opened(num_phases, start_state) = true;
-            } else
-            {
-                // relax node (first add all the adjacent nodes to open list, excluding which are already closed & having higher g value)
-                for(sitr.begin(); sitr.end(); ++sitr)
-                {
-                    float new_g_value = g_value(to_relax.phase_number, to_relax.state_index) +
-                                        trans_table(to_relax.phase_number, to_relax.state_index, (int)sitr);
-                    if((!closed(new_phase_number, (int)sitr)) ||
-                        (new_g_value < g_value(new_phase_number, (int)sitr)))
-                    {
-                        g_value(new_phase_number, (int)sitr) = new_g_value;
-                        if(!opened(new_phase_number, (int)sitr))
-                            open_list.push(AstarNode(new_phase_number, (int)sitr, &g_value));
-
-                        closed(new_phase_number, (int)sitr) = false;
-                        opened(new_phase_number, (int)sitr) = true;
-                    }
-                }
-            }
-
-            closed(to_relax.phase_number, to_relax.state_index) = true;
-            opened(to_relax.phase_number, to_relax.state_index) = false;
-            to_relax = open_list.top();
-        }
-
-        if(min_cost > g_value(num_phases, start_state))
-            min_cost = g_value(num_phases, start_state);
+        back_pointer = (*best_path)(i, back_pointer);
+        final_policy.push_front(back_pointer);
     }
-    cerr<<"MIN COST USING A*: "<<min_cost + num_phases*min_edge_cost <<endl;
-
-    for(int p=0; p<num_phases; p++)
-        for(sitr.begin(); sitr.end(); ++sitr)
-            for(sitr2.begin(); sitr2.end(); ++sitr2)
-                trans_table(p, (int)sitr, (int)sitr2) += min_edge_cost;
-
-    for(int p=0; p<num_phases; p++)
-            for(sitr.begin(); sitr.end(); ++sitr)
-                for(sitr2.begin(); sitr2.end(); ++sitr2)
-                    trans_table(p, (int)sitr, (int)sitr2) *= -1;
-
-    // finding the most optimum cycle
-    Matrix<float> temp_trans(num_states, num_states);
-    Matrix<float> mid_trans(num_states, num_states);
-    Matrix<list<int> > policy(num_states, num_states);
-    Matrix<list<int> > new_policy(num_states, num_states);
-
-    // copying the data
-    for(int i=0; i<num_states; i++)
-        for(int j=0; j<num_states; j++)
-            mid_trans(i, j) = trans_table(0, i, j);
-
-    cout<<"finding the max profit cycle, total phases: "<<run_for_phases<<endl<<"phases complete: "; cout.flush();
-    for(int p=0; p<run_for_phases-2; p++)
-    {
-        for(sitr.begin(); sitr.end(); ++sitr)
-        {
-            for(sitr3.begin(); sitr3.end(); ++sitr3)
-            {
-                float max = mid_trans((int)sitr, 0) + trans_table((p+1)%num_phases, 0, (int)sitr3);
-                int index = 0;
-                for(sitr2.begin(); sitr2.end(); ++sitr2)
-                {
-                    float temp = mid_trans((int)sitr, (int)sitr2) + trans_table((p+1)%num_phases, (int)sitr2, (int)sitr3);
-                    if(max < temp)
-                    {
-                        max = temp;
-                        index = (int)sitr2;
-                    }
-                }
-                new_policy((int)sitr, (int)sitr3) = policy((int)sitr, index);
-                new_policy((int)sitr, (int)sitr3).push_back(index);
-                temp_trans((int)sitr, (int)sitr3) = max;
-            }
-        }
-
-        // copying the data
-        for(int i=0; i<num_states; i++)
-        {
-            for(int j=0; j<num_states; j++)
-            {
-                mid_trans(i, j) = temp_trans(i, j);
-                policy(i, j) = new_policy(i, j);
-            }
-        }
-        cout<<p<<","; cout.flush();
-    }
-
-    cout<<(run_for_phases-1); cout.flush();
-    max_profit = mid_trans(0, 0) + trans_table((run_for_phases-1)%num_phases, 0, 0);
-    int index1 = 0;
-    int index2 = 0;
-    for(sitr.begin(); sitr.end(); ++sitr)
-    {
-        for(sitr2.begin(); sitr2.end(); ++sitr2)
-        {
-            float temp = mid_trans((int)sitr, (int)sitr2) + trans_table((run_for_phases-1)%num_phases, (int)sitr2, (int)sitr);
-            if(temp > max_profit)
-            {
-                max_profit = temp;
-                index1 = (int)sitr;
-                index2 = (int)sitr2;
-            }
-        }
-    }
-    list<int> final_policy = policy(index1, index2);
-    final_policy.push_back(index2);
-    final_policy.push_back(index1);
-    final_policy.push_front(index1);
     cout<<endl<<"max profit cycle found ..."<<endl;
 
     ofstream profilt_file("results/astar_cum_profits.txt");
@@ -496,6 +497,9 @@ void Astar::run(int phases)
         for(int i=0; i<num_states; i++)
             for(int j=0; j<num_states; j++)
                 delete [] mig_table(p, i, j);
+
+    delete best_path;
+    delete temp_path;
 }
 
 void Astar::getMapping(int phase_number, vector<int>* mapping)

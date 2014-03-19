@@ -1,5 +1,5 @@
 /*
-Implementation of MDP algorithm
+Implementation of A* (Dijkstra's also)
 */
 
 #ifndef ASTAR_H
@@ -10,6 +10,7 @@ Implementation of MDP algorithm
 #include <fstream>
 #include <pthread.h>
 #include <queue>
+#include <limits>
 #include "algo.h"
 #include "simdata.h"
 #include "config.h"
@@ -21,9 +22,9 @@ struct AstarNode
 {
     int phase_number;
     int state_index;
-    Matrix<float> *g_plus_h;
+    float g_plus_h;
 
-    AstarNode(int pn, int sn, Matrix<float>* gph)
+    AstarNode(int pn, int sn, float gph)
     : phase_number(pn), state_index(sn), g_plus_h(gph) {}
 
     AstarNode(const AstarNode& an)
@@ -40,7 +41,7 @@ class CompareAstarNode
   public:
     bool operator()(AstarNode& an1, AstarNode& an2)
     {
-        return((*an1.g_plus_h)(an1.phase_number, an1.state_index) > (*an2.g_plus_h)(an2.phase_number, an2.state_index));
+        return (an1.g_plus_h > an2.g_plus_h);
     }
 };
 
