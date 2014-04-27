@@ -12,7 +12,7 @@ Policy abstract class, this class should be used as base class for the
 #include <cstring>
 #include "simdata.h"
 
-#define DEBUG false
+#define DEBUG true
 
 class Policy
 {

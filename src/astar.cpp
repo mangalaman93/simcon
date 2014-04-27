@@ -264,7 +264,6 @@ void Astar::run(int phases)
         priority_queue<AstarNode, vector<AstarNode>, CompareAstarNode> open_list;
         Matrix<float> g_value(num_phases+1, num_states);
         Matrix<bool> closed(num_phases+1, num_states);
-        Matrix<bool> opened(num_phases+1, num_states);
 
         // initialising
         for(int i=0; i<num_phases+1; i++)
@@ -272,7 +271,6 @@ void Astar::run(int phases)
             for(int j=0; j<num_states; j++)
             {
                 closed(i, j) = false;
-                opened(i, j) = false;
                 g_value(i, j) = numeric_limits<float>::max();
             }
         }
@@ -300,14 +298,6 @@ void Astar::run(int phases)
                     cout<<endl;
                 }
                 cout<<endl;
-
-                for(int i=0; i<num_phases+1; i++)
-                {
-                    for(int j=0; j<num_states; j++)
-                        cout<<opened(i, j)<<",";
-                    cout<<endl;
-                }
-                cout<<endl<<endl;
             }
 
             open_list.pop();
@@ -332,7 +322,6 @@ void Astar::run(int phases)
                     open_list.push(AstarNode(num_phases, start_state, new_g_value));
 
                     closed(num_phases, start_state) = false;
-                    opened(num_phases, start_state) = true;
                 }
             } else
             {
@@ -346,15 +335,12 @@ void Astar::run(int phases)
                         g_value(new_phase_number, (int)sitr) = new_g_value;
                         (*temp_path)(new_phase_number, (int)sitr) = to_relax.state_index;
                         open_list.push(AstarNode(new_phase_number, (int)sitr, new_g_value));
-
                         closed(new_phase_number, (int)sitr) = false;
-                        opened(new_phase_number, (int)sitr) = true;
                     }
                 }
             }
 
             closed(to_relax.phase_number, to_relax.state_index) = true;
-            opened(to_relax.phase_number, to_relax.state_index) = false;
             to_relax = open_list.top();
         }
 
