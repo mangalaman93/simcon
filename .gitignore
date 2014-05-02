@@ -71,3 +71,5 @@ sftp-config.json
 *.out
 *.synctex.gz
 *.pdf
+*.nav
+*.snm
