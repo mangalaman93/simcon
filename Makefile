@@ -11,10 +11,10 @@ ODIR = bin
 LIBS = -lm -lpthread
 RES  = results
 
-_DEPS = simdata.h utils.h algo.h stateIterator.h state.h config.h policy.h mdp.h khanna.h astar.h
+_DEPS = simdata.h utils.h algo.h stateIterator.h state.h config.h policy.h mdp.h khanna.h astar.h astarnodeheap.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
-_OBJ = simdata.o utils.o algo.o stateIterator.o state.o policy.o khanna.o mdp.o astar.o
+_OBJ = simdata.o utils.o algo.o stateIterator.o state.o policy.o khanna.o mdp.o astar.o astarnodeheap.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 $(ODIR)/%.o: $(SDIR)/%.cpp $(DEPS)

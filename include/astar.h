@@ -16,34 +16,8 @@ Implementation of A* (Dijkstra's also)
 #include "config.h"
 #include "stateIterator.h"
 #include "policy.h"
+#include "astarnodeheap.h"
 using namespace std;
-
-struct AstarNode
-{
-    int phase_number;
-    int state_index;
-    float g_plus_h;
-
-    AstarNode(int pn, int sn, float gph)
-    : phase_number(pn), state_index(sn), g_plus_h(gph) {}
-
-    AstarNode(const AstarNode& an)
-    {
-    	phase_number = an.phase_number;
-    	state_index = an.state_index;
-    	g_plus_h = an.g_plus_h;
-    }
-};
-typedef struct AstarNode AstarNode;
-
-class CompareAstarNode
-{
-  public:
-    bool operator()(AstarNode& an1, AstarNode& an2)
-    {
-        return (an1.g_plus_h > an2.g_plus_h);
-    }
-};
 
 class Astar : public Policy
 {

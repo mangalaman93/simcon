@@ -261,7 +261,7 @@ void Astar::run(int phases)
     for(int start_state=0; start_state<num_states; start_state++)
     {
         // A* search
-        priority_queue<AstarNode, vector<AstarNode>, CompareAstarNode> open_list;
+        AstarNodeHeap open_list;
         Matrix<float> g_value(num_phases+1, num_states);
         Matrix<bool> closed(num_phases+1, num_states);
 
