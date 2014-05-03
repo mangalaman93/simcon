@@ -2,7 +2,7 @@
 
 IDIR = include
 CC = g++
-DEBUG = -g
+DEBUG = -O2
 PROFILE =
 CFLAGS = -Wall -c $(DEBUG) -I$(IDIR) $(PROFILE)
 

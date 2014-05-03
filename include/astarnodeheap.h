@@ -38,12 +38,13 @@ class AstarNodeHeap
 
   public:
 	AstarNodeHeap();
+    AstarNodeHeap(const AstarNodeHeap& obj);
 	~AstarNodeHeap();
 	void pop();
 	void push(const AstarNode& elem);
-	AstarNode top();
 	void modify(const AstarNode& node);
-	// copy constructor
+    bool empty();
+    AstarNode top();
 };
 
 #endif

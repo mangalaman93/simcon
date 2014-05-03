@@ -284,7 +284,7 @@ void Astar::run(int phases)
         {
             if(DEBUG)
             {
-                priority_queue<AstarNode, vector<AstarNode>, CompareAstarNode> temp_list(open_list);
+                AstarNodeHeap temp_list(open_list);
                 while(!temp_list.empty()) {
                     cout<<temp_list.top().phase_number<<","<<temp_list.top().state_index<<"->"<<temp_list.top().g_plus_h<<endl;
                     temp_list.pop();

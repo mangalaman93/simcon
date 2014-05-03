@@ -6,6 +6,15 @@ AstarNodeHeap::AstarNodeHeap()
 	size = 0;
 }
 
+AstarNodeHeap::AstarNodeHeap(const AstarNodeHeap& obj)
+{
+	root = new vector<AstarNode*>();
+	size = obj.size;
+
+	for (vector<AstarNode*>::iterator iter = obj.root->begin(); iter != obj.root->end(); ++iter)
+		root->push_back(new AstarNode(*(*iter)));
+}
+
 void AstarNodeHeap::percolateUp(int index)
 {
 	int pn = (index - 1)/2;
@@ -114,6 +123,11 @@ void AstarNodeHeap::modify(const AstarNode& node)
 	// for(vector<AstarNode*>::iterator iter = root->begin(); iter != root->end(); ++iter)
 	// 	cout<<(*iter)->g_plus_h<<", ";
 	// cout<<endl;
+}
+
+bool AstarNodeHeap::empty()
+{
+	return (size == 0);
 }
 
 AstarNodeHeap::~AstarNodeHeap()
