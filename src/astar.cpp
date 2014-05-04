@@ -319,7 +319,10 @@ void Astar::run(int phases)
                     g_value(num_phases, start_state) = g_value(to_relax.phase_number, to_relax.state_index) +
                                                        trans_table(to_relax.phase_number, to_relax.state_index, start_state);
                     (*temp_path)(num_phases, start_state) = to_relax.state_index;
-                    open_list.push(AstarNode(num_phases, start_state, new_g_value));
+                    if(ENABLE_CACHE)
+                        open_list.modify(AstarNode(num_phases, start_state, new_g_value));
+                    else
+                        open_list.push(AstarNode(num_phases, start_state, new_g_value));
 
                     closed(num_phases, start_state) = false;
                 }
@@ -334,7 +337,8 @@ void Astar::run(int phases)
                     {
                         g_value(new_phase_number, (int)sitr) = new_g_value;
                         (*temp_path)(new_phase_number, (int)sitr) = to_relax.state_index;
-                        open_list.push(AstarNode(new_phase_number, (int)sitr, new_g_value));
+                        if(ENABLE_CACHE) open_list.modify(AstarNode(new_phase_number, (int)sitr, new_g_value));
+                        else open_list.push(AstarNode(new_phase_number, (int)sitr, new_g_value));
                         closed(new_phase_number, (int)sitr) = false;
                     }
                 }

@@ -11,6 +11,8 @@ may be converted to Fibonaci heap later
 #include <cstdlib>
 using namespace std;
 
+#define ENABLE_CACHE false
+
 struct AstarNode
 {
     int phase_number;
@@ -33,6 +35,7 @@ class AstarNodeHeap
 {
 	vector<AstarNode*>* root;
 	int size;
+    int cache_pn, cache_si, cache_n;
 	void percolateUp(int index);
 	void percolateDown(int index);
 

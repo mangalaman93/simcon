@@ -18,7 +18,7 @@ AstarNodeHeap::AstarNodeHeap(const AstarNodeHeap& obj)
 void AstarNodeHeap::percolateUp(int index)
 {
 	int pn = (index - 1)/2;
-	while((index != 0) && ((*root)[index]->g_plus_h > (*root)[pn]->g_plus_h))
+	while((index != 0) && ((*root)[index]->g_plus_h < (*root)[pn]->g_plus_h))
 	{
 		AstarNode* temp = (*root)[index];
 		(*root)[index] = (*root)[pn];
@@ -39,19 +39,19 @@ void AstarNodeHeap::percolateDown(int index)
 			larger_child = 2*index+1;
 		else
 		{
-			larger_child = ((*root)[2*index+2]->g_plus_h > (*root)[index*2+1]->g_plus_h)?2:1;
+			larger_child = ((*root)[2*index+2]->g_plus_h < (*root)[index*2+1]->g_plus_h)?2:1;
 			smaller_child = 2*index + 3 - larger_child;
 			larger_child += 2*index;
 		}
 
-		if((*root)[index]->g_plus_h < (*root)[larger_child]->g_plus_h)
+		if((*root)[index]->g_plus_h > (*root)[larger_child]->g_plus_h)
 		{
 			AstarNode* temp = (*root)[index];
 			(*root)[index] = (*root)[larger_child];
 			(*root)[larger_child] = temp;
 
 			percolateDown(larger_child);
-		} else if((smaller_child != -1) && ((*root)[index]->g_plus_h < (*root)[smaller_child]->g_plus_h))
+		} else if((smaller_child != -1) && ((*root)[index]->g_plus_h > (*root)[smaller_child]->g_plus_h))
 		{
 			AstarNode* temp = (*root)[index];
 			(*root)[index] = (*root)[smaller_child];
@@ -107,18 +107,35 @@ AstarNode AstarNodeHeap::top()
 void AstarNodeHeap::modify(const AstarNode& node)
 {
 	int index = 0;
-	for(vector<AstarNode*>::iterator iter = root->begin(); iter != root->end(); ++iter)
-	{
-		if((node.phase_number == (*iter)->phase_number) && (node.state_index == (*iter)->state_index))
-			break;
-		index++;
-	}
-	(*root)[index]->g_plus_h = node.g_plus_h;
-
-	if((*root)[(index-1)/2]->g_plus_h > (*root)[index]->g_plus_h)
-		percolateDown(index);
+	if(ENABLE_CACHE && ((node.phase_number == cache_pn) && (node.state_index == cache_si)))
+		index = cache_n;
 	else
-		percolateUp(index);
+	{
+		for(vector<AstarNode*>::iterator iter = root->begin(); iter != root->end(); ++iter)
+		{
+			if((node.phase_number == (*iter)->phase_number) && (node.state_index == (*iter)->state_index))
+				break;
+			index++;
+		}
+	}
+
+	if(index >= size)
+		push(node);
+	else
+	{
+		if(ENABLE_CACHE)
+		{
+			cache_pn = node.phase_number;
+			cache_si = node.state_index;
+			cache_n = index;
+		}
+		(*root)[index]->g_plus_h = node.g_plus_h;
+
+		if((*root)[(index-1)/2]->g_plus_h < (*root)[index]->g_plus_h)
+			percolateDown(index);
+		else
+			percolateUp(index);
+	}
 
 	// for(vector<AstarNode*>::iterator iter = root->begin(); iter != root->end(); ++iter)
 	// 	cout<<(*iter)->g_plus_h<<", ";
