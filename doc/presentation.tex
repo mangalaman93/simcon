@@ -797,8 +797,8 @@ function Dijkstra(Graph, source):\\
 \begin{frame}{A* Search}
 \begin{itemize}
 \item $f(x) = g(x) + h(x)$, relax the node having minimum value of f (total cost)
-\item \textbf{Admissible Heuristic:} $h(x) \leq d(x,y) + h(y) = h^*(n)$, i.e. does not overestimate of the total cost
-\item Algorithm terminates when the goal node is about to be processed
+\item \textbf{Admissible Heuristic:} $h(x) \leq d(x,y) + h(y) = h^*(n)$, i.e. does not overestimate the total cost
+\item Algorithm terminates when found path has, actual cost lower than the estimated cost of any path through any open node
 \item Guaranteed to find optimal path because of admissibility, better than brute force (or Dynamic Programming)
 \end{itemize}
 \end{frame}
@@ -903,7 +903,7 @@ function A*(start,goal) \\
 \node[state] (A) [fill=red!50] {A, 14};
 \node[state] () [draw=none, fill=none,above of=A,xshift=0,yshift=-3.1cm] {14};
 \node[state] (B) [fill=red!50, above right of=A] {B, 10};
-\node[state] () [draw=none, fill=none,above of=B,xshift=0,yshift=-3.1cm] {13,A};
+\node[state] () [draw=none, fill=none,above of=B,xshift=0,yshift=-3.1cm] {14,A};
 \node[state] (C) [fill=red!50, below right of=A] {C, 13};
 \node[state] () [draw=none, fill=none,below of=C,xshift=0,yshift=+3.1cm] {15,A};
 \node[state] (D) [fill=red!50, right of=B] {D, 5};
@@ -1044,10 +1044,10 @@ function A*(start,goal) \\
 \begin{frame}{Heuristic Search}
 \begin{itemize}
 \item Search based on only h value
-\item h is not necessarily a measure of total cost
 \item h represents feasibility of state and hence likelihood of h being in the optimal path
-\item key in the Priority Queue is g value (not f or h value)
-\item Algorithm terminates when the goal node is about to be processed
+\item key in the Priority Queue is h value
+\item \textbf{Admissible Heuristic}: h value never over estimates g value
+\item Terminates when found path has, actual cost (g value) lower than the estimated cost (h value) of any path through any open node
 \item Pseudocode- same as $A^*$
 \end{itemize}
 \end{frame}
@@ -1240,6 +1240,42 @@ function A*(start,goal) \\
 \node[state] (F) [fill=red!50, below right of=D] {F, 0};
 \node[state] () [draw=none, fill=none,below of=F,xshift=0,yshift=+3.1cm] {14,F};
 
+\path (A) edge [thick] node {4} (B)
+          edge [thick] node {2} (C)
+      (B) edge [thick] node {3} (C)
+          edge [thick] node {5} (D)
+      (C) edge [thick] node {8} (D)
+          edge [thick] node {10} (E)
+      (D) edge [thick] node {2} (E)
+          edge [thick] node {6} (F)
+      (E) edge [thick] node {3} (F);
+\end{tikzpicture}
+\end{figure}
+\end{center}
+\begin{itemize}
+\item OL: \{C\}
+\item CL: \{A,B,D,E,F\}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Heuristic Search}
+\begin{center}
+\begin{figure}[h]
+\begin{tikzpicture}[scale=0.8, transform shape, shorten >=1pt, node distance=4cm,auto]
+\tikzstyle{every state}=[>=stealth', draw=none, very thick, fill=blue!40]
+\node[state] (A) [fill=red!50] {A, 14};
+\node[state] () [draw=none, fill=none,above of=A,xshift=0,yshift=-3.1cm] {0};
+\node[state] (B) [fill=red!50, above right of=A] {B, 14};
+\node[state] () [draw=none, fill=none,above of=B,xshift=0,yshift=-3.1cm] {4,A};
+\node[state] (C) [fill=red!50, below right of=A] {C, 20};
+\node[state] () [draw=none, fill=none,below of=C,xshift=0,yshift=+3.1cm] {2,A};
+\node[state] (D) [fill=red!50, right of=B] {D, 14};
+\node[state] () [draw=none, fill=none,above of=D,xshift=0,yshift=-3.1cm] {9,B};
+\node[state] (E) [fill=red!50, right of=C] {E, 14};
+\node[state] () [draw=none, fill=none,below of=E,xshift=0,yshift=+3.1cm] {11,D};
+\node[state] (F) [fill=red!50, below right of=D] {F, 0};
+\node[state] () [draw=none, fill=none,below of=F,xshift=0,yshift=+3.1cm] {14,F};
+
 \path (A) edge [thick] node {2} (C)
       (B) edge [thick] node {3} (C)
       (C) edge [thick] node {8} (D)
@@ -1286,29 +1322,28 @@ Backward Induction > Dijkstra's Algorithm > A* search
 \end{itemize}
 \end{frame}
 
-\begin{frame}{Progress on Code Front}
+\section{Experimental Evaluation}
+\begin{frame}{Time Comparison}
 \begin{itemize}
-\item Dijkstra's, A* \& Heuristic search implemented
-\item Correctness of the algorithm verified by comparing the output with Dynamic Programming algorithm (Backward Induction)
-\item Time taken by Dijkstra's Algorithm is high compared to Dynamic Programming algorithm because of inefficient implementation
+\item 
 \end{itemize}
 \end{frame}
 
-\begin{frame}{Plan for Next Week}
+\section{Future Work}
+\begin{frame}{Future Work}
 \begin{itemize}
-\item Optimization of the algorithm (avoid duplicate entry in the priority queue)
-\item Reduction in time of step 1 (Some initial algorithm)
-\item A* heuristics
-\item All pairs algorithm
+\item Fibonacci Heap implementation
+\item Reduction in time of step 1
+\item A* heuristics and all pairs algorithm
 \end{itemize}
 \end{frame}
 
-\section{References}
 \multipleframe
 \begin{frame}[allowframebreaks]
 \frametitle{References}
 \nocite{coursera}
 \nocite{cormen}
+\nocite{ieee_mdp}
 \bibliographystyle{abbrv}
 \bibliography{ref}
 \end{frame}
