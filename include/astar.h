@@ -11,13 +11,59 @@ Implementation of A* (Dijkstra's also)
 #include <pthread.h>
 #include <queue>
 #include <limits>
+#include <set>
 #include "algo.h"
 #include "simdata.h"
 #include "config.h"
 #include "stateIterator.h"
 #include "policy.h"
-#include "astarnodeheap.h"
 using namespace std;
+
+class AstarNode
+{
+  public:
+    int phase_number;
+    int state_index;
+    float g_plus_h;
+
+    AstarNode(int pn, int sn, float gph)
+    : phase_number(pn), state_index(sn), g_plus_h(gph) {}
+
+    AstarNode(const AstarNode& an)
+    {
+    	phase_number = an.phase_number;
+    	state_index = an.state_index;
+    	g_plus_h = an.g_plus_h;
+    }
+
+    bool operator<(const AstarNode& rhs) const
+    {
+    	if(this->g_plus_h < rhs.g_plus_h)
+    		return true;
+    	else if(this->g_plus_h > rhs.g_plus_h)
+    		return false;
+    	else if((this->state_index == rhs.state_index) && (this->phase_number == rhs.phase_number))
+    		return false;
+    	else if(this->state_index < rhs.state_index)
+    		return true;
+    	else if(this->state_index > rhs.state_index)
+    		return false;
+    	else if(this->phase_number < rhs.phase_number)
+    		return true;
+    	else
+    		return false;
+    }
+
+    bool operator==(const AstarNode& rhs) const
+    {
+    	if((this->g_plus_h == rhs.g_plus_h) &&
+    	   (this->state_index == rhs.state_index) &&
+    	   (this->phase_number == rhs.phase_number))
+    		return true;
+    	else
+    		return false;
+    }
+};
 
 class Astar : public Policy
 {
