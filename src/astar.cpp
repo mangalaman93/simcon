@@ -264,17 +264,33 @@ void Astar::run(int phases)
         // A* search
         set<AstarNode> open_list;
         Matrix<float> g_value(num_phases+1, num_states);
+        Matrix<float> h_value(num_phases+1, num_states);
+        Matrix<float> gph_value(num_phases+1, num_states);
 
         // initialising
         for(int i=0; i<num_phases+1; i++)
         {
             for(int j=0; j<num_states; j++)
+            {
                 g_value(i, j) = numeric_limits<float>::max();
+                gph_value(i, j) = numeric_limits<float>::max();
+            }
         }
+
+        // calculate h values
+        // Dijkstra's algorithm
+        for(int i=0; i<num_phases+1; i++)
+        {
+            for(int j=0; j<num_states; j++)
+            {
+                h_value(i, j) = 0;
+            }
+         }
 
         // adding phase 0 node
         g_value(0, start_state) = 0;
-        AstarNode to_relax(0, start_state, 0);
+        gph_value(0, start_state) = h_value(0, start_state);
+        AstarNode to_relax(0, start_state, gph_value(0, start_state));
         open_list.insert(to_relax);
 
         // assuming admissible heuristics only
@@ -291,38 +307,44 @@ void Astar::run(int phases)
             }
 
             open_list.erase(open_list.begin());
-            // if(to_relax.g_plus_h != g_value(to_relax.phase_number, to_relax.state_index))
-            // {
-            //     cout<<"error occured in file "<<__FILE__<<"at line "<<__LINE__<<"!"<<endl;
-            //     exit(-1);
-            // }
+            if(to_relax.g_plus_h != gph_value(to_relax.phase_number, to_relax.state_index))
+            {
+                cout<<"error occured in file "<<__FILE__<<" at line "<<__LINE__<<"!"<<endl;
+                exit(-1);
+            }
 
             int new_phase_number = to_relax.phase_number + 1;
             if(new_phase_number == num_phases)
             {
-                float new_g_value = g_value(to_relax.phase_number, to_relax.state_index) +
-                                    trans_table(to_relax.phase_number, to_relax.state_index, start_state);
+                float new_gph_value = g_value(to_relax.phase_number, to_relax.state_index) +
+                                      trans_table(to_relax.phase_number, to_relax.state_index, start_state) +
+                                      h_value(num_phases, start_state);
 
-                if(new_g_value < g_value(num_phases, start_state))
+                if(new_gph_value < gph_value(num_phases, start_state))
                 {
-                    open_list.erase(AstarNode(num_phases, start_state, g_value(num_phases, start_state)));
-                    g_value(num_phases, start_state) = new_g_value;
+                    open_list.erase(AstarNode(num_phases, start_state, gph_value(num_phases, start_state)));
+                    gph_value(num_phases, start_state) = new_gph_value;
+                    g_value(num_phases, start_state) = g_value(to_relax.phase_number, to_relax.state_index) +
+                                                       trans_table(to_relax.phase_number, to_relax.state_index, start_state);
                     (*temp_path)(num_phases, start_state) = to_relax.state_index;
-                    open_list.insert(AstarNode(num_phases, start_state, new_g_value));
+                    open_list.insert(AstarNode(num_phases, start_state, new_gph_value));
                 }
             } else
             {
                 // relax node (first add all the adjacent nodes to open list, excluding which are already closed & having higher g value)
                 for(sitr.begin(); sitr.end(); ++sitr)
                 {
-                    float new_g_value = g_value(to_relax.phase_number, to_relax.state_index) +
-                                        trans_table(to_relax.phase_number, to_relax.state_index, (int)sitr);
-                    if(new_g_value < g_value(new_phase_number, (int)sitr))
+                    float new_gph_value = g_value(to_relax.phase_number, to_relax.state_index) +
+                                          trans_table(to_relax.phase_number, to_relax.state_index, (int)sitr) +
+                                          h_value(new_phase_number, (int)sitr);
+                    if(new_gph_value < gph_value(new_phase_number, (int)sitr))
                     {
-                        open_list.erase(AstarNode(new_phase_number, (int)sitr, g_value(new_phase_number, (int)sitr)));
-                        g_value(new_phase_number, (int)sitr) = new_g_value;
+                        open_list.erase(AstarNode(new_phase_number, (int)sitr, gph_value(new_phase_number, (int)sitr)));
+                        gph_value(new_phase_number, (int)sitr) = new_gph_value;
+                        g_value(new_phase_number, (int)sitr) = g_value(to_relax.phase_number, to_relax.state_index) +
+                                                               trans_table(to_relax.phase_number, to_relax.state_index, (int)sitr);
                         (*temp_path)(new_phase_number, (int)sitr) = to_relax.state_index;
-                        open_list.insert(AstarNode(new_phase_number, (int)sitr, new_g_value));
+                        open_list.insert(AstarNode(new_phase_number, (int)sitr, new_gph_value));
                     }
                 }
             }
