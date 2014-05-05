@@ -42,23 +42,11 @@ class AstarNode
     		return true;
     	else if(this->g_plus_h > rhs.g_plus_h)
     		return false;
-    	else if((this->state_index == rhs.state_index) && (this->phase_number == rhs.phase_number))
-    		return false;
     	else if(this->state_index < rhs.state_index)
     		return true;
     	else if(this->state_index > rhs.state_index)
     		return false;
     	else if(this->phase_number < rhs.phase_number)
-    		return true;
-    	else
-    		return false;
-    }
-
-    bool operator==(const AstarNode& rhs) const
-    {
-    	if((this->g_plus_h == rhs.g_plus_h) &&
-    	   (this->state_index == rhs.state_index) &&
-    	   (this->phase_number == rhs.phase_number))
     		return true;
     	else
     		return false;

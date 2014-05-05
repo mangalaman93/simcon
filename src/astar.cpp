@@ -256,6 +256,7 @@ void Astar::run(int phases)
 
     float min_cost = numeric_limits<float>::max();
     int best_start_state = -1;
+    int total_relaxed_nodes = 0;
     Matrix<int> *best_path = new Matrix<int>(num_phases+1, num_states);
     Matrix<int> *temp_path = new Matrix<int>(num_phases+1, num_states);
     for(int start_state=0; start_state<num_states; start_state++)
@@ -263,16 +264,12 @@ void Astar::run(int phases)
         // A* search
         set<AstarNode> open_list;
         Matrix<float> g_value(num_phases+1, num_states);
-        Matrix<bool> closed(num_phases+1, num_states);
 
         // initialising
         for(int i=0; i<num_phases+1; i++)
         {
             for(int j=0; j<num_states; j++)
-            {
-                closed(i, j) = false;
                 g_value(i, j) = numeric_limits<float>::max();
-            }
         }
 
         // adding phase 0 node
@@ -280,29 +277,25 @@ void Astar::run(int phases)
         AstarNode to_relax(0, start_state, 0);
         open_list.insert(to_relax);
 
-        while(to_relax.phase_number != num_phases)
+        // assuming admissible heuristics only
+        // while(to_relax.phase_number != num_phases)
+        while((to_relax.g_plus_h > g_value(num_phases, start_state)) || to_relax.phase_number != num_phases)
         {
+            total_relaxed_nodes++;
+
             if(DEBUG)
             {
                 for(set<AstarNode>::iterator it=open_list.begin(); it!=open_list.end(); ++it)
                     cout<<it->phase_number<<","<<it->state_index<<"->"<<it->g_plus_h<<endl;
-
-                for(int i=0; i<num_phases+1; i++)
-                {
-                    for(int j=0; j<num_states; j++)
-                        cout<<closed(i, j)<<",";
-                    cout<<endl;
-                }
                 cout<<endl;
             }
 
             open_list.erase(open_list.begin());
-            if((to_relax.g_plus_h != g_value(to_relax.phase_number, to_relax.state_index))
-             || closed(to_relax.phase_number, to_relax.state_index))
-            {
-                to_relax = *(open_list.begin());
-                continue;
-            }
+            // if(to_relax.g_plus_h != g_value(to_relax.phase_number, to_relax.state_index))
+            // {
+            //     cout<<"error occured in file "<<__FILE__<<"at line "<<__LINE__<<"!"<<endl;
+            //     exit(-1);
+            // }
 
             int new_phase_number = to_relax.phase_number + 1;
             if(new_phase_number == num_phases)
@@ -312,13 +305,10 @@ void Astar::run(int phases)
 
                 if(new_g_value < g_value(num_phases, start_state))
                 {
-                    g_value(num_phases, start_state) = g_value(to_relax.phase_number, to_relax.state_index) +
-                                                       trans_table(to_relax.phase_number, to_relax.state_index, start_state);
+                    open_list.erase(AstarNode(num_phases, start_state, g_value(num_phases, start_state)));
+                    g_value(num_phases, start_state) = new_g_value;
                     (*temp_path)(num_phases, start_state) = to_relax.state_index;
-                    open_list.erase(AstarNode(num_phases, start_state, new_g_value));
                     open_list.insert(AstarNode(num_phases, start_state, new_g_value));
-
-                    closed(num_phases, start_state) = false;
                 }
             } else
             {
@@ -329,16 +319,14 @@ void Astar::run(int phases)
                                         trans_table(to_relax.phase_number, to_relax.state_index, (int)sitr);
                     if(new_g_value < g_value(new_phase_number, (int)sitr))
                     {
+                        open_list.erase(AstarNode(new_phase_number, (int)sitr, g_value(new_phase_number, (int)sitr)));
                         g_value(new_phase_number, (int)sitr) = new_g_value;
                         (*temp_path)(new_phase_number, (int)sitr) = to_relax.state_index;
-                        open_list.erase(AstarNode(new_phase_number, (int)sitr, new_g_value));
                         open_list.insert(AstarNode(new_phase_number, (int)sitr, new_g_value));
-                        closed(new_phase_number, (int)sitr) = false;
                     }
                 }
             }
 
-            closed(to_relax.phase_number, to_relax.state_index) = true;
             to_relax = *(open_list.begin());
         }
 
@@ -398,6 +386,7 @@ void Astar::run(int phases)
         final_policy.push_front(back_pointer);
     }
     cout<<endl<<"max profit cycle found ..."<<endl;
+    cout<<"Total Relaxed Nodes: "<<total_relaxed_nodes<<endl;
 
     ofstream profilt_file("results/astar_cum_profits.txt");
     ofstream util_file("results/astar_util.txt");
