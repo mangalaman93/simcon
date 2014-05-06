@@ -289,26 +289,33 @@ void Astar::run(int phases)
         if(astar_flag)
          {
             // min value algorithm
+            float min_hcost = trans_table(num_phases-1, 0, start_state);
             for(sitr.begin(); sitr.end(); ++sitr)
-                h_value(num_phases-1, (int)sitr) = trans_table(num_phases-1, (int)sitr, start_state);
+            {
+                float temp_hcost = trans_table(num_phases-1, (int)sitr, start_state) + h_value(num_phases, start_state);
+                if(min_hcost > temp_hcost)
+                    min_hcost = temp_hcost;
+            }
+            for(sitr.begin(); sitr.end(); ++sitr)
+                h_value(num_phases-1, (int)sitr) = min_hcost;
 
             for(int p=num_phases-2; p>0; p--)
             {
+                float min_hcost = trans_table(p, 0, 0) + h_value(p+1, 0);
                 for(sitr.begin(); sitr.end(); ++sitr)
                 {
-                    float min_hcost = trans_table(p, (int)sitr, 0) + h_value(p+1, 0);
                     for(sitr2.begin(); sitr2.end(); ++sitr2)
                     {
                         float temp_hcost = trans_table(p, (int)sitr, (int)sitr2) + h_value(p+1, (int)sitr2);
                         if(min_hcost > temp_hcost)
                             min_hcost = temp_hcost;
                     }
-
-                    h_value(p, (int)sitr) = min_hcost;
                 }
+                for(sitr.begin(); sitr.end(); ++sitr)
+                    h_value(p, (int)sitr) = min_hcost;
             }
 
-            float min_hcost = trans_table(0, start_state, 0) + h_value(1, 0);
+            min_hcost = trans_table(0, start_state, 0) + h_value(1, 0);
             for(sitr2.begin(); sitr2.end(); ++sitr2)
             {
                 float temp_hcost = trans_table(0, start_state, (int)sitr2) + h_value(1, (int)sitr2);

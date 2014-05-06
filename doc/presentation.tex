@@ -1323,11 +1323,139 @@ Backward Induction > Dijkstra's Algorithm > A* search
 \end{frame}
 
 \section{Experimental Evaluation}
-\begin{frame}{Time Comparison}
+\begin{frame}{Heuristic for A*}
+\begin{center}
+\begin{figure}[h]
+\begin{tikzpicture}[scale=0.6, transform shape, shorten >=1pt, node distance=2cm,auto]
+\tikzstyle{every state}=[>=stealth', draw=blue!50, very thick, fill=blue!20]
+\node[state] (s11)                {$s_{1,1}$};
+\node[state] (s12) [right of=s11] {$s_{1,2}$};
+\node[state] (s22) [below of=s12] {$s_{2,2}$};
+\node[state] (s32) [below of=s22] {$s_{3,2}$};
+\node[state] (s13) [right of=s12] {$s_{1,3}$};
+\node[state] (s23) [below of=s13] {$s_{2,3}$};
+\node[state] (s33) [below of=s23] {$s_{3,3}$};
+\node[state] (s14) [right of=s13] {$s_{1,4}$};
+\node[state] (s24) [below of=s14] {$s_{2,4}$};
+\node[state] (s34) [below of=s24] {$s_{3,4}$};
+
+\tikzstyle{every state}=[>=stealth', draw=none, very thick, node distance=1cm]
+\node[state] (sd2) [below of=s32] {$\vdots$};
+\node[state] (sd3) [below of=s33] {$\vdots$};
+\node[state] (sd4) [below of=s34] {$\vdots$};
+
+\node[state] (s1d) [right of=s14] {$\cdots$};
+\node[state] (s2d) [right of=s24] {$\cdots$};
+\node[state] (s3d) [right of=s34] {$\cdots$};
+\node[state] (sdd) [right of=sd4] {$\ddots$};
+\node[state] (sdn) [below of=sdd] {$\cdots$};
+
+\node[state] (snd) [right of=sdd] {$\vdots$};
+
+\tikzstyle{every state}=[>=stealth', draw=blue!50, very thick, fill=blue!20, node distance=1cm, auto]
+\node[state] (sn2) [below of=sd2] {$s_{B,2}$};
+\node[state] (sn3) [below of=sd3] {$s_{B,3}$};
+\node[state] (sn4) [below of=sd4] {$s_{B,4}$};
+
+\node[state] (s1n) [right of=s1d] {$s_{1,N_p}$};
+\node[state] (s2n) [right of=s2d] {$s_{2,N_p}$};
+\node[state] (s3n) [right of=s3d] {$s_{3,N_p}$};
+\node[state] (snn) [right of=sdn] {$s_{B,N_p}$};
+
+\tikzstyle{every state}=[>=stealth', draw=blue!50, very thick, fill=blue!20, node distance=2cm, auto]
+\node[state] (s11') [right of=s1n] {$s_{1,1}$};
+
+\foreach \x in {s12, s22, s32, sn2}
+{\path[->] (s11) edge node {} (\x);}
+\foreach \x in {s12, s22, s32, sn2}
+{\path[->] (\x) edge node {} (s13)
+                edge node {} (s23)
+                edge node {} (s33)
+                edge node {} (sn3);}
+\foreach \x in {s13, s23, s33, sn3}
+{\path[->] (\x) edge node {} (s14)
+                edge node {} (s24)
+                edge node {} (s34)
+                edge node {} (sn4);}
+\foreach \x in {s1n, s2n, s3n, snn}
+{\path[->] (\x) edge node {} (s11');}
+\end{tikzpicture}
+\end{figure}
+\end{center}
 \begin{itemize}
-\item 
+\item $h\left(S_{(n, p)}\right) = \displaystyle\min _{X=S_{1,p+1} \ \cdots \ S_{B,p+1}} \left(trans(S_{(n,p)}, X) + h(X)\right)$
+\item Used \textit{C++ set} to implement priority queue to avoid duplicate keys
 \end{itemize}
 \end{frame}
+
+\multipleframe
+\begin{frame}[allowframebreaks]
+\frametitle{Experimental Evaluation}
+\begin{itemize}
+\item \textbf{Test 1:} 5 VMs, 24 phases (random workload)
+\begin{center}
+\begin{table}[h]
+\begin{tabular}{|c|c|c|c|}
+\hline 
+- & Backward Induction & Dijkstra's & A* \\ 
+\hline 
+Time Taken & 1234329 & 2772473 & 11471433 \\ 
+\hline 
+Relaxed Nodes & - & 60274 & 35712 \\ 
+\hline 
+\end{tabular} 
+\end{table}
+\end{center}
+\item \# (relaxed nodes) decreases by a factor of 2
+\item \textbf{Test 2:} 6 VMs, 12 phases (random workload)
+\begin{center}
+\begin{table}[h]
+\begin{tabular}{|c|c|c|c|}
+\hline 
+- & Backward Induction & Dijkstra's & A* \\ 
+\hline 
+Time Taken & 53138243 & 56272730 & 56558261 \\ 
+\hline 
+Relaxed Nodes & - & 435692 & 172501 \\ 
+\hline 
+\end{tabular} 
+\end{table}
+\end{center}
+\item \# (relaxed nodes) decreases by a factor of 3
+\newpage
+\item \textbf{Test 3:} 5 VMs, 24 phases (random workload, backward induction)
+\begin{center}
+\begin{table}[h]
+\begin{tabular}{|c|c|c|c|}
+\hline 
+- & Backward Induction & Dijkstra's & A* \\ 
+\hline 
+Time Taken & 1270033 & 10886275 & 11674272 \\ 
+\hline 
+Relaxed Nodes & - & 60143 & 1249 \\ 
+\hline 
+\end{tabular} 
+\end{table}
+\end{center}
+\item \# (relaxed nodes) decreases significantly (by a factor of 50)
+\item \textbf{Test 4:} 6 VMs, 12 phases (random workload, backward induction)
+\begin{center}
+\begin{table}[h]
+\begin{tabular}{|c|c|c|c|}
+\hline 
+- & Backward Induction & Dijkstra's & A* \\ 
+\hline 
+Time Taken & 53375982 & 54879534 & 54181331 \\ 
+\hline 
+Relaxed Nodes & - & 432150 & 2436 \\ 
+\hline 
+\end{tabular} 
+\end{table}
+\end{center}
+\item \# (relaxed nodes) decreases by a factor of 150
+\end{itemize}
+\end{frame}
+\restoreframe
 
 \section{Future Work}
 \begin{frame}{Future Work}
