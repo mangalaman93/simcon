@@ -294,23 +294,24 @@ void Astar::run(int phases)
 
             for(int p=num_phases-2; p>0; p--)
             {
-                float min_cost = trans_table(p, 0, 0);
                 for(sitr.begin(); sitr.end(); ++sitr)
                 {
+                    float min_hcost = trans_table(p, (int)sitr, 0) + h_value(p+1, 0);
                     for(sitr2.begin(); sitr2.end(); ++sitr2)
                     {
-                        if(min_cost > trans_table(p, (int)sitr, (int)sitr2))
-                            min_cost = trans_table(p, (int)sitr, (int)sitr2);
+                        float temp_hcost = trans_table(p, (int)sitr, (int)sitr2) + h_value(p+1, (int)sitr2);
+                        if(min_hcost > temp_hcost)
+                            min_hcost = temp_hcost;
                     }
 
-                    h_value(p, (int)sitr) = min_cost + h_value(p+1, (int)sitr);
+                    h_value(p, (int)sitr) = min_hcost;
                 }
             }
 
-            float min_hcost = trans_table(0, start_state, 0) + h_value(0, 0);
+            float min_hcost = trans_table(0, start_state, 0) + h_value(1, 0);
             for(sitr2.begin(); sitr2.end(); ++sitr2)
             {
-                float temp_hcost = trans_table(0, start_state, (int)sitr2) + h_value(0, (int)sitr2);
+                float temp_hcost = trans_table(0, start_state, (int)sitr2) + h_value(1, (int)sitr2);
                 if(min_hcost > temp_hcost)
                     min_hcost = temp_hcost;
             }
