@@ -25,8 +25,17 @@ int main()
     cout<<"Time Taken: "<<(t_end.tv_sec-t_begin.tv_sec)*1000000 + t_end.tv_usec-t_begin.tv_usec<<endl;
 
     gettimeofday(&t_begin, NULL);
+    cout<<"############## dijkstra ##############"<<endl;
+    Astar dijkstra(sdata, "dijkstra", false);
+    dijkstra.run(num_phases);
+    dijkstra.printPolicy();
+    dijkstra.dumpPolicy();
+    gettimeofday(&t_end, NULL);
+    cout<<"Time Taken: "<<(t_end.tv_sec-t_begin.tv_sec)*1000000 + t_end.tv_usec-t_begin.tv_usec<<endl;
+
+    gettimeofday(&t_begin, NULL);
     cout<<"############## astar ##############"<<endl;
-    Astar astar(sdata);
+    Astar astar(sdata, "astar", true);
     astar.run(num_phases);
     astar.printPolicy();
     astar.dumpPolicy();

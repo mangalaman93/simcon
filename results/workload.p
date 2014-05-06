@@ -26,3 +26,8 @@ set output "workload_astar.pdf"
 set title "workload of PMs during each phase in astar"
 #set term x1
 plot for [i=2:columns] "astar_util.txt" using 1:i title "PM".(i-1) with steps
+
+set output "workload_dijkstra.pdf"
+set title "workload of PMs during each phase in dijkstra"
+#set term x1
+plot for [i=2:columns] "dijkstra_util.txt" using 1:i title "PM".(i-1) with steps

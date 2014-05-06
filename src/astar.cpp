@@ -1,8 +1,10 @@
 #include "astar.h"
 
-Astar::Astar(SimData *s_data) : Policy(s_data)
+Astar::Astar(SimData *s_data, string a, bool flag) : Policy(s_data)
 {
     num_states = Bell::get(num_vms);
+    astar_flag = flag;
+    algo = a;
 }
 
 // factorial calculation
@@ -277,15 +279,55 @@ void Astar::run(int phases)
             }
         }
 
+        // --------------------------- begin implementing heuristic --------------------------------------------
         // calculate h values
-        // Dijkstra's algorithm
+        // Dijkstra's algorithm && initialisation
         for(int i=0; i<num_phases+1; i++)
-        {
             for(int j=0; j<num_states; j++)
-            {
                 h_value(i, j) = 0;
+
+        if(astar_flag)
+         {
+            // min value algorithm
+            for(sitr.begin(); sitr.end(); ++sitr)
+                h_value(num_phases-1, (int)sitr) = trans_table(num_phases-1, (int)sitr, start_state);
+
+            for(int p=num_phases-2; p>0; p--)
+            {
+                float min_cost = trans_table(p, 0, 0);
+                for(sitr.begin(); sitr.end(); ++sitr)
+                {
+                    for(sitr2.begin(); sitr2.end(); ++sitr2)
+                    {
+                        if(min_cost > trans_table(p, (int)sitr, (int)sitr2))
+                            min_cost = trans_table(p, (int)sitr, (int)sitr2);
+                    }
+
+                    h_value(p, (int)sitr) = min_cost + h_value(p+1, (int)sitr);
+                }
             }
-         }
+
+            float min_hcost = trans_table(0, start_state, 0) + h_value(0, 0);
+            for(sitr2.begin(); sitr2.end(); ++sitr2)
+            {
+                float temp_hcost = trans_table(0, start_state, (int)sitr2) + h_value(0, (int)sitr2);
+                if(min_hcost > temp_hcost)
+                    min_hcost = temp_hcost;
+            }
+            h_value(0, start_state) = min_hcost;
+        }
+
+        if(DEBUG)
+        {
+            for(int i=0; i<num_phases+1; i++)
+            {
+                for(int j=0; j<num_states; j++)
+                    cout<<h_value(i, j)<<',';
+                cout<<endl;
+            }
+            cout<<endl;
+        }
+        // --------------------------- done with heuristic --------------------------------------------
 
         // adding phase 0 node
         g_value(0, start_state) = 0;
@@ -410,8 +452,8 @@ void Astar::run(int phases)
     cout<<endl<<"max profit cycle found ..."<<endl;
     cout<<"Total Relaxed Nodes: "<<total_relaxed_nodes<<endl;
 
-    ofstream profilt_file("results/astar_cum_profits.txt");
-    ofstream util_file("results/astar_util.txt");
+    ofstream profilt_file(string("results/"+algo+"_cum_profits.txt").c_str());
+    ofstream util_file(string("results/"+algo+"_util.txt").c_str());
     if(!(profilt_file.is_open() && util_file.is_open()))
     {
         cout<<"cannot open files, exiting!"<<endl;
@@ -523,5 +565,5 @@ void Astar::getMigrationList(int phase_number, vector<int>* mapping)
 
 void Astar::dumpPolicy()
 {
-    dumpPolicyHelper("astar");
+    dumpPolicyHelper(algo);
 }

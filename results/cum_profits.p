@@ -14,4 +14,5 @@ set terminal pdf linewidth 1 enhanced color font ",7" dashed dl 1.5
 set output "cumProfit.pdf"
 plot    "khanna_cum_profits.txt" using 1:2 title 'profit-khanna' with linespoints , \
 "mdp_cum_profits.txt" using 1:2 title 'profit-mdp' with linespoints , \
-"astar_cum_profits.txt" using 1:2 title 'profit-A*' with linespoints
+"astar_cum_profits.txt" using 1:2 title 'profit-A*' with linespoints , \
+"dijkstra_cum_profits.txt" using 1:2 title 'profit-Dijkstra' with linespoints

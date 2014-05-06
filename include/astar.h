@@ -56,6 +56,8 @@ class AstarNode
 class Astar : public Policy
 {
 	long int num_states;
+  bool astar_flag;
+  string algo;
 	vector< vector<int> > optimal_policy;
 	vector< vector<int> > mig_list;
 
@@ -63,7 +65,7 @@ class Astar : public Policy
 	float getSUV(int phase, int* vm_to_pm_map);
 
   public:
-	Astar(SimData *s_data);
+	Astar(SimData *s_data, string a, bool flag);
 	float compareState(int phase, int* vm_to_pm_map1, int* vm_to_pm_map2, int *best_perm_map);
 	void run(int phases);
 	void getMapping(int phase_number, vector<int>* mapping);
